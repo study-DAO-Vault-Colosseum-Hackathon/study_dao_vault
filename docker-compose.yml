@@ -1,0 +1,23 @@
+#docker compose version 3.8 is used to define and run multi-container Docker applications. It allows you to specify the services, networks, and volumes for your application in a single YAML file.
+version: '3.9'
+
+services:
+  frontend: #service name for frontend application
+    #since current dir of this yaml file is in the root dir which contains /frontend and /backend dirs
+    build: ./frontend #build from ./frontend/Dockerfile 
+    ports:
+      - "5173:5173" #map container port to your pc port
+
+  backend: #service name
+    build: ./backend #build from ./backend/Dockerfile
+    ports:
+      - "3000:3000" #map container port to ur pc port
+
+#we need to run 2 services (frontend and backend) at the same time, so we use docker compose to manage them together
+#its cuz:
+#  1. Frontend loads on http://localhost:5173
+#  2. User uploads a file
+#  3. Frontend sends request to http://localhost:3000/api/resources (backend)
+#  4. Backend saves to Firebase/Supabase
+#  5. Backend responds with confirmation
+#  6. Frontend shows "Upload successful!"
