@@ -12,3 +12,12 @@ dist/
 build/
 .next/
 coverage/
+Dockerfile
+.dockerignore
+docker-compose.yml
+node_modules
+dist
+build
+.dockerignore
+Dockerfile
+docker-compose.yml

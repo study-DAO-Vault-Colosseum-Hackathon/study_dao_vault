@@ -1,0 +1,118 @@
+.login-page {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #1a2940;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo {
+  color: #ffffff;
+  font-size: 2.5rem;
+  font-weight: 700;
+  position: absolute; 
+  top: 0.5rem; 
+  left: 1rem; 
+  padding: 0; 
+  z-index: 10;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.login-card {
+  width: min(90vw, 450px);
+  background: #2d3e50;
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  animation: fadeIn 0.6s ease-in;
+  border: none;
+}
+
+
+.login-card h3 {
+  font-size: 1.25rem;
+  color: #ffffff;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.login-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background-color: #4a6fa5;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.login-btn:hover {
+  background-color: #3d5a85;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+.terms-copy {
+  margin-top: 2rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.terms-copy a {
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.terms-copy a:hover {
+  color: #FDBE34;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .logo {
+    font-size: 2rem;
+    top: 1.5rem;
+    left: 1.5rem;
+  }
+  
+  .login-card {
+    padding: 2.5rem 2rem;
+  }
+  
+  .bus-illustration {
+    max-width: 220px;
+    margin-bottom: 2rem;
+  }
+}
