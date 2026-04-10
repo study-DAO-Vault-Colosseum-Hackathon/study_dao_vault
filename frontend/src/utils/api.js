@@ -9,7 +9,9 @@ const getApiClient = async () => {
     }
 
     const token = await user.getIdToken();
-    const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+    const BASE_URL = import.meta.env.PROD 
+        ? `${import.meta.env.VITE_API_URL}/api` 
+        : "http://localhost:3000/api";
     return {
         get: async (endpoint) => {
             const response = await fetch(`${BASE_URL}${endpoint}`, {
