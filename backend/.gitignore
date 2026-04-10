@@ -5,6 +5,8 @@
 
 # Keep the example file
 !.env.example
+# Ignore production example env file
+.env.production.example
 
 # Dependencies
 node_modules
