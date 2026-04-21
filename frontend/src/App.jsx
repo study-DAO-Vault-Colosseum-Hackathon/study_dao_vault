@@ -40,7 +40,7 @@ function App() {
       background: '#1a2940',
       color: 'white'
     }}>
-      Loading...
+      Loading....
     </div>
   );
 
