@@ -2,8 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
-import Home from "./pages/Home";
+import StudyDAO from "./pages/StudyDAO";
 import Login from "./pages/Login";
+import Navbar from "./components/Navbar";
 import './App.css';
 
 function App() {
@@ -46,10 +47,11 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Navbar user={user} onGoogleSignIn={handleGoogleLogin} onSignOut={handleSignOut} />
       <Routes>
         <Route 
           path="/" 
-          element={user ? <Home user={user} onSignOut={handleSignOut} /> : <Navigate to="/login" />} 
+          element={<StudyDAO user={user} onSignOut={handleSignOut} />} 
         />
 
         <Route 
