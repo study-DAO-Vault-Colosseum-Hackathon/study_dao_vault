@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import StudyDAO from "./pages/StudyDAO";
+import CosmicBook from "./pages/CosmicBook";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import './App.css';
@@ -47,16 +48,21 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navbar user={user} onGoogleSignIn={handleGoogleLogin} onSignOut={handleSignOut} />
+      {user && <Navbar user={user} onGoogleSignIn={handleGoogleLogin} onSignOut={handleSignOut} />}
       <Routes>
         <Route 
           path="/" 
-          element={<StudyDAO user={user} onSignOut={handleSignOut} />} 
+          element={user ? <Navigate to="/cosmic-book" /> : <StudyDAO user={user} onSignOut={handleSignOut} />} 
+        />
+
+        <Route 
+          path="/cosmic-book" 
+          element={user ? <CosmicBook /> : <Navigate to="/" />} 
         />
 
         <Route 
           path="/login" 
-          element={user ? <Navigate to="/" /> : <Login onLogin={handleGoogleLogin} />} 
+          element={user ? <Navigate to="/cosmic-book" /> : <Login onLogin={handleGoogleLogin} />} 
         />
       </Routes>
     </BrowserRouter>
