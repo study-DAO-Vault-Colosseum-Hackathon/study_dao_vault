@@ -37,23 +37,25 @@
 
 .auth-buttons{ display:flex; flex-direction:column; gap:12px; }
 .auth-btn{
+  position: relative;
   display:flex; align-items:center; justify-content:center; gap:12px;
-  background:#fff; border:none; padding:12px 16px; border-radius:999px; cursor:pointer;
-  box-shadow: 0 6px 18px rgba(34,30,30,0.06);
-  font-weight:600; color:#222; font-size:15px;
+  background:#fff; border:none; height:52px; padding:0 18px; border-radius:12px; cursor:pointer;
+  box-shadow: 0 8px 20px rgba(34,30,30,0.06);
+  font-weight:700; color:#222; font-size:16px;
   transform: translateY(18px); opacity:0;
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
 }
 
 .auth-btn .provider-icon{ position:absolute; left:18px; font-size:18px; }
 .auth-btn span{ display:inline-block; width:100%; text-align:center; }
 
-.auth-btn.google{ background:#fff; }
+.auth-btn.google{ background:#6b46c1; color:#fff; }
 .auth-btn.github{ background:#0f172a; color:#fff; }
 .auth-btn.discord{ background:#5865F2; color:#fff; }
 .auth-btn.microsoft{ background: linear-gradient(90deg,#0078D6,#F35022); color:#fff; }
 .auth-btn.apple{ background:#111111; color:#fff; }
 
-.auth-btn:hover{ transform: translateY(0); box-shadow: 0 10px 24px rgba(34,30,30,0.09); }
+.auth-btn:hover{ transform: translateY(-3px); box-shadow: 0 14px 32px rgba(34,30,30,0.12); }
 
 /* staggered entrance for buttons */
 .auth-btn:nth-child(1){ animation: btn-in 420ms 150ms ease forwards; }

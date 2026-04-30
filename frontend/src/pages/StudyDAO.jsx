@@ -1,4 +1,5 @@
 import React from 'react';
+import SocialAuthPanel from '../components/SocialAuthPanel';
 
 const NotesIcon = () => {
   return (
@@ -239,7 +240,21 @@ const NotesIcon = () => {
 };
 
 const StudyDAO = () => {
-  return <NotesIcon />;
+  const handleNoop = () => {};
+
+  return (
+    <div>
+      <NotesIcon />
+      {/* Social auth panel under the Notes icon (non-intrusive) */}
+      <SocialAuthPanel
+        onGoogle={handleNoop}
+        onGithub={handleNoop}
+        onDiscord={handleNoop}
+        onMicrosoft={handleNoop}
+        onApple={handleNoop}
+      />
+    </div>
+  );
 };
 
 export default StudyDAO;
