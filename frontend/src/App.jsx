@@ -4,6 +4,7 @@ import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import QA from "./QA/qa";
 import './App.css';
 
 function App() {
@@ -55,6 +56,10 @@ function App() {
         <Route 
           path="/login" 
           element={user ? <Navigate to="/" /> : <Login onLogin={handleGoogleLogin} />} 
+        />
+        <Route 
+          path="/qa" 
+          element={<QA />} 
         />
       </Routes>
     </BrowserRouter>
