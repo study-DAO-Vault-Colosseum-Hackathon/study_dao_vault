@@ -238,8 +238,4 @@ const NotesIcon = () => {
   );
 };
 
-const StudyDAO = () => {
-  return <NotesIcon />;
-};
-
-export default StudyDAO;
+export default NotesIcon;

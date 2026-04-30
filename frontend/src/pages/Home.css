@@ -44,6 +44,7 @@
   font-weight: 600;
   letter-spacing: 0.5px;
   width: fit-content;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
@@ -222,7 +223,6 @@
 @media (max-width: 768px) {
   .hero-section {
     padding: 30px 16px;
-    min-height: auto;
   }
 
   .hero-heading {
