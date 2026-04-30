@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRe
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
+import Auth from "./pages/Auth";
 import StudyDAO from "./pages/StudyDAO";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
@@ -84,6 +85,11 @@ function App() {
         <Route
           path="/login"
           element={user ? <Navigate to="/study-dao" /> : <Login onLogin={handleGoogleLogin} />}
+        />
+
+        <Route
+          path="/auth"
+          element={user ? <Navigate to="/study-dao" /> : <Auth onGoogleSignIn={handleGoogleLogin} />}
         />
 
         <Route
