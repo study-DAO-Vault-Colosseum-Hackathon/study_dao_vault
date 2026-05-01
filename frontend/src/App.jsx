@@ -3,7 +3,6 @@ import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRe
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
-import Auth from "./pages/Auth";
 import StudyDAO from "./pages/StudyDAO";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
@@ -55,8 +54,14 @@ function App() {
     }
   };
 
-  const handleSignOut = () => {
-    signOut(auth);
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      alert('Sign out failed: ' + error.message);
+    }
   };
 
   if (loading) return (
@@ -89,12 +94,12 @@ function App() {
 
         <Route
           path="/auth"
-          element={user ? <Navigate to="/study-dao" /> : <Auth onGoogleSignIn={handleGoogleLogin} />}
+          element={<Navigate to="/study-dao" replace />}
         />
 
         <Route
           path="/study-dao"
-          element={user ? <StudyDAO /> : <Navigate to="/" />}
+          element={<StudyDAO onGoogleSignIn={handleGoogleLogin} />}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

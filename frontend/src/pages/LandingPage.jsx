@@ -238,6 +238,70 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
 
       {/* Tutor Hero Section */}
       <TutorHeroSection />
+
+      {/* CTA Section */}
+      <section className="cta-section" aria-labelledby="cta-heading">
+        <div className="cta-content">
+          <h2 id="cta-heading" className="cta-headline">Ready to Join Study DAO?</h2>
+          <p className="cta-subtitle">Start learning, collaborating, and earning rewards today</p>
+        </div>
+        <svg className="wave-divider" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M0,40 Q300,20 600,40 T1200,40 L1200,120 L0,120 Z" />
+        </svg>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-grid">
+            {/* Column 1: Brand */}
+            <div className="footer-column">
+              <div className="footer-brand">
+                <div className="footer-brand-mark">DAO</div>
+                <span className="footer-brand-name">Study DAO</span>
+              </div>
+              <p className="footer-tagline">Decentralized Learning for Everyone</p>
+            </div>
+
+            {/* Column 2: Quick Links */}
+            <div className="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#programs">Programs</a></li>
+                <li><a href="#terms">Terms</a></li>
+              </ul>
+            </div>
+
+            {/* Column 3: Connect */}
+            <div className="footer-column">
+              <h3>Connect</h3>
+              <ul>
+                <li><a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                <li><a href="https://discord.com" target="_blank" rel="noopener noreferrer">Discord</a></li>
+                <li><a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                <li><a href="mailto:hello@studydao.com">Email</a></li>
+              </ul>
+            </div>
+
+            {/* Column 4: Legal */}
+            <div className="footer-column">
+              <h3>Legal</h3>
+              <ul>
+                <li><a href="#privacy">Privacy Policy</a></li>
+                <li><a href="#terms">Terms of Service</a></li>
+                <li><a href="#cookies">Cookie Policy</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="footer-bottom">
+            <p>© 2026 Study DAO. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
