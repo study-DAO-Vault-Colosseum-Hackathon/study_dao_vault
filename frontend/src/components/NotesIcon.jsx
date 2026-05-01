@@ -232,7 +232,7 @@ const NotesIcon = () => {
         <text x="340" y="340" className="notes-text">NOTES</text>
 
         {/* Subtitle */}
-        <text x="340" y="375" className="subtitle-text">your thoughts, kept</text>
+        <text x="340" y="375" className="subtitle-text">study smarter, remember longer</text>
       </svg>
     </div>
   );
