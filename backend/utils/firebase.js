@@ -1,5 +1,10 @@
 const admin = require("firebase-admin");
 
+function normalizeBucketName(bucket) {
+  if (!bucket) return undefined;
+  return bucket.replace(/^gs:\/\//, "").replace(/\/+$/, "");
+}
+
 const serviceAccount = {
   type: process.env.FIREBASE_TYPE,
   project_id: process.env.FIREBASE_PROJECT_ID,
@@ -15,10 +20,11 @@ const serviceAccount = {
 };
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: normalizeBucketName(process.env.FIREBASE_STORAGE_BUCKET)
 });
 
 const auth = admin.auth();
 const db = admin.firestore();
 
-module.exports = { auth, db };
+module.exports = { admin, auth, db };
