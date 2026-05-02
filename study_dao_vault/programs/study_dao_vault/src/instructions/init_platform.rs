@@ -7,13 +7,13 @@ pub struct InitPlatform<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + Platform::LEN,
+        space = 8 + Platform::len_with_relayers(10),
         seeds = [PLATFORM_SEED],
         bump
     )]
     pub platform: Account<'info, Platform>,
     #[account(
-        init, 
+        init,
         payer = authority,
         space = 8 + SolReserve::LEN,
         seeds = [SOL_RESERVE_SEED, platform.key().as_ref()],
@@ -36,6 +36,8 @@ pub fn handler(ctx: Context<InitPlatform>) -> Result<()> {
     platform.total_reputation_distributed = 0;
     platform.created_at = now;
     platform.updated_at = now;
+    // Initialize authorized relayers with the authority as the first relayer
+    platform.authorized_relayers = vec![ctx.accounts.authority.key()];
 
     let sol_reserve = &mut ctx.accounts.sol_reserve;
     sol_reserve.platform = platform.key();
