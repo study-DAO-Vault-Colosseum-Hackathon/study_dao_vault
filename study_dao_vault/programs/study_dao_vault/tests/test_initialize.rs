@@ -1,32 +1,14 @@
-
-use {
-    anchor_lang::{solana_program::instruction::Instruction, InstructionData, ToAccountMetas},
-    litesvm::LiteSVM,
-    solana_message::{Message, VersionedMessage},
-    solana_signer::Signer,
-    solana_keypair::Keypair,
-    solana_transaction::versioned::VersionedTransaction,
+use study_dao_vault::{
+    instructions::apply_reputation_action::derive_badge, BadgeTier, TIER_2_MIN, TIER_3_MIN,
+    TIER_4_MIN, TIER_5_MIN,
 };
 
 #[test]
-fn test_initialize() {
-    let program_id = study_dao_vault::id();
-    let payer = Keypair::new();
-    let mut svm = LiteSVM::new();
-    let bytes = include_bytes!("../../../target/deploy/study_dao_vault.so");
-    svm.add_program(program_id, bytes).unwrap();
-    svm.airdrop(&payer.pubkey(), 1_000_000_000).unwrap();
-    
-    let instruction = Instruction::new_with_bytes(
-        program_id,
-        &study_dao_vault::instruction::Initialize {}.data(),
-        study_dao_vault::accounts::Initialize {}.to_account_metas(None),
-    );
-
-    let blockhash = svm.latest_blockhash();
-    let msg = Message::new_with_blockhash(&[instruction], Some(&payer.pubkey()), &blockhash);
-    let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[payer]).unwrap();
-
-    let res = svm.send_transaction(tx);
-    assert!(res.is_ok());
+fn badge_thresholds_match_spec() {
+    assert_eq!(derive_badge(0, false), BadgeTier::Spark);
+    assert_eq!(derive_badge(TIER_2_MIN, false), BadgeTier::Current);
+    assert_eq!(derive_badge(TIER_3_MIN, false), BadgeTier::Core);
+    assert_eq!(derive_badge(TIER_4_MIN, false), BadgeTier::Supernova);
+    assert_eq!(derive_badge(TIER_5_MIN, false), BadgeTier::Supernova);
+    assert_eq!(derive_badge(TIER_5_MIN, true), BadgeTier::Singularity);
 }
