@@ -3,7 +3,7 @@ use anchor_lang::{prelude::*, system_program};
 use crate::{constants::*, error::StudyDaoError, state::*};
 
 #[derive(Accounts)]
-pub struct FundVault<'info>{
+pub struct FundVault<'info> {
     #[account(
         mut,
         seeds = [PLATFORM_SEED],
@@ -22,15 +22,15 @@ pub struct FundVault<'info>{
     pub system_program: Program<'info, System>,
 }
 
-pub fn handler(ctx: Context<FundVault>, amount: u64) -> Result<()>{
+pub fn handler(ctx: Context<FundVault>, amount: u64) -> Result<()> {
     require!(amount > 0, StudyDaoError::InvalidAmount);
-    
+
     let transfer_ctx = CpiContext::new(
         ctx.accounts.system_program.key(),
         system_program::Transfer {
             from: ctx.accounts.authority.to_account_info(),
             to: ctx.accounts.sol_reserve.to_account_info(),
-        }
+        },
     );
     system_program::transfer(transfer_ctx, amount)?;
 
