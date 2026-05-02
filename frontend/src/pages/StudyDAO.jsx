@@ -1,8 +1,10 @@
 import React from 'react';
 import './StudyDAO.css';
+import LandingPage from './LandingPage';
 
 const BRAND_NAME = 'NOTES';
 const TAGLINE = 'your thoughts, kept';
+const Heading='We maintain the highest standards of privacy and security. Your login credentials are used exclusively to create and secure your wallet.'
 
 const providers = [
   {
@@ -70,16 +72,61 @@ const providers = [
 
 export default function StudyDAO({ onGoogleSignIn }) {
   const [showAnimation, setShowAnimation] = React.useState(false);
-  const [animationComplete, setAnimationComplete] = React.useState(false);
+  const [showLoading, setShowLoading] = React.useState(false);
+  const [loadingProgress, setLoadingProgress] = React.useState(0);
+  const [loadingMessageIndex, setLoadingMessageIndex] = React.useState(0);
+  const [showLandingPage, setShowLandingPage] = React.useState(false);
+
+  const loadingMessages = [
+    'Verifying your account…',
+    'Fetching your profile…',
+    'Loading the platform…'
+  ];
 
   const handleStartAnimation = () => {
     setShowAnimation(true);
-    setTimeout(() => setAnimationComplete(true), 5500);
   };
 
   const handleProviderClick = (providerId) => {
+    // Show loading overlay
+    setShowLoading(true);
+    setLoadingProgress(0);
+    setLoadingMessageIndex(0);
+
+    // Simulate progress bar
+    const progressInterval = setInterval(() => {
+      setLoadingProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return prev;
+        }
+        return prev + Math.random() * 30;
+      });
+    }, 200);
+
+    // Rotate messages
+    const messageInterval = setInterval(() => {
+      setLoadingMessageIndex(prev => (prev + 1) % loadingMessages.length);
+    }, 800);
+
+    // After 2.5 seconds, complete the loading and show landing page
+    setTimeout(() => {
+      clearInterval(progressInterval);
+      clearInterval(messageInterval);
+      setLoadingProgress(100);
+      
+      // Brief pause then show landing page
+      setTimeout(() => {
+        setShowLoading(false);
+        setShowLandingPage(true);
+      }, 300);
+    }, 2500);
+
     if (providerId === 'google' && onGoogleSignIn) {
-      onGoogleSignIn();
+      // Trigger the actual sign-in after showing the animation
+      setTimeout(() => {
+        onGoogleSignIn();
+      }, 2800);
     }
   };
 
@@ -113,7 +160,11 @@ export default function StudyDAO({ onGoogleSignIn }) {
   }, [showAnimation]);
 
   return (
-    <main className="notes-premium-page">
+    <>
+      {showLandingPage ? (
+        <LandingPage onGoogleSignIn={onGoogleSignIn} />
+      ) : (
+        <main className="notes-premium-page">
       <style>{`
         * {
           margin: 0;
@@ -729,6 +780,138 @@ export default function StudyDAO({ onGoogleSignIn }) {
             transition-duration: 1ms !important;
           }
         }
+
+        /* ============= LOADING OVERLAY ============= */
+        .loading-overlay {
+          position: fixed;
+          inset: 0;
+          background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0d1424 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          animation: fadeInOverlay 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInOverlay {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .loading-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 32px;
+        }
+
+        /* Spinning Ring */
+        .loading-ring {
+          width: 120px;
+          height: 120px;
+          border: 4px solid rgba(236, 201, 75, 0.2);
+          border-top-color: #ecc94b;
+          border-right-color: #f6ad55;
+          border-bottom-color: rgba(236, 201, 75, 0.1);
+          border-radius: 50%;
+          animation: spinRing 2s linear infinite;
+        }
+
+        @keyframes spinRing {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        /* Loading Title */
+        .loading-title {
+          font-size: 3.5rem;
+          font-weight: 700;
+          letter-spacing: 8px;
+          background: linear-gradient(180deg, #ecc94b 0%, #f6ad55 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          margin: 0;
+          animation: pulseTitleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseTitleGlow {
+          0%, 100% { 
+            filter: drop-shadow(0 0 20px rgba(236, 201, 75, 0.3));
+            text-shadow: 0 0 30px rgba(236, 201, 75, 0.2);
+          }
+          50% { 
+            filter: drop-shadow(0 0 40px rgba(236, 201, 75, 0.6));
+            text-shadow: 0 0 60px rgba(236, 201, 75, 0.4);
+          }
+        }
+
+        /* Loading Message */
+        .loading-message {
+          font-size: 1.1rem;
+          color: rgba(236, 201, 75, 0.9);
+          letter-spacing: 1px;
+          margin: 0;
+          min-height: 28px;
+          animation: fadeInOut 0.8s ease-in-out infinite;
+        }
+
+        @keyframes fadeInOut {
+          0%, 10% { opacity: 0; }
+          20%, 80% { opacity: 1; }
+          90%, 100% { opacity: 0; }
+        }
+
+        /* Progress Bar Container */
+        .progress-bar-container {
+          width: 280px;
+          height: 6px;
+          background: rgba(236, 201, 75, 0.15);
+          border-radius: 3px;
+          overflow: hidden;
+          border: 1px solid rgba(236, 201, 75, 0.3);
+          box-shadow: inset 0 0 20px rgba(236, 201, 75, 0.1);
+        }
+
+        /* Progress Bar Fill */
+        .progress-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #ecc94b 0%, #f6ad55 100%);
+          border-radius: 3px;
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 0 20px rgba(236, 201, 75, 0.6);
+        }
+
+        /* Progress Percentage */
+        .progress-percentage {
+          font-size: 0.95rem;
+          color: rgba(236, 201, 75, 0.7);
+          letter-spacing: 2px;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        @media (max-width: 480px) {
+          .loading-ring {
+            width: 100px;
+            height: 100px;
+            border-width: 3px;
+          }
+
+          .loading-title {
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+          }
+
+          .loading-message {
+            font-size: 1rem;
+          }
+
+          .progress-bar-container {
+            width: 240px;
+          }
+        }
       `}</style>
 
       <div className="auth-stage">
@@ -868,6 +1051,35 @@ export default function StudyDAO({ onGoogleSignIn }) {
           <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.
         </div>
       </div>
+
+      {/* FULL-SCREEN LOADING OVERLAY */}
+      {showLoading && (
+        <div className="loading-overlay">
+          <div className="loading-container">
+            {/* Spinning Ring */}
+            <div className="loading-ring"></div>
+
+            {/* NOTES Title */}
+            <h2 className="loading-title">NOTES</h2>
+
+            {/* Status Message */}
+            <p className="loading-message">{loadingMessages[loadingMessageIndex]}</p>
+
+            {/* Progress Bar */}
+            <div className="progress-bar-container">
+              <div 
+                className="progress-bar-fill" 
+                style={{ width: `${loadingProgress}%` }}
+              ></div>
+            </div>
+
+            {/* Progress Percentage */}
+            <p className="progress-percentage">{Math.round(loadingProgress)}%</p>
+          </div>
+        </div>
+      )}
     </main>
+      )}
+    </>
   );
 }
