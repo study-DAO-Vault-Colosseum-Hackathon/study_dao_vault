@@ -79,8 +79,8 @@ function App() {
   );
 
   return (
-    <BrowserRouter>
-      <Navbar user={user} onSignOut={handleSignOut} />
+    <BrowserRouter future={{ v7_relativeSplatPath: true }}>
+      <Navbar user={user} onSignOut={handleSignOut} onGoogleSignIn={handleGoogleLogin} />
       <Routes>
         <Route
           path="/"

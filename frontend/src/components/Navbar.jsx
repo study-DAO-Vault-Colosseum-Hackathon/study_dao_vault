@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { FaSignOutAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaGoogle } from 'react-icons/fa';
 import './Navbar.css';
 import NotesIcon from './NotesIcon';
 
-const Navbar = ({ user = null, onSignOut }) => {
+const Navbar = ({ user = null, onSignOut, onGoogleSignIn }) => {
   const [activeLink, setActiveLink] = useState('Home');
 
   const links = ['Home', 'Programs', 'Contact Us', 'Help', 'About Us'];
@@ -222,8 +222,15 @@ const Navbar = ({ user = null, onSignOut }) => {
           )}
         </div>
 
-        {/* Right Side - Sign Out Button (only show after signin) */}
+        {/* Right Side - Sign Out Button (show after signin) and Google Sign-In (when not signed in) */}
         <div className="navbar-right">
+          {!user && onGoogleSignIn && (
+            <button className="google-signin-btn" onClick={onGoogleSignIn}>
+              <FaGoogle className="google-icon" />
+              <span>Sign In</span>
+            </button>
+          )}
+
           {user && (
             <button className="logout-btn" onClick={onSignOut}>
               <FaSignOutAlt className="logout-icon" />

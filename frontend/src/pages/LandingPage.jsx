@@ -40,31 +40,10 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
   const filters = ['Notes', 'Starred', 'Download', 'NFTs', 'Badges'];
 
   const nftBadges = [
-    { icon: '🏅', label: 'NFT Level 1' },
+    
     { icon: '⭐', label: 'Excellence Badge' },
     { icon: '🎨', label: 'Featured Work' },
-    { icon: '📥', label: 'Download Badge' },
-  ];
-
-  const actions = [
-    {
-      icon: FaLightbulb,
-      color: '#ec4899',
-      title: 'Join Student Community',
-      description: 'Unlock exclusive study guides, join peer-to-peer discussion groups, and access past year question papers.',
-    },
-    {
-      icon: FaCheckCircle,
-      color: '#10b981',
-      title: 'Complete Academic Profile',
-      description: 'Add your current courses, grade level, and learning interests to get personalized study recommendations.',
-    },
-    {
-      icon: FaFire,
-      color: '#f59e0b',
-      title: 'Start Learning',
-      description: 'Begin your first lesson, take a practice quiz, or watch video lectures to earn your first academic badge.',
-    },
+    
   ];
 
   const qaItems = [
@@ -84,56 +63,88 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
 
   return (
     <div className="study-dao-container">
-      {/* Hero Section - Minimal Clean */}
-      <section className="hero-section-minimal">
-        <div className="hero-content-minimal">
+      {/* Hero Section - Blue Theme with Leaderboard */}
+      <section className="hero-section-original">
+        <div className="hero-background-gradient"></div>
+        <div className="hero-background-shapes">
+          <div className="shape shape-1"></div>
+          <div className="shape shape-2"></div>
+          <div className="shape shape-3"></div>
+        </div>
+
+        <div className="hero-content-grid">
           {/* Left Content */}
-          <div className="hero-left-minimal">
-            <div className="badge-pill-minimal">
-              <span>✦</span> PLATFORM LAUNCH 2026
+          <div className="hero-left-content">
+            <div className="hero-tagline">
+              <span className="tagline-icon">✦</span>
+              Your Learning Revolution Starts Here
             </div>
-            <h1 className="hero-heading-minimal">Dare to Dream, Learn to Achieve.</h1>
-            <p className="hero-subtitle-minimal">
-              Bridging the gap between student ambition and a lifetime of professional success.
+            
+            <h1 className="hero-heading-original">
+              Master in Your Field <br />Build Your Future
+            </h1>
+
+            <p className="hero-description">
+              Every note you take is a credential you earn
             </p>
-            <div className="cta-buttons-minimal">
-              <button className="btn btn-primary-minimal" onClick={() => scrollToSection('actions-section')}>Get Started</button>
-              <button className="btn btn-secondary-minimal">Browse Programs</button>
+
+            <div className="hero-cta-group">
+              <button className="btn-primary-original" onClick={() => scrollToSection('actions-section')}>
+                Start Learning Now
+              </button>
+              <button className="btn-secondary-original">
+                Explore Courses
+              </button>
             </div>
 
-            {/* Trust Badges */}
-            <div className="trust-badges">
-              <div className="trust-badge">
-                <FaCheck className="badge-checkmark" />
-                <span>Verified Instructors</span>
+            {/* Stats */}
+            <div className="hero-stats">
+              <div className="stat-item">
+                <div className="stat-number">10k+</div>
+                <div className="stat-label">Active Learners</div>
               </div>
-              <div className="trust-badge">
-                <FaCheck className="badge-checkmark" />
-                <span>100% Secure</span>
+              <div className="stat-item">
+                <div className="stat-number">500+</div>
+                <div className="stat-label">Verified Courses</div>
               </div>
-              <div className="trust-badge">
-                <FaCheck className="badge-checkmark" />
-                <span>Lifetime Access</span>
+              <div className="stat-item">
+                <div className="stat-number">99%</div>
+                <div className="stat-label">Success Rate</div>
               </div>
             </div>
           </div>
 
-          {/* Right Auth Section */}
-          <div className="hero-right-auth">
-            {user ? (
-              <>
-                <button className="cosmic-btn-large" onClick={handleCosmicBook}>
-                  <FaBook /> Cosmic Book
-                </button>
-                <button className="logout-btn-large" onClick={onSignOut}>
-                  <FaSignOutAlt /> Sign Out
-                </button>
-              </>
-            ) : (
-              <button className="google-signin-btn-large" onClick={handleGoogleSignIn}>
-                <FaGoogle /> Sign In with Google
-              </button>
-            )}
+          {/* Right Side - Leaderboard (Desktop Only) */}
+          <div className="hero-right-leaderboard hero-leaderboard-desktop">
+            <div className="leaderboard-header">
+              <h3 className="leaderboard-title">🏆 Top Contributors</h3>
+              <p className="leaderboard-subtitle">Leading the community</p>
+            </div>
+
+            <div className="leaderboard-items">
+              {leaderboardData.map((entry) => (
+                <div key={entry.rank} className="leaderboard-entry">
+                  <div className="entry-rank">
+                    <span className="rank-badge">{entry.rank}</span>
+                  </div>
+
+                  <div
+                    className="entry-avatar"
+                    style={{ backgroundColor: entry.color }}
+                  >
+                    {entry.initials}
+                  </div>
+
+                  <div className="entry-info">
+                    <h4 className="entry-name">{entry.name}</h4>
+                    <div className="entry-points">
+                      <FaFire className="fire-icon" />
+                      <span>{entry.points}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -155,40 +166,98 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
         </div>
       </section>
 
-      {/* Leaderboard Section */}
-      <section className="leaderboard-section" id="leaderboard-section">
-        <div className="leaderboard-container">
-          <h2 className="leaderboard-heading">Leaderboard</h2>
-          <div className="leaderboard-list">
-            {leaderboardData.map((entry) => (
-              <div key={entry.rank} className="leaderboard-item">
-                <div className="leaderboard-rank">
-                  <span className="rank-number">{entry.rank}</span>
-                </div>
-                <div 
-                  className="leaderboard-avatar"
-                  style={{ backgroundColor: entry.color }}
-                >
-                  {entry.initials}
-                </div>
-                <div className="leaderboard-info">
-                  <h4 className="leaderboard-name">{entry.name}</h4>
-                  <p className="leaderboard-description">Active Member</p>
-                </div>
-                <div className="leaderboard-points">
-                  <FaFire className="fire-icon" />
-                  <span>{entry.points}</span>
-                </div>
+      {/* Registration & Actions Section - Flowchart */}
+      <section className="actions-section" id="actions-section">
+        <div className="section-container">
+          <h2 className="section-heading">Registration & Actions Flow</h2>
+          
+          {/* Flowchart Container */}
+          <div className="flowchart-container">
+            {/* Step 1 */}
+            <div className="flow-step">
+              <div className="step-number">1</div>
+              <div className="step-content">
+                <h3 className="step-title">Visit Study DAO</h3>
+                <p className="step-description">Student visits Study DAO platform</p>
               </div>
-            ))}
+            </div>
+
+            {/* Arrow */}
+            <div className="flow-arrow">→</div>
+
+            {/* Step 2 */}
+            <div className="flow-step">
+              <div className="step-number">2</div>
+              <div className="step-content">
+                <h3 className="step-title">Sign In via Magic.link</h3>
+                <p className="step-description">Google / GitHub / Discord authentication</p>
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="flow-arrow">→</div>
+
+            {/* Step 3 */}
+            <div className="flow-step">
+              <div className="step-number">3</div>
+              <div className="step-content">
+                <h3 className="step-title">Custodial Wallet Created</h3>
+                <p className="step-description">Magic.link manages keypair securely</p>
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="flow-arrow">→</div>
+
+            {/* Step 4 */}
+            <div className="flow-step">
+              <div className="step-number">4</div>
+              <div className="step-content">
+                <h3 className="step-title">Claim Badge</h3>
+                <p className="step-description">Earn your first achievement badge</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* NFTs & Badges Section */}
+      {/* Mobile Leaderboard Section - Before Badges */}
+      <section className="hero-right-leaderboard hero-leaderboard-mobile">
+        <div className="leaderboard-header">
+          <h3 className="leaderboard-title">🏆 Top Contributors</h3>
+          <p className="leaderboard-subtitle">Leading the community</p>
+        </div>
+
+        <div className="leaderboard-items">
+          {leaderboardData.map((entry) => (
+            <div key={entry.rank} className="leaderboard-entry">
+              <div className="entry-rank">
+                <span className="rank-badge">{entry.rank}</span>
+              </div>
+
+              <div
+                className="entry-avatar"
+                style={{ backgroundColor: entry.color }}
+              >
+                {entry.initials}
+              </div>
+
+              <div className="entry-info">
+                <h4 className="entry-name">{entry.name}</h4>
+                <div className="entry-points">
+                  <FaFire className="fire-icon" />
+                  <span>{entry.points}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/*Badges Section */}
       <section className="nft-badges-section" id="nft-badges-section">
         <div className="section-container">
-          <h2 className="section-heading">NFTs & Badges</h2>
+          <h2 className="section-heading">Badges</h2>
           <div className="nft-badges-grid">
             {nftBadges.map((item, index) => (
               <div key={index} className="nft-badge-card">
@@ -196,27 +265,6 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
                 <p className="badge-label">{item.label}</p>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Registration & Actions Section */}
-      <section className="actions-section" id="actions-section">
-        <div className="section-container">
-          <h2 className="section-heading">Registration & Actions</h2>
-          <div className="actions-grid">
-            {actions.map((action, index) => {
-              const IconComponent = action.icon;
-              return (
-                <div key={index} className="action-card">
-                  <div className="action-icon" style={{ color: action.color }}>
-                    <IconComponent size={48} />
-                  </div>
-                  <h3 className="action-title">{action.title}</h3>
-                  <p className="action-description">{action.description}</p>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>

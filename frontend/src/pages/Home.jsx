@@ -78,25 +78,12 @@ function Home({ user, onSignOut }) {
   ];
 
   return (
-    <div className="home-container">
-      {/* Hero Section */}
+    <div className="home-page">
       <section className="hero-section">
-        <div className="hero-content">
-          {/* Left Side */}
+        <div className="hero-container">
           <div className="hero-left">
-            <div className="badge">
-              ✦ PLATFORM LAUNCH 2026
-            </div>
-            <h1 className="hero-heading">
-              Your Creative Hub for Animations & PSA
-            </h1>
-            <p className="hero-subtext">
-              Explore innovative animations, learn from creators, and share your creative projects with a vibrant community.
-            </p>
-            <div className="hero-buttons">
-              <button className="btn-primary">Get Started</button>
-              <button className="btn-secondary">Browse Programs</button>
-            </div>
+            <h1>Welcome, {user?.email}!</h1>
+            <p>Track your study progress and achievements.</p>
           </div>
 
           {/* Right Side - Leaderboard Card */}
@@ -135,7 +122,7 @@ function Home({ user, onSignOut }) {
         </div>
       </section>
 
-      {/* NFTs & Badges Section */}
+      {/*  Badges Section */}
       <section className="nfts-badges-section">
         <div className="nfts-badges-container">
           <h2 className="section-title">NFTs & Badges</h2>
@@ -162,7 +149,7 @@ function Home({ user, onSignOut }) {
       <section className="registration-section">
         <div className="registration-container">
           <h2 className="section-title">Registration & Actions</h2>
-          
+
           {/* Registration Cards */}
           <div className="registration-cards">
             {registrationCards.map((card) => {
@@ -196,24 +183,24 @@ function Home({ user, onSignOut }) {
 
       {/* Original Content Below */}
       <div style={{ maxWidth: '600px', margin: '40px auto' }}>
-        <h1>Welcome, {user?.email}!</h1>
-
         {loading && <p>Loading vault data...</p>}
         {error && <p style={{ color: 'red' }}>Error: {error}</p>}
         {vaultData && (
-          <div style={{
-            border: '1px solid #ccc',
-            padding: '20px',
-            borderRadius: '8px',
-            marginTop: '20px'
-          }}>
+          <div
+            style={{
+              border: '1px solid #ccc',
+              padding: '20px',
+              borderRadius: '8px',
+              marginTop: '20px'
+            }}
+          >
             <h2>Vault Status</h2>
             <pre>{JSON.stringify(vaultData, null, 2)}</pre>
           </div>
         )}
 
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={onSignOut}
           style={{
             marginTop: '20px',
