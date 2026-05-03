@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaSearch, FaArrowRight, FaCode, FaDatabase, FaNetwork, FaLightbulb } from 'react-icons/fa';
+import { FaSearch, FaArrowRight, FaCode, FaDatabase, FaUsers, FaLightbulb } from 'react-icons/fa';
 import './HamoCSIT.css';
 
 export default function HamoCSIT({ onSignOut }) {
@@ -28,7 +28,7 @@ export default function HamoCSIT({ onSignOut }) {
       description: 'Comprehensive notes, slides, and resources organized by semester',
     },
     {
-      icon: FaNetwork,
+      icon: FaUsers,
       title: 'Community Forum',
       description: 'Connect with peers, ask questions, and collaborate on projects',
     },
