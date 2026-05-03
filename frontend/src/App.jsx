@@ -127,5 +127,8 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
       </Routes>
     </>
   );
+}
+
+export default App;
 
 export default App;

@@ -337,7 +337,7 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
           </div>
 
           {/* Bottom Bar */}
-          <div className="footer-bottom">
+          <div className="footer-bottom">cd
             <p>© 2026 Study DAO. All rights reserved.</p>
           </div>
         </div>

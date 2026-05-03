@@ -63,10 +63,7 @@ export default function StudyDAO({ onGoogleSignIn }) {
       if (result && result.user) {
         console.log(`Successfully authenticated: ${result.user.email}`);
         console.log('Navigating to /hamro-csit...');
-        // Use replace to prevent back navigation
-        setTimeout(() => {
-          navigate('/hamro-csit', { replace: true });
-        }, 500);
+        navigate('/hamro-csit', { replace: true });
       } else {
         throw new Error('No user returned from sign-in');
       }

@@ -1,29 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { FaSearch, FaArrowRight, FaCode, FaDatabase, FaNetwork, FaLightbulb } from 'react-icons/fa';
-import { auth } from '../firebase/firebase';
 import './HamoCSIT.css';
 
 export default function HamoCSIT({ onSignOut }) {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Check if user is authenticated
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setIsAuthenticated(true);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-        navigate('/study-dao');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
 
   const semesters = [
     { number: 1, name: 'First Semester', topic: 'Fundamentals', progress: 100 },
@@ -58,30 +38,6 @@ export default function HamoCSIT({ onSignOut }) {
       description: 'Access curated content from experienced instructors and mentors',
     },
   ];
-
-  // Show loading screen while checking authentication
-  if (isLoading) {
-    return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: '#0a0f0d',
-        color: '#e8f0ed'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '32px', marginBottom: '16px' }}>Hamro CSIT</div>
-          <div style={{ fontSize: '14px', color: '#a3bdb4' }}>Loading your learning dashboard...</div>
-        </div>
-      </div>
-    );
-  }
-
-  // If not authenticated, render nothing (useEffect will navigate)
-  if (!isAuthenticated) {
-    return null;
-  }
 
   return (
     <div className="hamro-csit-container">
