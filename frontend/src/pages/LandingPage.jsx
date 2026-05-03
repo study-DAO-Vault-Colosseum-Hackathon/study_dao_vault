@@ -332,12 +332,10 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
                 <li><a href="mailto:hello@studydao.com">Email</a></li>
               </ul>
             </div>
-
-           
           </div>
 
           {/* Bottom Bar */}
-          <div className="footer-bottom">cd
+          <div className="footer-bottom">
             <p>© 2026 Study DAO. All rights reserved.</p>
           </div>
         </div>
