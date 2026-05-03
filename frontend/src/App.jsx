@@ -130,5 +130,3 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
 }
 
 export default App;
-
-export default App;
