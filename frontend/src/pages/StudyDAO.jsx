@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { auth } from '../firebase/firebase';
 import {
   signInWithPopup,
@@ -17,6 +18,7 @@ const PROVIDERS = [
 ];
 
 export default function StudyDAO({ onGoogleSignIn }) {
+  const navigate = useNavigate();
   const [showLandingPage] = React.useState(false);
   const [stars] = React.useState(() => 
     Array.from({ length: 60 }, () => ({
@@ -58,14 +60,18 @@ export default function StudyDAO({ onGoogleSignIn }) {
       }
 
       const result = await signInWithPopup(auth, provider);
-      if (result.user) {
+      if (result && result.user) {
         console.log(`Successfully authenticated: ${result.user.email}`);
-        if (providerId === 'google' && onGoogleSignIn) {
-          onGoogleSignIn();
-        }
+        console.log('Navigating to /hamro-csit...');
+        // Use replace to prevent back navigation
+        setTimeout(() => {
+          navigate('/hamro-csit', { replace: true });
+        }, 500);
+      } else {
+        throw new Error('No user returned from sign-in');
       }
     } catch (error) {
-      console.error(`Sign-in failed:`, error);
+      console.error(`Sign-in failed for ${providerId}:`, error);
       alert(`Sign-in failed: ${error.message}`);
     }
   };

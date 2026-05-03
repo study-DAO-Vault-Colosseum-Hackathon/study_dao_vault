@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
 import StudyDAO from "./pages/StudyDAO";
+import HamoCSIT from "./pages/HamoCSIT";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import './App.css';
@@ -80,7 +81,22 @@ function App() {
 
   return (
     <BrowserRouter future={{ v7_relativeSplatPath: true }}>
-      <Navbar user={user} onSignOut={handleSignOut} onGoogleSignIn={handleGoogleLogin} />
+      <AppContent 
+        user={user} 
+        handleSignOut={handleSignOut} 
+        handleGoogleLogin={handleGoogleLogin} 
+      />
+    </BrowserRouter>
+  );
+}
+
+function AppContent({ user, handleSignOut, handleGoogleLogin }) {
+  const location = useLocation();
+  const showNavbar = location.pathname !== '/hamro-csit';
+
+  return (
+    <>
+      {showNavbar && <Navbar user={user} onSignOut={handleSignOut} onGoogleSignIn={handleGoogleLogin} />}
       <Routes>
         <Route
           path="/"
@@ -102,10 +118,14 @@ function App() {
           element={<StudyDAO onGoogleSignIn={handleGoogleLogin} />}
         />
 
+        <Route
+          path="/hamro-csit"
+          element={<HamoCSIT onSignOut={handleSignOut} />}
+        />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
-}
 
 export default App;
