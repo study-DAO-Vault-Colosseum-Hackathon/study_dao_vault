@@ -1,7 +1,7 @@
-# Study DAO Authentication Flow - Implementation Complete
+# EduChainNP Authentication Flow - Implementation Complete
 
 ## Overview
-Implemented a complete authentication flow with first-time user detection and username setup popup. When users click any OAuth sign-in button on the Study DAO page, they see:
+Implemented a complete authentication flow with first-time user detection and username setup popup. When users click any OAuth sign-in button on the EduChainNP page, they see:
 1. Full-screen loading overlay with spinner and progress bar (2 seconds)
 2. First-time users: Username popup card with validation
 3. Returning users: Direct redirect to home page
