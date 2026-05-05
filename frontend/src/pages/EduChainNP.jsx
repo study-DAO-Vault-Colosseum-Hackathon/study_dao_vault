@@ -17,7 +17,7 @@ const PROVIDERS = [
   { id: 'apple', label: 'Apple', icon: '◆' },
 ];
 
-export default function StudyDAO({ onGoogleSignIn }) {
+export default function EduChainNP({ onGoogleSignIn }) {
   const navigate = useNavigate();
   const [showLandingPage] = React.useState(false);
   const [stars] = React.useState(() => 
@@ -523,7 +523,7 @@ export default function StudyDAO({ onGoogleSignIn }) {
 
         {/* Title */}
         <div className="title-section">
-          <h1 className="main-title">STUDY DAO</h1>
+          <h1 className="main-title">EDUCHAIN NP</h1>
           <p className="tagline">your knowledge · your reputation</p>
         </div>
 

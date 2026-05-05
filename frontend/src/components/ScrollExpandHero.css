@@ -1,0 +1,227 @@
+/* Scroll Expand Hero Container */
+.scroll-expand-wrapper {
+  transition: background-color 0.7s ease-in-out;
+  overflow-x: hidden;
+}
+
+.scroll-expand-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100dvh;
+}
+
+.scroll-expand-container {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+}
+
+/* Background Overlay */
+.scroll-expand-bg-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.scroll-expand-dark-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Content Wrapper */
+.scroll-expand-content-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 2rem;
+  margin: 0 auto;
+}
+
+/* Hero Grid */
+.scroll-expand-hero-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100dvh;
+  position: relative;
+}
+
+/* Media Container */
+.scroll-expand-media-container {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: none;
+  border-radius: 1rem;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Video Wrapper */
+.scroll-expand-video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.scroll-expand-iframe {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.75rem;
+}
+
+.scroll-expand-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+.scroll-expand-video-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 0.75rem;
+}
+
+/* Image Wrapper */
+.scroll-expand-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.scroll-expand-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+.scroll-expand-image-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 0.75rem;
+}
+
+/* Media Text */
+.scroll-expand-media-text {
+  position: relative;
+  z-index: 10;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.scroll-expand-date {
+  font-size: 1.5rem;
+  color: rgba(191, 219, 254, 1);
+  margin: 0;
+  transition: none;
+}
+
+.scroll-expand-hint {
+  color: rgba(191, 219, 254, 1);
+  font-weight: 500;
+  text-align: center;
+  transition: none;
+}
+
+/* Title Section */
+.scroll-expand-title-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+  flex-direction: column;
+  mix-blend-mode: normal;
+}
+
+.scroll-expand-title-section.scroll-expand-blend-mode {
+  mix-blend-mode: difference;
+}
+
+.scroll-expand-title-first-word,
+.scroll-expand-title-rest {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: rgba(191, 219, 254, 1);
+  transition: none;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .scroll-expand-title-first-word,
+  .scroll-expand-title-rest {
+    font-size: 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .scroll-expand-title-first-word,
+  .scroll-expand-title-rest {
+    font-size: 3.75rem;
+  }
+}
+
+/* Content Section */
+.scroll-expand-content-section {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 2.5rem 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+@media (min-width: 768px) {
+  .scroll-expand-content-section {
+    padding: 2.5rem 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .scroll-expand-content-section {
+    padding: 5rem 4rem;
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 767px) {
+  .scroll-expand-content-wrapper {
+    padding: 0 1rem;
+  }
+
+  .scroll-expand-title-first-word,
+  .scroll-expand-title-rest {
+    font-size: 1.875rem;
+  }
+
+  .scroll-expand-date {
+    font-size: 1.125rem;
+  }
+
+  .scroll-expand-hint {
+    font-size: 0.875rem;
+  }
+}

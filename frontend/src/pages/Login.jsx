@@ -19,7 +19,7 @@ function Login({ onLogin }) {
 		<div className="login-page">
 			<div className="login-stage">
 				<div className="login-card">
-					<h3>Study DAO</h3>
+					<h3>EduChainNP</h3>
 
 					<button 
 						type="button" 

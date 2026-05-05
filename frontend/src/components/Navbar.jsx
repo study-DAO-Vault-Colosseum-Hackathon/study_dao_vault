@@ -196,7 +196,7 @@ const Navbar = ({ user = null, onSignOut, onGoogleSignIn }) => {
                 <circle cx="380" cy="285" r="5" fill="#C9573A" className="dot-3" />
               </g>
             </svg>
-            <span className="brand-text">Study DAO</span>
+            <span className="brand-text">EduChainNP</span>
           </div>
         </div>
 

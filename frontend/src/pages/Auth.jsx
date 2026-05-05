@@ -18,7 +18,7 @@ export default function Auth({ onGoogleSignIn, onGithubSignIn, onDiscordSignIn, 
       console.error('Sign in failed', err);
     }
 
-    // After sign-in, go to the Notes icon page (StudyDAO route shows NotesIcon)
+    // After sign-in, go to the Notes icon page (EduChainNP route shows NotesIcon)
     navigate('/study-dao');
   };
 
@@ -26,7 +26,7 @@ export default function Auth({ onGoogleSignIn, onGithubSignIn, onDiscordSignIn, 
     <div className="auth-wrapper">
       <div className="auth-card" role="main">
         <header className="auth-header">
-          <h1 className="platform-title">Study DAO</h1>
+          <h1 className="platform-title">EduChainNP</h1>
           <p className="platform-tag">Your creative workspace</p>
           <p className="privacy-note">We value your privacy. Your login credentials will help to make it easier to personalize your experience.</p>
         </header>

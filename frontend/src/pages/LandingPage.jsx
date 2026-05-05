@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { FaLightbulb, FaCheckCircle, FaFire, FaCheck, FaGoogle, FaBook, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import AnimatedMenu from '../components/AnimatedMenu';
+import GenerativeMountainScene from '../components/GenerativeMountainScene';
 import TutorHeroSection from './TutorHeroSection';
-import './StudyDAO.css';
+import HoverFooter from '../components/HoverFooter';
+import './EduChainNP.css';
 
 export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('Notes');
 
-  // Redirect to StudyDAO if user is already signed in
+  // Redirect to EduChainNP if user is already signed in
   React.useEffect(() => {
     if (user) {
-      navigate("/study-dao");
+      navigate("/educhain-np");
     }
   }, [user, navigate]);
 
@@ -37,7 +40,7 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
     { rank: 4, initials: 'SM', name: 'Samit', points: 1650, color: '#ea580c' },
   ];
 
-  const filters = ['Notes', 'Starred', 'Download', 'NFTs', 'Badges'];
+  const filters = ['Notes', 'Starred', 'Download','Badges'];
 
   const nftBadges = [
     
@@ -61,17 +64,27 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
     },
   ];
 
-  return (
-    <div className="study-dao-container">
-      {/* Hero Section - Blue Theme with Leaderboard */}
-      <section className="hero-section-original">
-        <div className="hero-background-gradient"></div>
-        <div className="hero-background-shapes">
-          <div className="shape shape-1"></div>
-          <div className="shape shape-2"></div>
-          <div className="shape shape-3"></div>
-        </div>
+  const earnPointsData = [
+    { icon: '📝', action: 'Upload notes', points: '+10' },
+    { icon: '🔬', action: 'Upload lab report', points: '+10' },
+    { icon: '👍', action: 'Upvote a post', points: '+5' },
+    { icon: '👎', action: 'Downvote a post', points: '-2' },
+    { icon: '❓', action: 'Post a question', points: '+10' },
+    { icon: '🔥', action: 'Question upvoted', points: '+1' },
+    { icon: '💬', action: 'Post an answer', points: '+10' },
+    { icon: '⬆️', action: 'Answer upvoted', points: '+2' },
+    { icon: '✅', action: 'Answer marked accepted', points: '+20' },
+    { icon: '🎉', action: 'Founding member bonus', points: '+25' },
+  ];
 
+  return (
+    <>
+      <AnimatedMenu user={user} onSignOut={onSignOut} onGoogleSignIn={handleGoogleSignIn} />
+      <div className="educhain-container">
+      {/* Hero Section - Mountain Scene Background */}
+      <section className="hero-section-original">
+        <GenerativeMountainScene />
+        
         <div className="hero-content-grid">
           {/* Left Content */}
           <div className="hero-left-content">
@@ -167,54 +180,85 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
       </section>
 
       {/* Registration & Actions Section - Flowchart */}
-      <section className="actions-section" id="actions-section">
+      <section className="actions-section" id="Registration Flow & actions-section">
         <div className="section-container">
-          <h2 className="section-heading">Registration & Actions Flow</h2>
+          <h2 className="section-heading">Registration Flow & Actions Flow</h2>
           
-          {/* Flowchart Container */}
-          <div className="flowchart-container">
-            {/* Step 1 */}
-            <div className="flow-step">
-              <div className="step-number">1</div>
-              <div className="step-content">
-                <h3 className="step-title">Visit Study DAO</h3>
-                <p className="step-description">Student visits Study DAO platform</p>
+          <div className="actions-flow-wrapper">
+            {/* Left: Registration Flow */}
+            <div className="flow-left">
+              {/* <h3 className="flow-column-title">Registration Flow</h3> */}
+              {/* Flowchart Container */}
+              <div className="flowchart-container">
+                {/* Step 1 */}
+                <div className="flow-step">
+                  <div className="step-number">1</div>
+                  <div className="step-content">
+                    <h3 className="step-title">Visit EduChainNP</h3>
+                    <p className="step-description">Student visits EduChainNP platform</p>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flow-arrow">→</div>
+
+                {/* Step 2 */}
+                <div className="flow-step">
+                  <div className="step-number">2</div>
+                  <div className="step-content">
+                    <h3 className="step-title">Sign In via Magic.link</h3>
+                    <p className="step-description">Google / GitHub / Discord authentication</p>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flow-arrow">→</div>
+
+                {/* Step 3 */}
+                <div className="flow-step">
+                  <div className="step-number">3</div>
+                  <div className="step-content">
+                    <h3 className="step-title">Custodial Wallet Created</h3>
+                    <p className="step-description">Magic.link manages keypair securely</p>
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <div className="flow-arrow">→</div>
+
+                {/* Step 4 */}
+                <div className="flow-step">
+                  <div className="step-number">4</div>
+                  <div className="step-content">
+                    <h3 className="step-title">Claim Badge</h3>
+                    <p className="step-description">Earn your first achievement badge</p>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Arrow */}
-            <div className="flow-arrow">→</div>
-
-            {/* Step 2 */}
-            <div className="flow-step">
-              <div className="step-number">2</div>
-              <div className="step-content">
-                <h3 className="step-title">Sign In via Magic.link</h3>
-                <p className="step-description">Google / GitHub / Discord authentication</p>
-              </div>
-            </div>
-
-            {/* Arrow */}
-            <div className="flow-arrow">→</div>
-
-            {/* Step 3 */}
-            <div className="flow-step">
-              <div className="step-number">3</div>
-              <div className="step-content">
-                <h3 className="step-title">Custodial Wallet Created</h3>
-                <p className="step-description">Magic.link manages keypair securely</p>
-              </div>
-            </div>
-
-            {/* Arrow */}
-            <div className="flow-arrow">→</div>
-
-            {/* Step 4 */}
-            <div className="flow-step">
-              <div className="step-number">4</div>
-              <div className="step-content">
-                <h3 className="step-title">Claim Badge</h3>
-                <p className="step-description">Earn your first achievement badge</p>
+            {/* Right: How you earn points */}
+            <div className="flow-right">
+              <h3 className="earn-points-heading">How you earn points</h3>
+              <p className="earn-points-subtitle">Every action counts toward your on-chain reputation</p>
+              
+              <div className="earn-points-table">
+                <div className="table-header">
+                  <div className="table-col-action">Action</div>
+                  <div className="table-col-points">Points</div>
+                </div>
+                
+                {earnPointsData.map((item, index) => (
+                  <div key={index} className="table-row">
+                    <div className="table-col-action">
+                      <span className="point-icon">{item.icon}</span>
+                      <span>{item.action}</span>
+                    </div>
+                    <div className={`table-col-points ${item.points.includes('-') ? 'negative' : 'positive'}`}>
+                      {item.points}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -222,37 +266,6 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
       </section>
 
       {/* Mobile Leaderboard Section - Before Badges */}
-      <section className="hero-right-leaderboard hero-leaderboard-mobile">
-        <div className="leaderboard-header">
-          <h3 className="leaderboard-title">🏆 Top Contributors</h3>
-          <p className="leaderboard-subtitle">Leading the community</p>
-        </div>
-
-        <div className="leaderboard-items">
-          {leaderboardData.map((entry) => (
-            <div key={entry.rank} className="leaderboard-entry">
-              <div className="entry-rank">
-                <span className="rank-badge">{entry.rank}</span>
-              </div>
-
-              <div
-                className="entry-avatar"
-                style={{ backgroundColor: entry.color }}
-              >
-                {entry.initials}
-              </div>
-
-              <div className="entry-info">
-                <h4 className="entry-name">{entry.name}</h4>
-                <div className="entry-points">
-                  <FaFire className="fire-icon" />
-                  <span>{entry.points}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/*Badges Section */}
       <section className="nft-badges-section" id="nft-badges-section">
@@ -265,6 +278,46 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
                 <p className="badge-label">{item.label}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Badge Tier Progression Section */}
+      <section className="badge-tier-section">
+        <div className="section-container">
+          <h2 className="badge-tier-heading">Badge tier progression</h2>
+          <p className="badge-tier-subtitle">Contribute more, rank higher, earn your place in EduChainNP</p>
+          
+          <div className="badge-tiers-container">
+            <div className="badge-tier-item tier-spark">
+              <div className="tier-icon">⚡</div>
+              <h3 className="tier-name">Spark</h3>
+              <p className="tier-range">0 – 99 pts</p>
+            </div>
+
+            <div className="badge-tier-item tier-current">
+              <div className="tier-icon">●</div>
+              <h3 className="tier-name">Current</h3>
+              <p className="tier-range">100 – 349 pts</p>
+            </div>
+
+            <div className="badge-tier-item tier-core">
+              <div className="tier-icon">🌿</div>
+              <h3 className="tier-name">Core</h3>
+              <p className="tier-range">350 – 799 pts</p>
+            </div>
+
+            <div className="badge-tier-item tier-supernova">
+              <div className="tier-icon">✨</div>
+              <h3 className="tier-name">Supernova</h3>
+              <p className="tier-range">800 – 1499 pts</p>
+            </div>
+
+            <div className="badge-tier-item tier-singularity">
+              <div className="tier-icon">💎</div>
+              <h3 className="tier-name">Singularity</h3>
+              <p className="tier-range">1500+ & Top 10</p>
+            </div>
           </div>
         </div>
       </section>
@@ -287,59 +340,9 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
       {/* Tutor Hero Section */}
       <TutorHeroSection />
 
-      {/* CTA Section */}
-      <section className="cta-section" aria-labelledby="cta-heading">
-        <div className="cta-content">
-          <h2 id="cta-heading" className="cta-headline">Ready to Join Study DAO?</h2>
-          <p className="cta-subtitle">Start learning, collaborating, and earning rewards today</p>
-        </div>
-        <svg className="wave-divider" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M0,40 Q300,20 600,40 T1200,40 L1200,120 L0,120 Z" />
-        </svg>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-grid">
-            {/* Column 1: Brand */}
-            <div className="footer-column">
-              <div className="footer-brand">
-                <div className="footer-brand-mark">DAO</div>
-                <span className="footer-brand-name">Study DAO</span>
-              </div>
-              <p className="footer-tagline">Decentralized Learning for Everyone</p>
-            </div>
-
-            {/* Column 2: Quick Links */}
-            <div className="footer-column">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#programs">Programs</a></li>
-                <li><a href="#terms">Terms</a></li>
-              </ul>
-            </div>
-
-            {/* Column 3: Connect */}
-            <div className="footer-column">
-              <h3>Connect</h3>
-              <ul>
-                <li><a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a></li>
-                <li><a href="https://discord.com" target="_blank" rel="noopener noreferrer">Discord</a></li>
-                <li><a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-                <li><a href="mailto:hello@studydao.com">Email</a></li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Bar */}
-          <div className="footer-bottom">
-            <p>© 2026 Study DAO. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+      {/* Hover Footer */}
+      <HoverFooter />
+      </div>
+    </>
   );
 }

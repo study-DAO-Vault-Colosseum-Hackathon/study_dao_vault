@@ -1,0 +1,375 @@
+/* Hover Footer Styles */
+.hover-footer {
+  background: rgba(15, 15, 17, 0.95);
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  margin: 40px;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes textStrokeDash {
+  0% {
+    stroke-dashoffset: 1000;
+    stroke-dasharray: 1000;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke-dasharray: 1000;
+  }
+}
+
+.hover-footer-container {
+  position: relative;
+  z-index: 40;
+}
+
+.hover-footer-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+/* Footer Grid */
+.hover-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 28px;
+  padding-bottom: 28px;
+}
+
+/* Brand Section */
+.footer-brand-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-mark {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.footer-brand-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.footer-brand-description {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Links Sections */
+.footer-links-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-links-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-link-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.footer-link:hover {
+  color: #06b6d4;
+}
+
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #06b6d4;
+  transition: width 0.3s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #06b6d4;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Contact Section */
+.footer-contact-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footer-contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.contact-icon {
+  color: #06b6d4;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.footer-contact-link {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.3s ease;
+}
+
+.footer-contact-link:hover {
+  color: #06b6d4;
+}
+
+.footer-contact-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
+/* Divider */
+.footer-divider {
+  border: none;
+  border-top: 1px solid rgba(107, 114, 128, 0.3);
+  margin: 20px 0;
+}
+
+/* Footer Bottom */
+.footer-bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.footer-social-icons {
+  display: flex;
+  gap: 12px;
+}
+
+.social-icon-link {
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.social-icon-link:hover {
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.2);
+  transform: translateY(-2px);
+}
+
+.footer-copyright {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  text-align: center;
+}
+
+/* Text Hover Effect */
+.text-hover-effect-wrapper {
+  position: relative;
+  height: 240px;
+  margin-top: -208px;
+  margin-bottom: -72px;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .text-hover-effect-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.text-hover-svg {
+  cursor: pointer;
+  user-select: none;
+}
+
+.text-hover-outline {
+  fill: transparent;
+  stroke: rgba(229, 231, 235, 0.8);
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 72px;
+  font-weight: bold;
+}
+
+.text-hover-animated {
+  fill: transparent;
+  stroke: #3ca2fa;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 72px;
+  font-weight: bold;
+}
+
+.text-hover-gradient {
+  fill: transparent;
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  font-size: 72px;
+  font-weight: bold;
+}
+
+/* Footer Background Gradient */
+.footer-background-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(125% 125% at 50% 10%, rgba(15, 15, 17, 0.4) 50%, rgba(60, 162, 250, 0.2) 100%);
+  pointer-events: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hover-footer {
+    margin: 20px;
+    border-radius: 16px;
+  }
+
+  .hover-footer-content {
+    padding: 40px 20px;
+  }
+
+  .hover-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom-section {
+    flex-direction: column-reverse;
+  }
+
+  .footer-social-icons {
+    gap: 16px;
+  }
+
+  .social-icon-link {
+    width: 36px;
+    height: 36px;
+  }
+
+  .text-hover-effect-wrapper {
+    height: 180px;
+    margin-top: -152px;
+    margin-bottom: -52px;
+  }
+
+  .text-hover-outline,
+  .text-hover-animated,
+  .text-hover-gradient {
+    font-size: 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hover-footer-grid {
+    gap: 24px;
+  }
+
+  .footer-brand-description {
+    font-size: 13px;
+  }
+
+  .footer-link {
+    font-size: 13px;
+  }
+
+  .footer-contact-text {
+    font-size: 13px;
+  }
+
+  .footer-copyright {
+    font-size: 12px;
+  }
+
+  .text-hover-effect-wrapper {
+    height: 120px;
+    margin-top: -100px;
+    margin-bottom: -30px;
+  }
+
+  .text-hover-outline,
+  .text-hover-animated,
+  .text-hover-gradient {
+    font-size: 32px;
+  }
+}

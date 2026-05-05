@@ -3,7 +3,7 @@ import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRe
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
-import StudyDAO from "./pages/StudyDAO";
+import EduChainNP from "./pages/EduChainNP";
 import HamoCSIT from "./pages/HamoCSIT";
 import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
@@ -114,8 +114,8 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
         />
 
         <Route
-          path="/study-dao"
-          element={<StudyDAO onGoogleSignIn={handleGoogleLogin} />}
+          path="/educhain-np"
+          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
         />
 
         <Route

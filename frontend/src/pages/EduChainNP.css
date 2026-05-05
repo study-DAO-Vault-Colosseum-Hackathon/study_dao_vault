@@ -1,42 +1,23 @@
-/* Study DAO Main Styles */
-.study-dao-container {
+/* EduChainNP Main Styles */
+.educhain-container {
   background: #fff;
   min-height: 100vh;
   color: #1f2937;
+  padding-top: 5rem;
 }
 
 /* Original Hero Section - Gradient Design */
 .hero-section-original {
   background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%);
-  padding: 100px 40px;
+  padding: 60px 40px 100px 40px;
   min-height: 90vh;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   overflow: hidden;
-}
-
-.hero-background-gradient {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.2) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-/* Animated background shapes */
-.hero-background-shapes {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
+  margin-top: -5rem;
+  padding-top: 120px;
 }
 
 .shape {
@@ -157,7 +138,7 @@
 
 .hero-description {
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.6;
   margin: 0;
 }
@@ -225,7 +206,7 @@
 
 .stat-label {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -244,7 +225,7 @@
 
 .hero-leaderboard-desktop {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  border: 1px solid rgba(6, 182, 212, 0.6);
   border-radius: 20px;
   padding: 32px;
   backdrop-filter: blur(10px);
@@ -255,7 +236,7 @@
 
 .hero-right-leaderboard {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(6, 182, 212, 0.3);
+  border: 1px solid rgba(6, 182, 212, 0.6);
   border-radius: 20px;
   padding: 32px;
   backdrop-filter: blur(10px);
@@ -369,7 +350,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .fire-icon {
@@ -767,9 +748,9 @@
 
 .filter-btn {
   padding: 8px 20px;
-  border: 1px solid rgba(167, 139, 250, 0.3);
+  border: 1px solid rgba(167, 139, 250, 0.6);
   background-color: transparent;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.9);
   border-radius: 20px;
   font-size: 14px;
   font-weight: 500;
@@ -871,7 +852,7 @@
 
 .leaderboard-description {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
 }
 
@@ -981,7 +962,7 @@
 
 .leaderboard-description {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   margin: 0;
 }
 
@@ -1013,6 +994,171 @@
   padding: 60px 40px;
 }
 
+.nft-badges-section .section-heading {
+  color: #000000 !important;
+}
+
+/* Badge Tier Progression Section */
+.badge-tier-section {
+  background-color: #f3f4f6;
+  padding: 60px 40px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.badge-tier-heading {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.badge-tier-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  text-align: center;
+  margin: 0 0 40px 0;
+}
+
+.badge-tiers-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.badge-tier-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px;
+  border-radius: 16px;
+  border: 2px solid;
+  min-width: 140px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.badge-tier-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tier-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.tier-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 6px 0;
+}
+
+.tier-range {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Tier Colors */
+.tier-spark {
+  border-color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.tier-spark .tier-name {
+  color: #d97706;
+}
+
+.tier-current {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.tier-current .tier-name {
+  color: #2563eb;
+}
+
+.tier-core {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.tier-core .tier-name {
+  color: #059669;
+}
+
+.tier-supernova {
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.08);
+}
+
+.tier-supernova .tier-name {
+  color: #ea580c;
+}
+
+.tier-singularity {
+  border-color: #1e293b;
+  background: #1e293b;
+  min-width: 160px;
+}
+
+.tier-singularity .tier-name {
+  color: #a78bfa;
+}
+
+.tier-singularity .tier-range {
+  color: #a78bfa;
+}
+
+.tier-singularity .tier-icon {
+  color: #a78bfa;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .badge-tier-section {
+    padding: 40px 20px;
+  }
+
+  .badge-tier-heading {
+    font-size: 24px;
+  }
+
+  .badge-tier-subtitle {
+    font-size: 14px;
+    margin-bottom: 30px;
+  }
+
+  .badge-tiers-container {
+    gap: 12px;
+  }
+
+  .badge-tier-item {
+    min-width: 120px;
+    padding: 20px 16px;
+  }
+
+  .tier-name {
+    font-size: 14px;
+  }
+
+  .tier-range {
+    font-size: 11px;
+  }
+
+  .tier-icon {
+    font-size: 28px;
+  }
+}
+
 .section-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -1021,7 +1167,7 @@
 .section-heading {
   font-size: 32px;
   font-weight: 700;
-  color: #1f2937;
+  color: #000000;
   margin: 0 0 40px 0;
 }
 
@@ -1060,15 +1206,15 @@
 .badge-label {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: #000000 !important;
   margin: 0;
 }
 
 /* Registration & Actions Section */
 .actions-section {
-  background-color: #f3f4f6;
+  background-color: #1a1a2e;
   padding: 60px 40px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #374151;
 }
 
 .actions-section .section-container {
@@ -1081,9 +1227,125 @@
 .actions-section .section-heading {
   width: 100%;
   text-align: center;
+  color: #ffffff !important;
 }
 
-/* Flowchart Container */
+/* Actions Flow Wrapper - 2 Column Layout */
+.actions-flow-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.flow-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.flow-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.flow-column-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+}
+
+.earn-points-heading {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  text-align: center;
+}
+
+.earn-points-subtitle {
+  font-size: 14px;
+  color: #c5cae9;
+  text-align: center;
+  margin: 0;
+}
+
+/* Earn Points Table */
+.earn-points-table {
+  background: #2d2d44;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid #3f3f5a;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: #fff;
+  padding: 16px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #3f3f5a;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: #3f3f5a;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-col-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.point-icon {
+  font-size: 16px;
+  width: 20px;
+  display: inline-block;
+}
+
+.table-col-points {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+}
+
+.table-col-points.positive {
+  color: #059669;
+}
+
+.table-col-points.negative {
+  color: #dc2626;
+}
+
+/* Flowchart Container - Horizontal Layout */
 .flowchart-container {
   display: flex;
   align-items: center;
@@ -1142,12 +1404,12 @@
   font-size: 16px;
   font-weight: 700;
   margin: 0;
-  color: #fff;
+  color: #000000;
 }
 
 .step-description {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #1f2937;
   margin: 0;
   line-height: 1.4;
 }
@@ -1166,13 +1428,13 @@
 .action-title {
   font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  color: #000000;
   margin: 0 0 12px 0;
 }
 
 .action-description {
   font-size: 14px;
-  color: #6b7280;
+  color: #1f2937;
   line-height: 1.6;
   margin: 0;
 }
@@ -1447,6 +1709,10 @@
   border-top: 1px solid #e5e7eb;
 }
 
+.qa-section .section-heading {
+  color: #000000 !important;
+}
+
 .qa-container {
   max-width: 900px;
 }
@@ -1474,14 +1740,14 @@
 .qa-question {
   font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: #000000 !important;
   margin: 0 0 12px 0;
   line-height: 1.4;
 }
 
 .qa-answer {
   font-size: 14px;
-  color: #6b7280;
+  color: #1f2937 !important;
   line-height: 1.6;
   margin: 0;
 }
@@ -1640,6 +1906,21 @@
   .flow-arrow {
     transform: rotate(90deg);
     margin: 8px 0;
+  }
+
+  .actions-flow-wrapper {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .flow-left,
+  .flow-right {
+    width: 100%;
+  }
+
+  .table-header,
+  .table-row {
+    grid-template-columns: 1fr auto;
   }
 }
 

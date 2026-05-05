@@ -98,6 +98,150 @@
   animation: float-rocket 3s ease-in-out infinite;
 }
 
+.crown-emoji {
+  top: 150px;
+  right: 5%;
+  animation: float-crown 4s ease-in-out infinite;
+}
+
+.plant-emoji {
+  bottom: 150px;
+  left: 3%;
+  animation: float-plant 3.5s ease-in-out infinite;
+}
+
+.star-emoji {
+  top: 200px;
+  left: 5%;
+  font-size: 48px;
+  animation: float-star 2.5s ease-in-out infinite;
+}
+
+.sparkle-emoji {
+  top: 300px;
+  right: 8%;
+  font-size: 32px;
+  animation: float-sparkle 3s ease-in-out infinite;
+}
+
+.orb-emoji {
+  bottom: 200px;
+  right: 10%;
+  font-size: 56px;
+  animation: float-orb 4s ease-in-out infinite;
+}
+
+.diamond-emoji {
+  bottom: 100px;
+  left: 15%;
+  font-size: 48px;
+  animation: float-diamond 3.5s ease-in-out infinite;
+}
+
+/* Floating Animations */
+@keyframes float-rocket {
+  0%, 100% { transform: translateX(-50%) translateY(0px) rotate(-15deg); }
+  50% { transform: translateX(-50%) translateY(-20px) rotate(-15deg); }
+}
+
+@keyframes float-crown {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes float-plant {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(15px); }
+}
+
+@keyframes float-star {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float-sparkle {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+}
+
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(20px); }
+}
+
+@keyframes float-diamond {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-18px); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tutor-hero-section {
+    min-height: 500px;
+    padding: 2rem 1rem;
+  }
+
+  .hero-heading {
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+
+  .hero-subheading {
+    font-size: 16px;
+  }
+
+  .cta-button {
+    padding: 8px 24px;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+
+  .a-plus-circle {
+    width: 100px;
+    height: 100px;
+    top: 40px;
+  }
+
+  .decorative-element {
+    font-size: 48px;
+  }
+
+  .rocket-emoji {
+    font-size: 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tutor-hero-section {
+    min-height: 400px;
+    padding: 1.5rem 1rem;
+  }
+
+  .hero-heading {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .hero-subheading {
+    font-size: 14px;
+  }
+
+  .a-plus-circle {
+    width: 80px;
+    height: 80px;
+    top: 30px;
+  }
+
+  .decorative-element {
+    font-size: 40px;
+  }
+
+  .rocket-emoji {
+    font-size: 48px;
+  }
+}
+
+
 @keyframes float-rocket {
   0%, 100% {
     transform: translateX(-50%) rotate(-15deg) translateY(0);
