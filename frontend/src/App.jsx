@@ -4,7 +4,7 @@ import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import QA from "./QA/qa";
+import QA from "./pages/qa";
 import './App.css';
 
 function App() {
@@ -59,7 +59,7 @@ function App() {
         />
         <Route 
           path="/qa" 
-          element={<QA />} 
+          element={<QA user={user ? user : "Annonymos"}/>} 
         />
       </Routes>
     </BrowserRouter>

@@ -8,7 +8,12 @@ const checkSupabase = require('../supabase/supabasedb');
 checkSupabase();
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, { cors: { origin: "*" } });
+const io = require('socket.io')(server, { 
+  cors: { 
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    credentials: true
+  } 
+});
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -73,9 +78,14 @@ io.on('connection', (socket) => {
     console.log(data);
     socket.broadcast.emit('message', data);
   })
+
+  socket.on('vault_update', (data  ) => {
+    console.log('Vault update received:', data);
+    socket.broadcast.emit('vault_update', data);
+  })
+
   socket.on('disconnect', () => {
     console.log('user A disconnected id : ', socket.id);
-
   })
 })
 

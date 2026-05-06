@@ -1,0 +1,160 @@
+/* Container for the whole list */
+*{
+  background-color: #ffbb00;
+}
+.message-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reddit-comment {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  transition: background 0.2s;
+}
+
+.reddit-comment:hover {
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle highlight */
+}
+
+/* Sidebar with Avatar and Line */
+.comment-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+}
+
+.comment-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.thread-line {
+  width: 2px;
+  flex-grow: 1;
+  background-color: #343536; /* Reddit dark mode line color */
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.thread-line:hover {
+  background-color: #d7dadc; /* Highlight line on hover */
+}
+
+/* Main Content Area */
+.comment-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.comment-user {
+  font-weight: 600;
+  color: #d7dadc;
+}
+
+.comment-dot, .comment-time {
+  color: #818384;
+}
+
+.comment-content {
+  font-size: 14px;
+  line-height: 21px;
+  color: #d7dadc;
+  padding: 4px 0;
+}
+
+/* Action Buttons */
+.comment-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.reply-input-container {
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.reply-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.btn-cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+}
+
+.replies-container {
+  margin-left: 20px;
+  border-left: 1px solid var(--thread-line);
+}
+.main-post-wrapper {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.main-question-card {
+  padding: 20px;
+  border-bottom: 1px solid var(--thread-line);
+}
+
+.main-question-card h3 {
+  font-size: 1.2rem;
+  margin: 15px 0;
+  color: #ffffff;
+}
+
+.comments-thread {
+  padding-left: 20px; /* Indent all comments under the question */
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
