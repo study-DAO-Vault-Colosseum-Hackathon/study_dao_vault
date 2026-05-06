@@ -1,7 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const uploadMemory = multer({ storage: multer.memoryStorage() });
+const { admin, db } = require('../utils/firebase');
 const { verifyToken } = require('../middleware/auth');
+const { compressPDF } = require('../utils/pdf-compress');
+const votingRouter = require('../routes/voting');
+const fs = require('fs');
 const supabase = require('../supabase/supabaseClient');
 const checkSupabase = require('../supabase/supabasedb');
 
@@ -28,6 +35,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use('/api/documents', votingRouter);
 
 app.set('view engine', 'ejs');
 
@@ -68,6 +76,67 @@ server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
   console.log(`Allowing CORS from: ${FRONTEND_URL}`);
+});
+
+app.post('/api/compress-pdf', upload.single('pdf'), async (req, res) => {
+  const inputPath = req.file.path;
+  const outputPath = `uploads/compressed-${req.file.filename}.pdf`;
+  try {
+    const quality = req.body?.quality || 'screen';
+    const result = await compressPDF(inputPath, outputPath, quality);
+    res.setHeader('X-Original-Bytes', String(result.originalBytes));
+    res.setHeader('X-Compressed-Bytes', String(result.compressedBytes));
+    res.setHeader('X-Compression-Used', String(result.usedCompressed));
+    res.download(outputPath, 'compressed.pdf', () => {
+      // Optional: clean up files after sending
+      fs.unlinkSync(inputPath);
+      fs.unlinkSync(outputPath);
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Upload document: store PDF in Firebase Storage and metadata in Firestore
+app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const bucket = admin.storage().bucket();
+    const filename = `documents/${req.user.uid}/${Date.now()}_${req.file.originalname}`;
+    const file = bucket.file(filename);
+
+    // Save buffer to storage
+    await file.save(req.file.buffer, {
+      metadata: { contentType: req.file.mimetype },
+      resumable: false
+    });
+
+    // Create signed URL
+    const [signedUrl] = await file.getSignedUrl({ action: 'read', expires: '03-01-2500' });
+
+    const docData = {
+      title: req.body.title || '',
+      course: req.body.course || '',
+      semester: req.body.semester || '',
+      subject: req.body.subject || '',
+      fileName: req.file.originalname,
+      filePath: filename,
+      fileUrl: signedUrl,
+      owner: { uid: req.user.uid, email: req.user.email || null },
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      upvotes: 0,
+      downvotes: 0,
+      votes: [],
+      type: req.body.type || 'note'
+    };
+
+    const docRef = await db.collection('documents').add(docData);
+    res.json({ id: docRef.id, ...docData });
+  } catch (err) {
+    console.error('Upload error', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 
