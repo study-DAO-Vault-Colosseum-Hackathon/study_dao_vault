@@ -1,6 +1,6 @@
 /* Container for the whole list */
 *{
-  background-color: #ffbb00;
+  background-color: #6e3a3a;
 }
 .message-list {
   list-style: none;
@@ -157,4 +157,110 @@
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
+}
+
+/* Vote Counter Styles */
+.vote-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  min-width: 40px;
+}
+
+.vote-btn {
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.vote-btn:hover:not(:disabled) {
+  color: #ff4500;
+  background-color: rgba(255, 69, 0, 0.1);
+  transform: scale(1.2);
+}
+
+.vote-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.vote-btn.voted {
+  color: #ff4500;
+  font-weight: bold;
+}
+
+.vote-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #818384;
+  min-width: 20px;
+  text-align: center;
+}
+
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Marked Answer Styles */
+.marked-answer {
+  background: rgba(76, 175, 80, 0.15) !important;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 15px 0;
+  border-left: 4px solid #4CAF50 !important;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  position: relative;
+}
+
+.marked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.mark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.mark-btn:hover {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.mark-btn.marked {
+  background-color: rgba(76, 175, 80, 0.25);
+  color: #4CAF50;
+  font-weight: bold;
+  border: 1px solid #4CAF50;
 }

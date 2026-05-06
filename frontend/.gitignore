@@ -1,32 +1,69 @@
-# Environment variables
+# ============================================
+# .gitignore - TU Study DAO
+# ============================================
+
+#ignore spec md
+MDfiles/
+TU-Study-DAO-Spec.md
+DOCKER_SETUP.md
+SOLANA_PLAN.md
+reference_code_files/
+
+# Environment Variables & Secrets
 .env
 .env.local
 .env.*.local
-
-# Keep the example file
+.env.production
+*.env
 !.env.example
 
+# Node Dependencies
+node_modules/
+package-lock.json
+*/package-lock.json
+**/package-lock.json
+yarn.lock
+pnpm-lock.yaml
+.pnpm-store/
+
+# Solana/Anchor
+target/
+Cargo.lock
+**/.anchor/
+*-keypair.json
+id.json
+*.keypair
+*.toml.bk
+
+# Build Artifacts
+dist/
+build/
+out/
+
+# IDE & Local Development
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
 # Logs
-logs
 *.log
+logs/
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Cache
+.cache/
+.eslintcache
+.turbo/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Temporary Files
+tmp/
+temp/
+*.tmp
+*.bak
+.pnpm
+.turbo/turbo-run-durationcache

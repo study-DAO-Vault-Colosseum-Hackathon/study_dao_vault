@@ -1,0 +1,271 @@
+onchain structure
+
+1. Features That Depend on the Anchor Program
+
+Must-Have On-Chain:
+
+┌───────────────────────────────────┬───────────────────────────────────────────┬──────────────────────────────┐
+│ Feature                           │ Why On-Chain                              │ Data Stored                  │
+├───────────────────────────────────┼───────────────────────────────────────────┼──────────────────────────────┤
+│ User Reputation                   │ Immutable, portable, verifiable           │ Total points per wallet      │
+├───────────────────────────────────┼───────────────────────────────────────────┼──────────────────────────────┤
+│ Badge/NFT Minting                 │ Proof of achievement, future portability  │ Badge metadata, mint address │
+├───────────────────────────────────┼───────────────────────────────────────────┼──────────────────────────────┤
+│ Gasless Transaction Execution     │ Relayer reimburses via PDA vault          │ Transaction history          │
+├───────────────────────────────────┼───────────────────────────────────────────┼──────────────────────────────┤
+│ Contribution Proof                │ Non-repudiation (can't deny you uploaded) │ Linked to wallet address     │
+└───────────────────────────────────┴───────────────────────────────────────────┴──────────────────────────────┘
+
+NOT On-Chain (Supabase/Firebase):
+
+ - Q&A text, file metadata, links (too expensive)
+ - User email (privacy)
+ - PDF content
+ - Search indexes
+
+Key insight: The blockchain is your immutable reputation ledger, not your data store.
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+2. Anchor Program Structure
+
+Here's what your program architecture should look like (conceptually):
+
+ Program: tu-study-dao
+ 
+ ├── State PDAs:
+ │   ├── Platform (singleton admin account)
+ │   │   └── authority, bump, bump_seed
+ │   │   └── total_users_count, total_reputation_distributed
+ │   │
+ │   ├── SolReserve (vault PDA)
+ │   │   └── seed: [b"vault", platform_pda.key()]
+ │   │   └── holds SOL to pay relayer fees
+ │   │   └── tracks balance
+ │   │
+ │   ├── UserReputation (per user)
+ │   │   └── seed: [b"reputation", wallet_address]
+ │   │   └── reputation_score, total_uploads, total_answers
+ │   │   └── last_updated
+ │   │
+ │   └── Badge (per achievement)
+ │       └── seed: [b"badge", user_wallet, badge_type]
+ │       └── badge_type, awarded_at, metadata
+ 
+ ├── Instructions (what the Relayer calls):
+ │   ├── init_platform()
+ │   │   └── Creates Platform PDA (admin only)
+ │   │
+ │   ├── fund_vault()
+ │   │   └── Admin deposits SOL into SolReserve
+ │   │
+ │   ├── claim_reputation()
+ │   │   └── User signs (via Magic)
+ │   │   └── Relayer signs as fee payer
+ │   │   └── CPI call: SolReserve → Relayer (+fee from vault)
+ │   │   └── Updates UserReputation PDA (+points)
+ │   │
+ │   ├── mint_badge()
+ │   │   └── Triggered when user hits milestone (50 points = Bronze)
+ │   │   └── Mints NFT badge
+ │   │   └── Updates Badge PDA
+ │   │
+ │   └── transfer_vault_to_relayer()
+ │       └── CPI instruction: Move SOL from SolReserve to Relayer
+ │       └── Relayer address passed in
+ │       └── Amount = estimated_fee + rent_exemption
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+3. Critical Infrastructure You Might Be Missing
+
+❌ Missing: On-Chain ↔ Off-Chain Sync
+
+Problem: Reputation on-chain doesn't automatically sync to Supabase (your frontend queries Supabase for reputation) Solution Options:
+
+ 1. Webhook/Poll: Express backend polls Solana every 10 seconds, reads UserReputation PDAs, updates Supabase
+ 2. Event Listener: Node.js uses @solana/web3.js to listen for program events
+ 3. Indexer: Use Helius Webhooks to get notified when your program updates (recommended for scale)
+
+Recommended: Helius DAS API or a simple cron job that reads PDAs → syncs to Supabase
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+❌ Missing: Relayer Keypair Management
+
+Problem: Your Express backend needs a keypair to sign transactions as fee payer Considerations:
+
+ - Store keypair securely (encrypted in .env or external vault)
+ - Fund Relayer wallet from Platform admin wallet (needs periodic top-ups)
+ - Monitor Relayer account balance so it doesn't run out of SOL
+
+Setup:
+
+ Admin Wallet (has SOL) 
+   ↓ (transfers SOL to)
+ Relayer Account (Express backend)
+   ↓ (pays fees from)
+ User Transactions (signed by Magic)
+   ↓ (reimbursed by)
+ SolReserve PDA (contains platform SOL)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+❌ Missing: Fee Estimation Logic
+
+Problem: How does Relayer know how much to charge the user vs what to request from vault? Formula needed:
+
+ Transaction Fee = Base fee + 
+                   (num_signatures × sig_verification_fee) + 
+                   (accounts_modified × storage_rent)
+                   
+ Relayer Cover = Transaction Fee (user's Magic wallet doesn't pay)
+ Vault Reimburses = Relayer's fee for the service
+
+Questions to answer:
+
+ - Fixed fee per action? (e.g., 5,000 lamports per reputation claim)
+ - Variable fee based on actual tx size?
+ - Platform absorbs cost, or users see it reflected in reputation deduction?
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+❌ Missing: Anchor IDL & Client Generation
+
+Problem: Your Express backend needs to know how to call Anchor instructions Solution: Anchor auto-generates IDL (Interface Description Language)
+
+ - IDL describes all instructions, accounts, error codes
+ - Use @project-serum/anchor to generate TypeScript client
+ - Express backend uses generated client to build transactions
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+❌ Missing: Devnet Faucet & Funding Strategy
+
+Problem: Devnet SOL runs out, transactions fail silently Setup:
+
+ 1. Admin wallet needs initial SOL (from faucet)
+ 2. Admin funds Platform PDA on startup
+ 3. Platform transfers to SolReserve PDA
+ 4. SolReserve pays Relayer for each transaction
+ 5. When SolReserve balance low → Admin top-ups
+
+Monitoring:
+
+ - Alert when SolReserve < threshold
+ - Log all vault transfers (audit trail)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+❌ Missing: Transaction Simulation & Dry-Run
+
+Problem: Relayer doesn't know if transaction will succeed before paying Solution: Before signing, simulate the transaction:
+
+ 1. Express receives unsigned tx from Magic
+ 2. Simulate tx (getSimulationUnits)
+ 3. Estimate fee needed
+ 4. Check vault has enough
+ 5. If yes → sign and send
+ 6. If no → reject with "Vault depleted" error
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+4. Integration Flow: How Anchor ↔ dApp Works
+
+Happy Path: Student Uploads a File
+
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ 1. FRONTEND (React)                                              │
+ │    - User clicks "Upload Notes"                                  │
+ │    - Uploads PDF to Firebase → gets URL                          │
+ │    - Stores metadata in Supabase                                 │
+ │    - Calls Express: POST /api/claim-reputation                   │
+ └─────────────────────────────────────────────────────────────────┘
+                               ↓
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ 2. EXPRESS BACKEND (Octane Relayer)                              │
+ │    - Receives claim request (user_wallet, reputation_amount)     │
+ │    - Builds unsigned transaction:                                │
+ │      Instruction: claim_reputation                               │
+ │      Accounts: [UserReputation PDA, SolReserve, Relayer]        │
+ │    - Simulates to check vault balance                            │
+ │    - Signs as fee_payer (Relayer keypair)                        │
+ │    - Sends to Solana                                             │
+ └─────────────────────────────────────────────────────────────────┘
+                               ↓
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ 3. SOLANA CHAIN (Anchor Program)                                 │
+ │    ┌─ Instruction: claim_reputation                              │
+ │    │  - User signs (proof they want reputation)                  │
+ │    │  - Relayer signs (proof they paid fee)                      │
+ │    │  - Execution:                                               │
+ │    │    1. Check UserReputation PDA exists (if not, create)      │
+ │    │    2. Add reputation points                                 │
+ │    │    3. CPI: Transfer SOL (SolReserve → Relayer) to reimburse │
+ │    │    4. Emit event: ReputationClaimed { wallet, amount }      │
+ │    └─ Return: Success                                             │
+ └─────────────────────────────────────────────────────────────────┘
+                               ↓
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ 4. BACKEND (Sync Back to Supabase)                               │
+ │    - Listens for ReputationClaimed events (or polls PDAs)        │
+ │    - Reads updated UserReputation PDA                            │
+ │    - Updates Supabase: users.reputation = new_value              │
+ │    - Logs in reputation_transactions table (audit trail)         │
+ └─────────────────────────────────────────────────────────────────┘
+                               ↓
+ ┌─────────────────────────────────────────────────────────────────┐
+ │ 5. FRONTEND (Refresh UI)                                         │
+ │    - Polls Supabase for updated reputation (or WebSocket)        │
+ │    - Shows: "+10 reputation! 🎉"                                 │
+ │    - Updates leaderboard                                         │
+ └─────────────────────────────────────────────────────────────────┘
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+5. Your Anchor Program Accounts Checklist
+
+Each instruction needs these account validations:
+
+ claim_reputation():
+   ✓ user_reputation: PDA (must be writable) ← updated with new points
+   ✓ sol_reserve: PDA (must be writable) ← SOL withdrawn
+   ✓ relayer: Signer (fee payer)
+   ✓ system_program: (for CPI transfers)
+   ✓ signer (optional): The user (via Magic)
+ 
+ mint_badge():
+   ✓ user_reputation: PDA (readable, to check points)
+   ✓ badge_pda: PDA (must be writable) ← new badge created
+   ✓ mint_account: (for NFT)
+   ✓ token_program: (for SPL token)
+   ✓ sol_reserve: PDA (writable, for rent fees)
+   ✓ relayer: Signer (fee payer)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+6. What's Still TBD
+
+ - Badge standard: You minting SPL tokens or Metaplex cNFTs?
+ - Reputation decay: Does reputation expire or stay forever?
+ - Leaderboard queries: Will you query Solana PDAs directly or always via Supabase cache?
+ - Error handling: What if Relayer account runs out of SOL mid-transaction?
+ - Rate limiting: Can user spam "claim reputation" 1000x per second?
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Summary: Your Architecture Layers
+
+┌─────────────┬───────────────────────────┬──────────────────────────────┐
+│ Layer       │ Tech                      │ Responsibility               │
+├─────────────┼───────────────────────────┼──────────────────────────────┤
+│ UI          │ React + Magic             │ User auth, file upload UI    │
+├─────────────┼───────────────────────────┼──────────────────────────────┤
+│ Data        │ Firebase + Supabase       │ Searchable metadata, PDFs    │
+├─────────────┼───────────────────────────┼──────────────────────────────┤
+│ Relayer     │ Express + @solana/web3.js │ Orchestrate gasless txs      │
+├─────────────┼───────────────────────────┼──────────────────────────────┤
+│ Program     │ Anchor (Rust)             │ Immutable reputation, badges │
+├─────────────┼───────────────────────────┼──────────────────────────────┤
+│ Sync        │ Helius/Cron               │ Bridge on-chain ↔ off-chain │
+└─────────────┴───────────────────────────┴──────────────────────────────┘
