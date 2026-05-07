@@ -24,8 +24,8 @@ export function GenerativeMountainScene() {
       0.1,
       100
     );
-    camera.position.set(0, 3, 1.5);
-    camera.rotation.x = -0.6;
+    camera.position.set(0, 1.5, 3);
+    camera.rotation.x = -0.3;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
@@ -33,7 +33,7 @@ export function GenerativeMountainScene() {
     currentMount.appendChild(renderer.domElement);
 
     // GEOMETRY
-    const geometry = new THREE.PlaneGeometry(24, 16, 128, 128); 
+    const geometry = new THREE.PlaneGeometry(12, 8, 128, 128); 
 
     // SHADER MATERIAL
     const material = new THREE.ShaderMaterial({
@@ -139,7 +139,6 @@ export function GenerativeMountainScene() {
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.rotation.x = -Math.PI / 2;
-    mesh.position.y = -2;
     scene.add(mesh);
 
     const pointLight = new THREE.PointLight(0xffffff, 1, 100);
@@ -169,7 +168,9 @@ export function GenerativeMountainScene() {
         const lightY = y * 5;
         const pos = new THREE.Vector3(lightX, 2, 2 - y * 2);
         
-        lightRef.current.position.copy(pos);
+        if (lightRef.current) {
+          lightRef.current.position.copy(pos);
+        }
         if (material.uniforms.pointLightPosition) {
              material.uniforms.pointLightPosition.value = pos;
         }
@@ -182,7 +183,7 @@ export function GenerativeMountainScene() {
       cancelAnimationFrame(frameId);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
-      if (currentMount && currentMount.contains(renderer.domElement)) {
+      if (currentMount && renderer.domElement.parentNode === currentMount) {
         currentMount.removeChild(renderer.domElement);
       }
       geometry.dispose();
@@ -191,7 +192,7 @@ export function GenerativeMountainScene() {
     };
   }, []);
 
-  return <div ref={mountRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 0 }} />;
+  return <div ref={mountRef} className="absolute inset-0 w-full h-full z-0" />;
 }
 
 export default GenerativeMountainScene;

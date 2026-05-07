@@ -32,6 +32,7 @@ export const FullScreenScrollFX = forwardRef(
       gridPaddingX = 2,
 
       showProgress = true,
+      showBackgrounds = true,
       debug = false,
 
       durations = { change: 0.7, snap: 800 },
@@ -389,25 +390,31 @@ export const FullScreenScrollFX = forwardRef(
           <div className="fx-fixed-section" ref={fixedSectionRef}>
             <div className="fx-fixed" ref={fixedRef}>
               {/* Backgrounds */}
-              <div className="fx-bgs" aria-hidden="true">
-                {sections.map((s, i) => (
-                  <div className="fx-bg" key={s.id ?? i}>
-                    {s.renderBackground ? (
-                      s.renderBackground(index === i, lastIndexRef.current === i)
-                    ) : (
-                      <>
-                        <img
-                          ref={(el) => el && (bgRefs.current[i] = el)}
-                          src={s.background}
-                          alt=""
-                          className="fx-bg-img"
-                        />
-                        <div className="fx-bg-overlay" />
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
+              {showBackgrounds && (
+                <div className="fx-bgs" aria-hidden="true">
+                  {sections.map((s, i) => (
+                    <div className="fx-bg" key={s.id ?? i}>
+                      {s.renderBackground ? (
+                        s.renderBackground(index === i, lastIndexRef.current === i)
+                      ) : (
+                        <>
+                          {s.background ? (
+                            <>
+                              <img
+                                ref={(el) => el && (bgRefs.current[i] = el)}
+                                src={s.background}
+                                alt=""
+                                className="fx-bg-img"
+                              />
+                              <div className="fx-bg-overlay" />
+                            </>
+                          ) : null}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Grid */}
               <div className="fx-grid">

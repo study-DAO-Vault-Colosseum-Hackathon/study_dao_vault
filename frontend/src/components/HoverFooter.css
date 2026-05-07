@@ -3,8 +3,9 @@
   background: rgba(15, 15, 17, 0.95);
   position: relative;
   overflow: hidden;
-  border-radius: 24px;
-  margin: 40px;
+  width: 100%;
+  border-radius: 0;
+  margin: 40px 0 0;
   backdrop-filter: blur(10px);
 }
 
@@ -249,7 +250,7 @@
   position: relative;
   height: 240px;
   margin-top: -208px;
-  margin-bottom: -72px;
+  margin-bottom: 0;
   display: none;
 }
 
@@ -301,8 +302,8 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .hover-footer {
-    margin: 20px;
-    border-radius: 16px;
+    margin: 20px 0 0;
+    border-radius: 0;
   }
 
   .hover-footer-content {
@@ -330,7 +331,7 @@
   .text-hover-effect-wrapper {
     height: 180px;
     margin-top: -152px;
-    margin-bottom: -52px;
+    margin-bottom: 0;
   }
 
   .text-hover-outline,
@@ -364,7 +365,7 @@
   .text-hover-effect-wrapper {
     height: 120px;
     margin-top: -100px;
-    margin-bottom: -30px;
+    margin-bottom: 0;
   }
 
   .text-hover-outline,

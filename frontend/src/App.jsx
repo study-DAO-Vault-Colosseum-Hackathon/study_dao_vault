@@ -1,11 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
 import HamoCSIT from "./pages/HamoCSIT";
-import Login from "./pages/Login";
 import Navbar from "./components/Navbar";
 import './App.css';
 
@@ -92,20 +91,75 @@ function App() {
 
 function AppContent({ user, handleSignOut, handleGoogleLogin }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const showNavbar = location.pathname !== '/hamro-csit';
+  const [isProgramsSidebarOpen, setIsProgramsSidebarOpen] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState(null);
+  const [showSemesterSelection, setShowSemesterSelection] = useState(false);
+  const [showSemesterTrigger, setShowSemesterTrigger] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setIsProgramsSidebarOpen(false);
+      setSelectedSemester(null);
+      setShowSemesterSelection(false);
+      setShowSemesterTrigger(false);
+    }
+  }, [location.pathname]);
+
+  const handleNavbarLinkClick = (link) => {
+    if (link === 'Home') {
+      setIsProgramsSidebarOpen(false);
+      setSelectedSemester(null);
+      setShowSemesterSelection(false);
+      setShowSemesterTrigger(false);
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
+      return;
+    }
+
+    if (link === 'Programs' && location.pathname === '/') {
+      setSelectedSemester(null);
+      setShowSemesterSelection(false);
+      setShowSemesterTrigger(false);
+      setIsProgramsSidebarOpen(true);
+    }
+  };
 
   return (
     <>
-      {showNavbar && <Navbar user={user} onSignOut={handleSignOut} onGoogleSignIn={handleGoogleLogin} />}
+      {showNavbar && (
+        <Navbar
+          user={user}
+          onSignOut={handleSignOut}
+          onNavLinkClick={handleNavbarLinkClick}
+        />
+      )}
       <Routes>
         <Route
           path="/"
-          element={<LandingPage onGoogleSignIn={handleGoogleLogin} user={user} onSignOut={handleSignOut} />}
+          element={
+            <LandingPage
+              onGoogleSignIn={handleGoogleLogin}
+              user={user}
+              onSignOut={handleSignOut}
+              isProgramsSidebarOpen={isProgramsSidebarOpen}
+              selectedSemester={selectedSemester}
+              showSemesterSelection={showSemesterSelection}
+              showSemesterTrigger={showSemesterTrigger}
+              onSemesterSelect={setSelectedSemester}
+              onShowSemesterSelectionChange={setShowSemesterSelection}
+              onShowSemesterTriggerChange={setShowSemesterTrigger}
+              onOpenProgramsSidebar={() => setIsProgramsSidebarOpen(true)}
+              onCloseProgramsSidebar={() => setIsProgramsSidebarOpen(false)}
+            />
+          }
         />
 
         <Route
           path="/login"
-          element={user ? <Navigate to="/study-dao" /> : <Login onLogin={handleGoogleLogin} />}
+          element={<Navigate to="/study-dao" replace />}
         />
 
         <Route
@@ -115,6 +169,11 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
 
         <Route
           path="/educhain-np"
+          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
+        />
+
+        <Route
+          path="/study-dao"
           element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
         />
 

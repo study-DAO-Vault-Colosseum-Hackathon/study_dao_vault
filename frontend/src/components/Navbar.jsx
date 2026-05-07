@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { FaSignOutAlt, FaGoogle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
-import NotesIcon from './NotesIcon';
+import NavHeader from './ui/nav-header';
 
-const Navbar = ({ user = null, onSignOut, onGoogleSignIn }) => {
+const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
   const [activeLink, setActiveLink] = useState('Home');
+  const navigate = useNavigate();
 
-  const links = ['Home', 'Programs', 'Contact Us', 'Help', 'About Us'];
+  const links = ['Home', 'Programs', 'About Us'];
 
   return (
     <nav className="navbar">
@@ -200,32 +202,22 @@ const Navbar = ({ user = null, onSignOut, onGoogleSignIn }) => {
           </div>
         </div>
 
-        {/* Center - Navigation Links (only show before signin) */}
+        {/* Center - Navigation Links */}
         <div className="navbar-center">
-          {!user && (
-            <ul className="nav-links">
-              {links.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className={`nav-link ${activeLink === link ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveLink(link);
-                    }}
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
+          <NavHeader
+            tabs={links}
+            activeTab={activeLink}
+            onTabClick={(link) => {
+              setActiveLink(link);
+              if (onNavLinkClick) onNavLinkClick(link);
+            }}
+          />
         </div>
 
         {/* Right Side - Sign Out Button (show after signin) and Google Sign-In (when not signed in) */}
         <div className="navbar-right">
-          {!user && onGoogleSignIn && (
-            <button className="google-signin-btn" onClick={onGoogleSignIn}>
+          {!user && (
+            <button className="google-signin-btn" onClick={() => navigate('/study-dao')}>
               <FaGoogle className="google-icon" />
               <span>Sign In</span>
             </button>

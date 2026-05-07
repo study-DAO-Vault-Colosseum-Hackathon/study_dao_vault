@@ -1,22 +1,39 @@
-import React, { useState } from 'react';
-import { FaLightbulb, FaCheckCircle, FaFire, FaCheck, FaGoogle, FaBook, FaSignOutAlt } from 'react-icons/fa';
+import React, { useState, Suspense } from 'react';
+import { FaLightbulb, FaCheckCircle, FaFire, FaCheck, FaBook, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import AnimatedMenu from '../components/AnimatedMenu';
-import GenerativeMountainScene from '../components/GenerativeMountainScene';
 import TutorHeroSection from './TutorHeroSection';
 import HoverFooter from '../components/HoverFooter';
+import GenerativeMountainScene from '../components/ui/mountain-scene';
 import './EduChainNP.css';
 
-export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
+const semesters = Array.from({ length: 8 }, (_, index) => index + 1);
+const semesterPreviewImage = '/together-classroom.jpg';
+
+export default function LandingPage({
+  onGoogleSignIn,
+  user,
+  onSignOut,
+  isProgramsSidebarOpen = false,
+  selectedSemester = null,
+  showSemesterSelection = false,
+  showSemesterTrigger = false,
+  onSemesterSelect = () => {},
+  onShowSemesterSelectionChange = () => {},
+  onShowSemesterTriggerChange = () => {},
+  onOpenProgramsSidebar = () => {},
+  onCloseProgramsSidebar = () => {},
+}) {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('Notes');
-
-  // Redirect to EduChainNP if user is already signed in
-  React.useEffect(() => {
-    if (user) {
-      navigate("/educhain-np");
-    }
-  }, [user, navigate]);
+  const shouldBlurHomepage = isProgramsSidebarOpen && selectedSemester === null && !showSemesterSelection;
+  const shouldShiftMainContent = isProgramsSidebarOpen && (selectedSemester !== null || showSemesterSelection);
+  const userDisplayName = user?.displayName || user?.email?.split('@')[0] || 'Student';
+  const userInitials = userDisplayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('') || 'ST';
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -25,20 +42,48 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
     }
   };
 
-  const handleGoogleSignIn = () => {
-    onGoogleSignIn();
+  const handleExploreCourseClick = () => {
+    onOpenProgramsSidebar();
   };
 
   const handleCosmicBook = () => {
     navigate("/cosmic-book");
   };
 
+  const handleSemesterClick = (semesterNumber) => {
+    onShowSemesterSelectionChange(false);
+    onSemesterSelect(semesterNumber);
+    onCloseProgramsSidebar();
+  };
+
+  const handleSemesterMenuClick = () => {
+    onShowSemesterSelectionChange(true);
+    onCloseProgramsSidebar();
+  };
+
+  const handleProgramClick = () => {
+    const nextShowSemesterTrigger = !showSemesterTrigger;
+    onShowSemesterTriggerChange(nextShowSemesterTrigger);
+    if (!nextShowSemesterTrigger) {
+      onShowSemesterSelectionChange(false);
+    }
+  };
+
+  const handleSemesterSelectionBack = () => {
+    onShowSemesterSelectionChange(false);
+    onOpenProgramsSidebar();
+  };
+
   const leaderboardData = [
     { rank: 1, initials: 'SR', name: 'Swastik Rawat', points: 2450, color: '#fbbf24' },
     { rank: 2, initials: 'AB', name: 'Anup Bhattarai', points: 2180, color: '#fb923c' },
     { rank: 3, initials: 'BJ', name: 'Bijesh', points: 1920, color: '#f97316' },
-    { rank: 4, initials: 'SM', name: 'Samit', points: 1650, color: '#ea580c' },
+    { rank: 4, initials: 'SM', name: 'Samit Shrestha', points: 1650, color: '#ea580c' },
   ];
+  const leaderboardPoints =
+    leaderboardData.find(
+      (entry) => user?.displayName && entry.name.toLowerCase() === user.displayName.toLowerCase()
+    )?.points ?? 120;
 
   const filters = ['Notes', 'Starred', 'Download','Badges'];
 
@@ -77,13 +122,70 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
     { icon: '🎉', action: 'Founding member bonus', points: '+25' },
   ];
 
+  const renderSemesterDetailView = () => (
+    <section className="semester-image-view">
+      <img
+        src={semesterPreviewImage}
+        alt={`BSc CSIT Semester ${selectedSemester} preview`}
+        className="semester-image-photo"
+      />
+      <div className="semester-image-meta">
+        <p>Tribhuvan University • BSc CSIT</p>
+        <h2>Semester {selectedSemester}</h2>
+      </div>
+    </section>
+  );
+
+  const renderSemesterSelectionView = () => (
+    <section className="semester-selection-view">
+      <button
+        type="button"
+        className="semester-selection-back"
+        onClick={handleSemesterSelectionBack}
+      >
+        ← Back
+      </button>
+
+      <div className="semester-selection-header">
+        <p>Tribhuvan University • BSc CSIT</p>
+        <h2>Select Semester</h2>
+      </div>
+
+      <div className="semester-selection-grid">
+        {semesters.map((semesterNumber) => (
+          <button
+            key={semesterNumber}
+            type="button"
+            className="semester-selection-item"
+            onClick={() => handleSemesterClick(semesterNumber)}
+          >
+            Semester {semesterNumber}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+
   return (
     <>
-      <AnimatedMenu user={user} onSignOut={onSignOut} onGoogleSignIn={handleGoogleSignIn} />
       <div className="educhain-container">
+      <div
+        className={`landing-main-content ${shouldBlurHomepage ? 'landing-main-content-blurred' : ''} ${shouldShiftMainContent ? 'landing-main-content-semester-selected' : ''}`}
+      >
+      {selectedSemester ? (
+        renderSemesterDetailView()
+      ) : showSemesterSelection ? (
+        renderSemesterSelectionView()
+      ) : (
+      <>
       {/* Hero Section - Mountain Scene Background */}
       <section className="hero-section-original">
-        <GenerativeMountainScene />
+        <Suspense fallback={<div className="absolute inset-0 w-full h-full z-0" />}>
+          <GenerativeMountainScene />
+        </Suspense>
+        <div className="shape shape-1" />
+        <div className="shape shape-2" />
+        <div className="shape shape-3" />
         
         <div className="hero-content-grid">
           {/* Left Content */}
@@ -105,9 +207,16 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
               <button className="btn-primary-original" onClick={() => scrollToSection('actions-section')}>
                 Start Learning Now
               </button>
-              <button className="btn-secondary-original">
-                Explore Courses
-              </button>
+              {user ? (
+                <div className="hero-user-pill">
+                  <span className="hero-user-pill-label">Signed in as</span>
+                  <span className="hero-user-pill-name">{userDisplayName}</span>
+                </div>
+              ) : (
+                <button className="btn-secondary-original" onClick={handleExploreCourseClick}>
+                  Explore Course
+                </button>
+              )}
             </div>
 
             {/* Stats */}
@@ -158,6 +267,19 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
                 </div>
               ))}
             </div>
+
+            {user && (
+              <div className="leaderboard-user-summary">
+                <div className="leaderboard-user-avatar">{userInitials}</div>
+                <div className="leaderboard-user-info">
+                  <p className="leaderboard-user-name">{userDisplayName}</p>
+                  <p className="leaderboard-user-points">Badge Points: {leaderboardPoints}</p>
+                </div>
+                <button type="button" className="leaderboard-user-signout" onClick={onSignOut}>
+                  <FaSignOutAlt />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -218,7 +340,7 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
                 <div className="flow-step">
                   <div className="step-number">3</div>
                   <div className="step-content">
-                    <h3 className="step-title">Custodial Wallet Created</h3>
+                    <h3 className="step-title">Non-Custodial Wallet Created</h3>
                     <p className="step-description">Magic.link manages keypair securely</p>
                   </div>
                 </div>
@@ -342,6 +464,59 @@ export default function LandingPage({ onGoogleSignIn, user, onSignOut }) {
 
       {/* Hover Footer */}
       <HoverFooter />
+      </>
+      )}
+      </div>
+
+      <aside className={`programs-sidebar ${isProgramsSidebarOpen ? 'open' : ''}`}>
+        <button
+          type="button"
+          className="programs-sidebar-close"
+          onClick={onCloseProgramsSidebar}
+          aria-label="Close programs sidebar"
+        >
+          ×
+        </button>
+
+        <div className="programs-sidebar-header">
+          <div className="programs-sidebar-primary">
+            <div className="programs-sidebar-avatar">TU</div>
+            <div>
+              <h3>Tribhuvan University</h3>
+              <div className="programs-program-row">
+                <button
+                  type="button"
+                  className="programs-program-button"
+                  onClick={handleProgramClick}
+                >
+                  BSc CSIT
+                </button>
+                <button
+                  type="button"
+                  className="programs-animated-icon programs-animated-icon-button"
+                  onClick={handleProgramClick}
+                  aria-label="Show semester options"
+                >
+                  <span className="programs-animated-chevron" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {showSemesterTrigger && (
+          <button
+            type="button"
+            className="programs-semester-trigger"
+            onClick={handleSemesterMenuClick}
+          >
+            <span>Semester</span>
+            <span className="programs-semester-icon" aria-hidden="true">
+              <span className="programs-semester-icon-chevron" />
+            </span>
+          </button>
+        )}
+      </aside>
       </div>
     </>
   );
