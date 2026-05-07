@@ -9,6 +9,7 @@ export default function UploadModal({ onClose }) {
     course: "",
     semester: "",
     subject: "",
+    type: "",
     file: null,
   });
   const [submitting, setSubmitting] = useState(false);
@@ -112,6 +113,17 @@ export default function UploadModal({ onClose }) {
             <option value="6">6</option>
             <option value="7">7</option>
             <option value="8">8</option>
+          </select>
+          <select
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            required
+            style={styles.input}
+          >
+            <option value="">Select resource type</option>
+            <option value="note">Note</option>
+            <option value="lab">Lab Report</option>
           </select>
           <input
             name="subject"
