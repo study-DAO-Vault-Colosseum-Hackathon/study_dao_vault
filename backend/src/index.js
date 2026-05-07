@@ -8,10 +8,11 @@ const { admin, db } = require('../utils/firebase');
 const { verifyToken } = require('../middleware/auth');
 const { compressPDF } = require('../utils/pdf-compress');
 const votingRouter = require('../routes/voting');
+const usersRouter = require('../routes/auth');
 const fs = require('fs');
 const supabase = require('../supabase/supabaseClient');
 const checkSupabase = require('../supabase/supabasedb');
-
+const path = require('path');
 checkSupabase();
 const app = express();
 const server = require('http').createServer(app);
@@ -25,6 +26,8 @@ const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const router = express.Router();
+// const userRoute = require('../routes/auth');
+const userRoute = require('../routes/auth');
 // Configure CORS to allow only your frontend
 const corsOptions = {
   origin: FRONTEND_URL,
@@ -36,12 +39,18 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/api/documents', votingRouter);
+// console.log("DEBUG: The handler on line 41 is:", userRoute);
+app.use('/api/users', userRoute);
 
 app.set('view engine', 'ejs');
 
 app.get('/home', (req, res) => {
   res.render('home')
 })
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 // app.get('/notes', async (req, res) => {
 //   const { data, error } = await supabase
@@ -58,8 +67,11 @@ app.get('/home', (req, res) => {
 
 app.get('/', (req, res) => {
   res.json({ ok: true, message: 'Backend is running' });
+  
 });
-
+// app.get('/api/users', (req, res)=>{
+//   res.json({ok : true, message:"user endpoint"});
+// })
 // Protected route - requires Firebase token
 app.get('/api/vault-status', verifyToken, (req, res) => {
   res.json({
@@ -138,6 +150,8 @@ app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), asyn
     res.status(500).json({ error: err.message });
   }
 });
+
+// additional work
 
 
 io.on('connection', (socket) => {

@@ -1,5 +1,19 @@
 const admin = require('firebase-admin');
 const serviceAccount = require('./serviceAccountKey.json');
+const db = admin.firestore();
+
+const userRef = db.collection('users');
+
+const createUserObject = (data) => {
+  return {
+    name: data.name,
+    email: data.email,
+    password: data.password, 
+    date: admin.firestore.FieldValue.serverTimestamp() // Best practice for dates
+  };
+};
+
+module.exports = { userRef, createUserObject };
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)

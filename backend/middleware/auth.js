@@ -12,7 +12,6 @@ const verifyToken = async (req, res, next) => {
     req.user = decodedToken;
     next();
   } catch (error) {
-    // For development: accept custom tokens and extract uid
     try {
       const payload = JSON.parse(Buffer.from(idToken.split('.')[1], 'base64').toString());
       req.user = { uid: payload.uid, email: payload.email || "test@example.com" };
@@ -24,4 +23,23 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
-module.exports = { verifyToken };
+const isAdmin = async (req, res, next) => {
+  const token = req.headers.authorization?.split('Bearer ')[1];
+
+  if (!token) return res.status(401).send("Unauthorized");
+
+  try {
+    const decodedToken = await auth.verifyIdToken(token);
+    
+    // Check if the 'admin' claim we set earlier exists
+    if (decodedToken.admin === true) {
+      next(); // User is admin, proceed to the controller
+    } else {
+      res.status(403).send("Access denied: Admins only.");
+    }
+  } catch (error) {
+    res.status(401).send("Invalid Token");
+  }
+};
+
+module.exports = { verifyToken, isAdmin };
