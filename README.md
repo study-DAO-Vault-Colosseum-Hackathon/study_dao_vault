@@ -17,7 +17,8 @@ study_dao_vault/
 
 - Node.js (v18+)
 - npm or yarn
-- Firebase project setup
+- Firebase project setup (Auth + Firestore metadata)
+- Appwrite project setup (Storage bucket)
 - Solana wallet (for future blockchain integration)
 
 ---
@@ -85,6 +86,11 @@ Edit `.env` with your values:
 ```env
 PORT=3000
 NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1
+APPWRITE_PROJECT_ID=your_appwrite_project_id
+APPWRITE_API_KEY=your_appwrite_api_key
+APPWRITE_BUCKET_ID=your_appwrite_bucket_id
 ```
 
 ### 5. Run Development Server
@@ -113,6 +119,7 @@ The backend will be available at `http://localhost:3000`
 - ✅ Frontend tokens are verified by backend
 - ✅ Only authenticated users can access protected routes
 - ✅ Service account key is kept secret (in `.env`)
+- ✅ Appwrite API key is kept secret (in `.env`)
 - ✅ CORS is configured for local development
 
 ---
