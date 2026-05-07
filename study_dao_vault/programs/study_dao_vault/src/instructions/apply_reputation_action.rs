@@ -1,7 +1,4 @@
-use anchor_lang::{
-    prelude::*,
-    solana_program::{program::invoke_signed, system_instruction},
-};
+use anchor_lang::prelude::*;
 
 use crate::{
     constants::*,
@@ -172,7 +169,6 @@ pub fn handler(
     receipt.bump = ctx.bumps.action_receipt;
 
     reimburse_relayer(
-        &ctx.accounts.platform,
         &mut ctx.accounts.sol_reserve,
         &ctx.accounts.relayer,
     )?;
@@ -250,7 +246,6 @@ pub fn derive_badge(points: u64, is_top10: bool) -> BadgeTier {
 }
 
 fn reimburse_relayer<'info>(
-    platform: &Account<'info, Platform>,
     sol_reserve: &mut Account<'info, SolReserve>,
     relayer: &Signer<'info>,
 ) -> Result<()> {
@@ -267,15 +262,10 @@ fn reimburse_relayer<'info>(
         StudyDaoError::VaultDepleted
     );
 
-    let platform_key = platform.key();
-    let reserve_bump = [platform.sol_reserve_bump];
-    let signer_seeds: &[&[u8]] = &[SOL_RESERVE_SEED, platform_key.as_ref(), &reserve_bump];
-
-    invoke_signed(
-        &system_instruction::transfer(sol_reserve_ai.key, relayer_ai.key, RELAYER_FEE_LAMPORTS),
-        &[sol_reserve_ai, relayer_ai],
-        &[signer_seeds],
-    )?;
+    // SolReserve is a program-owned account carrying data, so system transfer CPI
+    // is invalid here. Move lamports directly between accounts.
+    **sol_reserve_ai.try_borrow_mut_lamports()? -= RELAYER_FEE_LAMPORTS;
+    **relayer_ai.try_borrow_mut_lamports()? += RELAYER_FEE_LAMPORTS;
 
     sol_reserve.total_outflow = sol_reserve
         .total_outflow

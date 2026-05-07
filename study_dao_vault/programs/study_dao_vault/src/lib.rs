@@ -10,7 +10,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("ExY4RXQaD86GyNpofZy9PJV32QKPaDRnzcvByLDb8bTZ");
+declare_id!("2AknVcScKtfx9EE7mJ8zPohT1XEdP93c7HoqgCHpbHtu");
 
 #[program]
 pub mod study_dao_vault {

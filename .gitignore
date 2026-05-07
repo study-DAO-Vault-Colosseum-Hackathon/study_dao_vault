@@ -9,6 +9,9 @@ DOCKER_SETUP.md
 SOLANA_PLAN.md
 reference_code_files/
 
+# Ignore all Copilot skills
+.github/skills/
+
 # Environment Variables & Secrets
 .env
 .env.local
