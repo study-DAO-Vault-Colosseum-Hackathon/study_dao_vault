@@ -27,29 +27,50 @@ export async function downvoteDocument(docId, token) {
     }
     return await res.json();
 }
+
+// Delete a document
+export async function deleteDocument(docId, token) {
+    const res = await fetch(`${BASE_URL}/documents/${docId}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Delete failed (${res.status})`);
+    }
+    return await res.json();
+}
 const BASE_URL = import.meta.env.PROD
     ? `${import.meta.env.VITE_API_URL}/api`
     : "http://localhost:3000/api";
 
 // Utility for API calls (fetch wrapper, can add auth token logic here)
-export async function uploadDocument(form, token) {
+export async function uploadDocument(form, token, onStageChange) {
+    if (onStageChange) onStageChange({ stage: "preparing", progress: 10, message: "Preparing upload..." });
     const data = new FormData();
     data.append("title", form.title);
     data.append("course", form.course);
     data.append("semester", form.semester);
     data.append("subject", form.subject);
+    data.append("type", form.type);
     data.append("file", form.file);
+    if (onStageChange) onStageChange({ stage: "uploading", progress: 70, message: "Uploading file..." });
 
     const res = await fetch(`${BASE_URL}/documents/upload`, {
         method: "POST",
         body: data,
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
+    if (onStageChange) onStageChange({ stage: "finalizing", progress: 90, message: "Finalizing..." });
     if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || `Upload failed (${res.status})`);
     }
-    return await res.json();
+    const payload = await res.json();
+    if (onStageChange) onStageChange({ stage: "done", progress: 100, message: "Upload complete." });
+    return payload;
 }
 
 export async function compressPdfAndDownload(file, quality = "screen") {
