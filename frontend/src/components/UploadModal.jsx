@@ -8,10 +8,13 @@ export default function UploadModal({ onClose }) {
     course: "",
     semester: "",
     subject: "",
+    type: "",
     file: null,
   });
   const [submitting, setSubmitting] = useState(false);
   const [compressing, setCompressing] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadStageText, setUploadStageText] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [compressSuccess, setCompressSuccess] = useState("");
@@ -27,15 +30,29 @@ export default function UploadModal({ onClose }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
+    setUploadProgress(10);
+    setUploadStageText("Preparing upload...");
     setError("");
     setSuccess(false);
     try {
       const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
-      await uploadDocument(form, token);
+      const isPdf = form.file?.type === "application/pdf" || form.file?.name?.toLowerCase().endsWith(".pdf");
+      if (isPdf) {
+        setUploadProgress(40);
+        setUploadStageText("Compressing PDF...");
+      }
+      await uploadDocument(form, token, ({ progress, message }) => {
+        setUploadProgress(progress);
+        setUploadStageText(message);
+      });
       setSuccess(true);
+      setUploadProgress(100);
+      setUploadStageText("Upload completed.");
       setTimeout(onClose, 1200);
     } catch (err) {
       setError(err.message);
+      setUploadStageText("");
+      setUploadProgress(0);
     } finally {
       setSubmitting(false);
     }
@@ -105,6 +122,17 @@ export default function UploadModal({ onClose }) {
             <option value="7">7</option>
             <option value="8">8</option>
           </select>
+          <select
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            required
+            style={styles.input}
+          >
+            <option value="">Select resource type</option>
+            <option value="note">Note</option>
+            <option value="lab">Lab Report</option>
+          </select>
           <input
             name="subject"
             placeholder="Subject"
@@ -122,13 +150,13 @@ export default function UploadModal({ onClose }) {
             style={styles.input}
           />
           <div style={{ marginTop: 12 }}>
-            <button type="submit" disabled={submitting}>
+            <button type="submit" disabled={submitting || compressing}>
               {submitting ? "Uploading..." : "Upload"}
             </button>
             <button
               type="button"
               onClick={handleCompressAndDownload}
-              disabled={compressing}
+              disabled={compressing || submitting}
               style={{ marginLeft: 8 }}
             >
               {compressing ? "Compressing..." : "Compress & Download PDF"}
@@ -137,6 +165,14 @@ export default function UploadModal({ onClose }) {
               Cancel
             </button>
           </div>
+          {submitting && (
+            <div style={styles.progressWrapper}>
+              <div style={styles.progressTrack}>
+                <div style={{ ...styles.progressFill, width: `${uploadProgress}%` }} />
+              </div>
+              <div style={styles.progressText}>{uploadStageText}</div>
+            </div>
+          )}
           {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
           {success && <div style={{ color: "green", marginTop: 8 }}>Uploaded!</div>}
           {compressSuccess && <div style={{ color: "green", marginTop: 8 }}>{compressSuccess}</div>}
@@ -173,5 +209,25 @@ const styles = {
     padding: 8,
     borderRadius: 4,
     border: "1px solid #ccc",
+  },
+  progressWrapper: {
+    marginTop: 12,
+  },
+  progressTrack: {
+    width: "100%",
+    height: 8,
+    borderRadius: 999,
+    background: "#e5e7eb",
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    background: "#2563eb",
+    transition: "width 0.3s ease",
+  },
+  progressText: {
+    marginTop: 6,
+    fontSize: 12,
+    color: "#374151",
   },
 };
