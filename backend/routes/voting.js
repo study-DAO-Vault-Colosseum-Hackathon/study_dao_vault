@@ -1,5 +1,6 @@
 const express = require('express');
 const { db } = require('../utils/firebase');
+const { storage, appwriteBucketId } = require('../utils/appwrite');
 const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -110,6 +111,41 @@ router.post('/:id/downvote', verifyToken, async (req, res) => {
 
     res.json({ message: 'Downvote recorded', downvotes: (data.downvotes || 0) + 1 });
 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * DELETE /api/documents/:id
+ * Delete a document (owner only)
+ */
+router.delete('/:id', verifyToken, async (req, res) => {
+  try {
+    const docId = req.params.id;
+    const docRef = db.collection('documents').doc(docId);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
+
+    const data = doc.data();
+    const ownerId = data?.owner?.uid;
+    if (!ownerId || ownerId !== req.user.uid) {
+      return res.status(403).json({ error: 'Not authorized to delete this document' });
+    }
+
+    if (data?.fileId) {
+      try {
+        await storage.deleteFile(appwriteBucketId, data.fileId);
+      } catch (err) {
+        console.warn('Appwrite delete failed', err.message);
+      }
+    }
+
+    await docRef.delete();
+    res.json({ message: 'Document deleted', id: docId });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
