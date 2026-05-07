@@ -1,6 +1,10 @@
 const { auth } = require("../utils/firebase");
 
 const verifyToken = async (req, res, next) => {
+  if (!auth) {
+    return res.status(503).json({ error: "Firebase auth is not configured on the server" });
+  }
+
   const idToken = req.headers.authorization?.split('Bearer ')[1];
 
   if (!idToken) {

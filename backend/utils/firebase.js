@@ -1,12 +1,16 @@
 const admin = require("firebase-admin");
 
-function normalizeBucketName(bucket) {
-  if (!bucket) return undefined;
-  return bucket.replace(/^gs:\/\//, "").replace(/\/+$/, "");
-}
+const hasFirebaseCredentials = Boolean(
+  process.env.FIREBASE_PRIVATE_KEY &&
+  process.env.FIREBASE_CLIENT_EMAIL &&
+  process.env.FIREBASE_PROJECT_ID
+);
 
-if (process.env.FIREBASE_PRIVATE_KEY) {
-  serviceAccount = {
+let auth = null;
+let db = null;
+
+if (hasFirebaseCredentials) {
+  const serviceAccount = {
     type: process.env.FIREBASE_TYPE,
     project_id: process.env.FIREBASE_PROJECT_ID,
     private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
@@ -19,20 +23,13 @@ if (process.env.FIREBASE_PRIVATE_KEY) {
     client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
     universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN
   };
-} else {
-  try {
-    // Load local service account JSON if environment vars are not provided
-    serviceAccount = require(path.resolve(__dirname, '..', 'serviceAccountKey.json'));
-  } catch (err) {
-    throw new Error('Firebase credentials not found. Set FIREBASE_PRIVATE_KEY env or place serviceAccountKey.json in backend/');
-  }
+
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+
+  auth = admin.auth();
+  db = admin.firestore();
 }
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  storageBucket: normalizeBucketName(process.env.FIREBASE_STORAGE_BUCKET)
-});
-
-const auth = admin.auth();
-const db = admin.firestore();
-module.exports = { admin, auth, db };
+module.exports = { auth, db };

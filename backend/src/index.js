@@ -1,4 +1,8 @@
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (e) {
+  console.warn('dotenv not installed; continuing without .env file');
+}
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
@@ -6,6 +10,8 @@ const upload = multer({ dest: 'uploads/' });
 const uploadMemory = multer({ storage: multer.memoryStorage() });
 const { admin, db } = require('../utils/firebase');
 const { verifyToken } = require('../middleware/auth');
+const authRoutes = require('../routes/auth');
+
 const { compressPDF } = require('../utils/pdf-compress');
 const votingRouter = require('../routes/voting');
 const usersRouter = require('../routes/auth');
@@ -24,13 +30,14 @@ const io = require('socket.io')(server, {
 });
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL || (NODE_ENV === 'development' ? 'http://localhost:5173' : undefined);
+
 const router = express.Router();
 // const userRoute = require('../routes/auth');
 const userRoute = require('../routes/auth');
 // Configure CORS to allow only your frontend
 const corsOptions = {
-  origin: FRONTEND_URL,
+  origin: FRONTEND_URL || '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -69,6 +76,10 @@ app.get('/', (req, res) => {
   res.json({ ok: true, message: 'Backend is running' });
   
 });
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
 // app.get('/api/users', (req, res)=>{
 //   res.json({ok : true, message:"user endpoint"});
 // })
