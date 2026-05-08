@@ -4,7 +4,6 @@ import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
-import HamoCSIT from "./pages/HamoCSIT";
 import Navbar from "./components/Navbar";
 import './App.css';
 
@@ -200,13 +199,13 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
         />
 
         <Route
-          path="/chapters"
-          element={<HamoCSIT onSignOut={handleSignOut} />}
+          path="/hamro-csit"
+          element={<Navigate to="/" replace />}
         />
 
         <Route
-          path="/hamro-csit"
-          element={<Navigate to="/chapters" replace />}
+          path="/chapters"
+          element={<Navigate to="/" replace />}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

@@ -22,7 +22,7 @@ import SubjectShaderCards from '../components/ui/subject-shader-cards';
 import './EduChainNP.css';
 
 const semesters = Array.from({ length: 8 }, (_, index) => index + 1);
-const semesterPreviewImage = '/together-classroom.jpg';
+const semesterPreviewImage = '/image.png';
 
 const semesterSubjects = {
   1: [
@@ -614,12 +614,7 @@ export default function LandingPage({
               <button type="button" className="btn-primary-visual">
                 Start Learning Now
               </button>
-              {user ? (
-                <div className="hero-user-pill">
-                  <span className="hero-user-pill-label">Signed in as</span>
-                  <span className="hero-user-pill-name">{userDisplayName}</span>
-                </div>
-              ) : (
+              {!user && (
                 <button className="btn-secondary-original" onClick={handleExploreCourseClick}>
                   Explore Course
                 </button>
@@ -873,6 +868,7 @@ export default function LandingPage({
         {/* Hover Footer */}
         <HoverFooter />
       </div>
+
       </>
       )}
       </div>
