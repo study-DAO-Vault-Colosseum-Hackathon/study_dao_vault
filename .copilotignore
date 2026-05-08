@@ -1,0 +1,150 @@
+# ============================================
+# .copilotignore - TU Study DAO
+# Ignores sensitive files, private keys, and secrets
+# ============================================
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.production.local
+.env.development.local
+.env.test.local
+.env.*.local
+*.env
+
+# Solana/Anchor Private Keys & Keypairs
+id.json
+**/id.json
+**/*-keypair.json
+*-keypair.json
+*.keypair
+target/deploy/
+**/.anchor/
+
+# Wallet Files
+wallet.json
+*wallet*.json
+*.pem
+*.key
+*.pk8
+private_key*
+secret_key*
+
+# RPC URLs & Network Credentials
+.rpc
+.rpc.*
+rpc-config.*
+network-config.json
+node-config.*
+
+# Anchor Configuration Secrets
+Anchor.toml.secret
+anchor-config.secret.*
+build-secrets.*
+
+# Magic.link & OAuth Tokens
+magic_secret*
+magic_key*
+oauth_secret*
+oauth_token*
+
+# API Keys & Tokens
+api_key*
+api_secret*
+*_api_key*
+*_secret_key*
+auth_token*
+access_token*
+refresh_token*
+bearer_token*
+jwt_secret*
+
+# Database Credentials
+db_password*
+database_url*
+mongodb_uri*
+connection_string*
+
+# AWS & Cloud Provider Credentials
+.aws/
+.aws-credentials
+aws_secret*
+aws_key*
+.gcp-credentials*
+.gcloud/
+
+# Node Modules & Dependencies (often huge, can be restored)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build Artifacts (can be regenerated)
+dist/
+build/
+out/
+.next/
+*.o
+*.so
+*.dylib
+*.dll
+
+# IDE & Local Development
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Cache Directories
+.cache/
+.eslintcache
+.next/cache/
+.turbo/
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# OS Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.dockerignore
+Dockerfile*
+
+# Miscellaneous Sensitive Files
+*.pem.backup
+*.key.backup
+secrets.txt
+credentials.txt
+CREDENTIALS.md
+SECRET.md
+TODO-SECRETS.md
+.env.example.secret
