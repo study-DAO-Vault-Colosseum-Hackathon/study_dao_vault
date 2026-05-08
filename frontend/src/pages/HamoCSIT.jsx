@@ -1,6 +1,21 @@
 import React, { useState } from 'react';
-import { FaSearch, FaArrowRight, FaCode, FaDatabase, FaUsers, FaLightbulb } from 'react-icons/fa';
-import { BreakableCard } from '../components/ui/kinetic-shatter-box';
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaBookOpen,
+  FaCheckCircle,
+  FaClock,
+  FaCode,
+  FaComments,
+  FaDatabase,
+  FaFileAlt,
+  FaLightbulb,
+  FaQuestionCircle,
+  FaSearch,
+  FaStickyNote,
+  FaUsers,
+} from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import './HamoCSIT.css';
 
 export default function HamoCSIT({ onSignOut }) {
@@ -9,6 +24,8 @@ export default function HamoCSIT({ onSignOut }) {
   const [selectedSemester, setSelectedSemester] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [activeTab, setActiveTab] = useState('Chapters');
+  const [selectedChapterForNotes, setSelectedChapterForNotes] = useState(null);
+  const [chapterSearchQuery, setChapterSearchQuery] = useState('');
 
   const allSemesters = [
     {
@@ -152,12 +169,16 @@ export default function HamoCSIT({ onSignOut }) {
     setSelectedSubject(subject);
     setCurrentView('detail');
     setActiveTab('Chapters');
+    setSelectedChapterForNotes(null);
+    setChapterSearchQuery('');
   };
 
   const handleBackClick = () => {
     if (currentView === 'detail') {
       setCurrentView('subjects');
       setSelectedSubject(null);
+      setSelectedChapterForNotes(null);
+      setChapterSearchQuery('');
     } else if (currentView === 'subjects') {
       setCurrentView('semesters');
       setSelectedSemester(null);
@@ -165,13 +186,77 @@ export default function HamoCSIT({ onSignOut }) {
   };
 
   const tabIcons = {
-    'Chapters': '☰',
-    'Syllabus': '📖',
-    'Notes': '📝',
-    'Q/A Feed': '💬',
-    'Question Bank': '⊞',
+    'Chapters': <FaBookOpen />,
+    'Syllabus': <FaFileAlt />,
+    'Notes': <FaStickyNote />,
+    'Q/A Feed': <FaComments />,
+    'Question Banks': <FaQuestionCircle />,
   };
-  const tabs = ['Chapters', 'Syllabus', 'Notes', 'Q/A Feed', 'Question Bank'];
+  const tabs = ['Chapters', 'Syllabus', 'Notes', 'Q/A Feed', 'Question Banks'];
+
+  const handleChapterClick = (chapterName) => {
+    setSelectedChapterForNotes(chapterName);
+    setActiveTab('Notes');
+  };
+
+
+  const getCourseNature = (courseCode) => (courseCode.startsWith('CSC') ? 'Theory + Lab' : 'Theory');
+
+  const hamroDetailedUnitsByCode = {
+    CSC257: [
+      { title: 'Unit 1. Basic Foundations', hours: '3 Hrs.', topics: ['Review of set theory, logic, functions and proofs', 'Automata, computability and complexity basics', 'Alphabets, strings, language and closure concepts'] },
+      { title: 'Unit 2. Introduction to Finite Automata', hours: '8 Hrs.', topics: ['DFA, NFA and epsilon-NFA models', 'Equivalence and subset construction', 'Moore and Mealy machines'] },
+      { title: 'Unit 3. Regular Expression', hours: '6 Hrs.', topics: ['Regular operators and algebraic rules', 'Conversion between regular expressions and automata', 'Pumping lemma and closure properties'] },
+      { title: 'Unit 4. Context Free Grammar', hours: '9 Hrs.', topics: ['CFG, derivations and parse trees', 'Grammar simplification and normal forms', 'CFL pumping lemma and closure properties'] },
+      { title: 'Unit 5. Push Down Automata', hours: '7 Hrs.', topics: ['PDA representation and operations', 'Acceptance by final state and empty stack', 'Conversion between CFG and PDA'] },
+      { title: 'Unit 6. Turing Machine', hours: '10 Hrs.', topics: ['TM notation and language recognition', 'Variants of TM and equivalence', 'Universal TM and encoding concepts'] },
+      { title: 'Unit 7. Undecidability and Intractability', hours: '5 Hrs.', topics: ['Complexity classes and reducibility', 'Cook theorem and satisfiability', 'Halting problem and undecidable problems'] },
+    ],
+    CSC261: [
+      { title: 'Unit 1. Introduction', hours: '3 Hrs.', topics: ['AI perspectives and history', 'Foundations of AI', 'AI applications overview'] },
+      { title: 'Unit 2. Intelligent Agents', hours: '4 Hrs.', topics: ['Agent structure and properties', 'PEAS and PAGE models', 'Types of agents and environments'] },
+      { title: 'Unit 3. Problem Solving by Searching', hours: '9 Hrs.', topics: ['State-space formulation', 'Uninformed and informed search', 'Game playing and CSP'] },
+      { title: 'Unit 4. Knowledge Representation', hours: '14 Hrs.', topics: ['Semantic nets, frames and rule systems', 'Propositional and predicate logic inference', 'Probabilistic reasoning and fuzzy logic'] },
+      { title: 'Unit 5. Machine Learning', hours: '9 Hrs.', topics: ['Supervised, unsupervised, reinforcement learning', 'Naive Bayes and genetic algorithms', 'ANN, perceptron and backpropagation'] },
+      { title: 'Unit 6. Applications of AI', hours: '6 Hrs.', topics: ['Expert systems', 'Natural language processing', 'Machine vision and robotics'] },
+    ],
+    CSC410: [
+      { title: 'Unit 1. Introduction to Data Warehousing', hours: '5 Hrs.', topics: ['Data warehouse architecture and components', 'Multidimensional model and OLAP', 'Data marts and trends'] },
+      { title: 'Unit 5. Mining Frequent Patterns', hours: '6 Hrs.', topics: ['Association rules and market basket analysis', 'Apriori and FP-growth', 'Correlation analysis and lift'] },
+      { title: 'Unit 6. Classification and Prediction', hours: '10 Hrs.', topics: ['Decision trees and Bayesian classification', 'SVM and backpropagation', 'Evaluation metrics and validation'] },
+      { title: 'Unit 8. Graph Mining and Social Network Analysis', hours: '5 Hrs.', topics: ['Graph mining algorithms', 'Social network link analysis', 'Trust and signed network concepts'] },
+      { title: 'Unit 9. Mining Spatial, Multimedia, Text and Web Data', hours: '2 Hrs.', topics: ['Spatial and multimedia mining', 'Text mining basics', 'Web content/structure/usage mining'] },
+    ],
+  };
+
+  const buildFallbackUnits = (chapters = [], subjectName = 'this course') => {
+    if (!Array.isArray(chapters) || chapters.length === 0) return [];
+
+    return chapters.map((chapterName, index) => ({
+      title: `Unit ${index + 1}. ${chapterName}`,
+      hours: `${index % 3 === 2 ? 4 : 3} Hrs.`,
+      topics: [
+        `${chapterName} fundamentals in ${subjectName}`,
+        `Core methods, examples, and problem-solving of ${chapterName}`,
+        `Important applications and exam-focused points of ${chapterName}`,
+      ],
+    }));
+  };
+
+  const buildSyllabus = (subject, semester) => ({
+    courseTitle: subject.name,
+    courseCode: subject.code,
+    semester: semester.number,
+    natureOfCourse: getCourseNature(subject.code),
+    fullMarks: '60 + 20 + 20',
+    passMarks: '24 + 8 + 8',
+    creditHours: '3',
+    description: subject.desc,
+    objective:
+      subject.objective ||
+      `The main objective of this course is to provide students with strong conceptual and practical understanding of ${subject.name.toLowerCase()} for solving real-world computing problems.`,
+    units: hamroDetailedUnitsByCode[subject.code] || buildFallbackUnits(subject.chapters, subject.name),
+  });
 
   // VIEW 1: Semester Path
   if (currentView === 'semesters') {
@@ -477,136 +562,234 @@ export default function HamoCSIT({ onSignOut }) {
 
   // VIEW 3: Subject Detail
   if (currentView === 'detail' && selectedSemester && selectedSubject) {
+    const syllabus = buildSyllabus(selectedSubject, selectedSemester);
+    const isChaptersTab = activeTab === 'Chapters';
+    const filteredChapters = selectedSubject.chapters.filter((chapterName) =>
+      chapterName.toLowerCase().includes(chapterSearchQuery.trim().toLowerCase())
+    );
+    const completedCount = Math.min(3, selectedSubject.chapters.length);
+    const estimatedHours = Math.max(6, Math.round(selectedSubject.chapters.length * 1.6));
+    const heroDescription = `${selectedSubject.desc} This subject walks through ${selectedSubject.chapters.slice(0, 3).join(', ').toLowerCase()} and related concepts.`;
+
     return (
-      <div className="hamro-csit-container" style={{ background: '#ffffff', minHeight: '100vh' }}>
-        {/* Tab Navigation */}
-        <div style={{ background: '#fff', borderBottom: '1px solid #e0e0e0', padding: '16px 32px', maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={handleBackClick} style={{ background: '#2ecc71', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
-            ← Back
-          </button>
-          <div style={{ display: 'flex', gap: '0' }}>
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: activeTab === tab ? '2px solid #0d9e7e' : '2px solid transparent',
-                  color: activeTab === tab ? '#0d9e7e' : '#444',
-                  padding: '14px 18px',
-                  fontSize: '13px',
-                  fontWeight: activeTab === tab ? '600' : '400',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {tabIcons[tab]} {tab}
+      <div className="hamro-csit-container" style={{ background: '#0b0f1d', minHeight: '100vh' }}>
+        <div style={{ background: 'rgba(11, 15, 29, 0.96)', borderBottom: '1px solid rgba(148, 163, 184, 0.12)', padding: '14px 28px', position: 'sticky', top: 0, zIndex: 10, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px', flexWrap: 'wrap' }}>
+            <Link to="/" style={{ textDecoration: 'none' }}>
+              <button style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(30, 41, 59, 0.45)', border: '1px solid rgba(139, 92, 246, 0.18)', color: '#cbd5e1', padding: '11px 18px', borderRadius: '16px', cursor: 'pointer', fontSize: '15px', fontWeight: '500' }}>
+                <FaArrowLeft />
+                <span>Back to Home</span>
               </button>
-            ))}
+            </Link>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+              {tabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    whiteSpace: 'nowrap',
+                    padding: '10px 15px',
+                    borderRadius: '16px',
+                    background: 'rgba(30, 41, 59, 0.45)',
+                    border: activeTab === tab ? '1px solid rgba(168, 85, 247, 0.55)' : '1px solid rgba(139, 92, 246, 0.18)',
+                    color: activeTab === tab ? '#c4b5fd' : '#9ca3af',
+                    boxShadow: activeTab === tab ? 'inset 0 -2px 0 #9333ea' : 'none',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {tabIcons[tab]}
+                  <span>{tab}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Subject Content */}
-        <section style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '28px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-            {/* Subject Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
-              <div>
-                <h2 style={{ fontSize: '22px', fontWeight: '700', color: '#1a1a2e', margin: '0 0 6px' }}>
-                  {selectedSubject.name}
-                </h2>
-                <p style={{ color: '#555', fontSize: '14px', margin: '0 0 12px' }}>
-                  {selectedSubject.desc}
-                </p>
-                <div style={{ display: 'flex', gap: '20px', fontSize: '13px', color: '#333' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ color: '#0d9e7e' }}>≡</span> {selectedSubject.code}
-                  </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ color: '#0d9e7e' }}>📚</span> Chapters : {selectedSubject.chapters}
-                  </span>
-                </div>
-              </div>
-              <div
-                style={{
-                  width: '56px',
-                  height: '56px',
-                  borderRadius: '50%',
-                  background: '#0d9e7e',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  color: '#fff',
-                  fontSize: '24px',
-                  fontWeight: 'bold',
-                }}
-              >
-                ≡
-              </div>
-            </div>
+        <section style={{ padding: '26px 28px 40px', maxWidth: '1400px', margin: '0 auto', color: '#f8fafc' }}>
+          <div style={{ padding: '4px 4px 22px' }}>
+            <p style={{ margin: '0 0 14px', color: '#9333ea', textTransform: 'uppercase', letterSpacing: '0.12em', fontSize: '13px', fontWeight: '700' }}>
+              {selectedSubject.code} - Semester {selectedSemester.number}
+            </p>
+            <h1 style={{ margin: 0, fontSize: 'clamp(1.8rem, 3vw, 3rem)', lineHeight: 1.12, color: '#f8fafc' }}>
+              {selectedSubject.name}
+            </h1>
+            <p style={{ margin: '14px 0 0', maxWidth: '920px', color: 'rgba(226, 232, 240, 0.72)', fontSize: 'clamp(0.98rem, 1.4vw, 1.12rem)', lineHeight: 1.6 }}>
+              {heroDescription}
+            </p>
 
-            {/* Content Area */}
-            <div style={{ borderTop: '2px solid #0d9e7e', paddingTop: '20px', marginTop: '8px' }}>
-              {activeTab === 'Chapters' && (
-                <div>
-                  <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
-                    ☰ Chapters for <strong>{selectedSubject.name}</strong> ({selectedSubject.code})
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '22px' }}>
+              {[
+                { icon: <FaBookOpen />, label: `${selectedSubject.chapters.length} chapters` },
+                { icon: <FaClock />, label: `~${estimatedHours} hrs` },
+                { icon: <FaLightbulb />, label: 'Beginner' },
+                { icon: <FaCheckCircle />, label: `${completedCount} completed` },
+              ].map((item) => (
+                <div key={item.label} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '999px', background: 'rgba(49, 46, 129, 0.22)', border: '1px solid rgba(99, 102, 241, 0.2)', color: '#cbd5e1', fontSize: '13px', fontWeight: '500' }}>
+                  {item.icon}
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ height: '1px', background: 'rgba(148, 163, 184, 0.16)', marginBottom: '24px' }} />
+
+          <div style={{ background: 'rgba(17, 24, 39, 0.65)', border: '1px solid rgba(99, 102, 241, 0.16)', borderRadius: '20px', padding: '26px', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.02)' }}>
+            {activeTab === 'Chapters' && (
+              <div>
+                <div style={{ marginBottom: '20px' }}>
+                  <p style={{ margin: '0 0 8px', color: 'rgba(148, 163, 184, 0.72)', textTransform: 'uppercase', letterSpacing: '0.16em', fontSize: '12px', fontWeight: '700' }}>
+                    CSIT Curriculum Chapters
                   </p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px', backgroundColor: '#0a0f0d', padding: '20px', borderRadius: '12px' }}>
-                    {selectedSubject.chapters.map((chapterName, i) => {
-                      const colorPalette = ['#a855f7', '#0891b2', '#22c55e', '#ca8a04', '#7c3aed', '#dc2626', '#e11d48', '#0d9488'];
-                      const bgColor = colorPalette[i % colorPalette.length];
+                  <h2 style={{ margin: 0, color: '#f8fafc', fontSize: '18px' }}>Chapters</h2>
+                  <p style={{ margin: '8px 0 0', color: 'rgba(203, 213, 225, 0.68)', fontSize: '14px' }}>
+                    <span style={{ color: '#c4b5fd', fontWeight: '700' }}>{selectedSubject.chapters.length} chapters</span> for {selectedSubject.name}
+                  </p>
+                </div>
+
+                <div style={{ marginBottom: '22px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(99, 102, 241, 0.24)', borderRadius: '16px', padding: '12px 16px' }}>
+                    <FaSearch style={{ color: '#a78bfa', fontSize: '16px' }} />
+                    <input
+                      type="text"
+                      value={chapterSearchQuery}
+                      onChange={(event) => setChapterSearchQuery(event.target.value)}
+                      placeholder="Search chapters..."
+                      aria-label="Search chapters"
+                      style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent', color: '#f8fafc', fontSize: '15px' }}
+                    />
+                  </div>
+                </div>
+
+                {filteredChapters.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+                    {filteredChapters.map((chapterName, index) => {
+                      const originalIndex = selectedSubject.chapters.indexOf(chapterName);
+                      const chapterStatus = selectedChapterForNotes === chapterName
+                        ? 'In progress'
+                        : originalIndex < completedCount
+                          ? 'Done'
+                          : 'Locked';
+
                       return (
-                        <div key={i} style={{ height: '280px' }}>
-                          <BreakableCard
-                            title={`${chapterName}`}
-                            description={`Explore ${chapterName} concepts in ${selectedSubject.name}. Drag to break the card and reveal content.`}
-                            className="w-full"
-                            bgColor={bgColor}
-                            onBreak={() => {
-                              console.log(`Chapter "${chapterName}" broken!`);
-                            }}
-                          />
-                        </div>
+                        <button
+                          key={`${selectedSubject.code}-${chapterName}`}
+                          type="button"
+                          onClick={() => handleChapterClick(chapterName)}
+                          style={{
+                            position: 'relative',
+                            minHeight: '180px',
+                            borderRadius: '18px',
+                            border: selectedChapterForNotes === chapterName ? '1px solid #9333ea' : '1px solid rgba(99, 102, 241, 0.2)',
+                            background: 'linear-gradient(180deg, rgba(20, 25, 55, 0.96), rgba(17, 24, 39, 0.92))',
+                            padding: '20px 18px',
+                            textAlign: 'left',
+                            color: '#f8fafc',
+                            cursor: 'pointer',
+                            boxShadow: selectedChapterForNotes === chapterName ? '0 0 0 1px rgba(147, 51, 234, 0.45)' : 'none',
+                          }}
+                        >
+                          <span style={{ position: 'absolute', right: '18px', top: '18px', width: '10px', height: '10px', border: '1px solid rgba(148, 163, 184, 0.28)', borderRadius: '2px' }} />
+                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '52px', height: '52px', borderRadius: '14px', marginBottom: '18px', background: 'rgba(76, 29, 149, 0.58)', color: '#c4b5fd', fontSize: '18px', fontWeight: '800' }}>
+                            {String(originalIndex + 1).padStart(2, '0')}
+                          </div>
+                          <h3 style={{ margin: '0 0 20px', fontSize: '16px', lineHeight: 1.4 }}>{chapterName}</h3>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '7px 12px',
+                            borderRadius: '999px',
+                            fontSize: '12px',
+                            fontWeight: '700',
+                            background: chapterStatus === 'In progress' ? 'rgba(88, 28, 135, 0.62)' : 'rgba(76, 29, 149, 0.48)',
+                            color: '#c084fc',
+                          }}>
+                            {chapterStatus}
+                          </span>
+                        </button>
                       );
                     })}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div style={{ borderRadius: '18px', border: '1px solid rgba(99, 102, 241, 0.16)', background: 'rgba(15, 23, 42, 0.9)', padding: '22px 24px' }}>
+                    <p style={{ margin: 0, color: 'rgba(203, 213, 225, 0.72)', fontSize: '16px' }}>No chapters matched your search.</p>
+                  </div>
+                )}
+              </div>
+            )}
               {activeTab === 'Syllabus' && (
                 <div>
-                  <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
-                    📖 Official syllabus for <strong>{selectedSubject.name}</strong> ({selectedSubject.code}) — {selectedSemester.name}
-                  </p>
-                  <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', fontSize: '13px', color: '#333', lineHeight: '1.8' }}>
-                    <div style={{ marginBottom: '10px' }}><strong>Course Code:</strong> {selectedSubject.code}</div>
-                    <div style={{ marginBottom: '10px' }}><strong>Course Title:</strong> {selectedSubject.name}</div>
-                    <div style={{ marginBottom: '10px' }}><strong>Semester:</strong> {selectedSemester.number}</div>
-                    <div style={{ marginBottom: '10px' }}><strong>Nature of course:</strong> Theory + Lab</div>
-                    <div style={{ marginBottom: '10px' }}><strong>Full Marks:</strong> 60 + 20 + 20</div>
-                    <div style={{ marginBottom: '10px' }}><strong>Pass Marks:</strong> 24 + 8 + 8</div>
-                    <div><strong>Credit Hours:</strong> 3</div>
+                  <div className="hamro-syllabus-paper">
+                    <div className="hamro-syllabus-header">
+                      <p>Tribhuvan University</p>
+                      <p>Institute of Science and Technology</p>
+                      <p>Bachelor of Science in Computer Science and Information Technology</p>
+                    </div>
+
+                    <div className="hamro-syllabus-meta">
+                      <div className="hamro-syllabus-meta-left">
+                        <p><span>Course Title:</span> {syllabus.courseTitle}</p>
+                        <p><span>Course no:</span> {syllabus.courseCode}</p>
+                        <p><span>Semester:</span> {syllabus.semester}</p>
+                        <p><span>Nature of course:</span> {syllabus.natureOfCourse}</p>
+                      </div>
+                      <div className="hamro-syllabus-meta-right">
+                        <p><span>Full Marks:</span> {syllabus.fullMarks}</p>
+                        <p><span>Pass Marks:</span> {syllabus.passMarks}</p>
+                        <p><span>Credit Hours:</span> {syllabus.creditHours}</p>
+                      </div>
+                    </div>
+
+                    <p className="hamro-syllabus-text-block">
+                      <strong>Course Description :</strong> {syllabus.description}
+                    </p>
+                    <p className="hamro-syllabus-text-block">
+                      <strong>Course Objective :</strong> {syllabus.objective}
+                    </p>
+                    <p className="hamro-syllabus-text-block">
+                      <strong>Source :</strong> HamroCSIT syllabus/subject notes (chapter-wise basis)
+                    </p>
+
+                    <h4 className="hamro-syllabus-contents-title">Course Contents:</h4>
+                    <div className="hamro-syllabus-units">
+                      {syllabus.units.map((unit) => (
+                        <div key={unit.title} className="hamro-syllabus-unit">
+                          <div className="hamro-syllabus-unit-header">
+                            <h5>{unit.title}</h5>
+                            <span>{unit.hours}</span>
+                          </div>
+                          <p>{unit.topics.join('; ')}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
               {activeTab === 'Notes' && (
                 <div>
-                  <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  <p style={{ color: '#cbd5e1', fontSize: '14px', marginBottom: '16px' }}>
                     📝 Study notes for <strong>{selectedSubject.name}</strong> ({selectedSubject.code})
                   </p>
+                  {(() => {
+                    const noteChapters = Array.isArray(selectedSubject?.chapters) ? selectedSubject.chapters : [];
+                    const orderedNoteChapters = selectedChapterForNotes && noteChapters.includes(selectedChapterForNotes)
+                      ? [selectedChapterForNotes, ...noteChapters.filter((chapterName) => chapterName !== selectedChapterForNotes)]
+                      : noteChapters;
+
+                    return (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {Array.from({ length: Math.min(parseInt(selectedSubject.chapters), 8) }, (_, i) => (
+                    {orderedNoteChapters.map((chapterName, i) => (
                       <div
-                        key={i}
+                        key={`${chapterName}-${i}`}
                         style={{
-                          background: '#f5f9f7',
-                          border: '1px solid #d8ede8',
-                          borderRadius: '8px',
+                          background: 'rgba(15, 23, 42, 0.9)',
+                          border: chapterName === selectedChapterForNotes ? '1px solid #9333ea' : '1px solid rgba(99, 102, 241, 0.16)',
+                          borderRadius: '18px',
                           padding: '14px 16px',
                           display: 'flex',
                           justifyContent: 'space-between',
@@ -615,67 +798,66 @@ export default function HamoCSIT({ onSignOut }) {
                           transition: 'all 0.2s',
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#e8f5f0';
-                          e.currentTarget.style.borderColor = '#0d9e7e';
+                          e.currentTarget.style.borderColor = '#9333ea';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#f5f9f7';
-                          e.currentTarget.style.borderColor = '#d8ede8';
+                          e.currentTarget.style.borderColor = chapterName === selectedChapterForNotes ? '#9333ea' : 'rgba(99, 102, 241, 0.16)';
                         }}
                       >
-                        <span style={{ fontWeight: '500', color: '#1a1a2e', fontSize: '14px' }}>
-                          Chapter {i + 1} Notes
+                        <span style={{ fontWeight: '500', color: '#f8fafc', fontSize: '14px' }}>
+                          {chapterName} Notes
                         </span>
-                        <span style={{ color: '#0d9e7e', fontSize: '12px' }}>📄 View</span>
+                        <span style={{ color: '#c084fc', fontSize: '12px' }}>{chapterName === selectedChapterForNotes ? '📌 Opened from Chapters' : '📄 View'}</span>
                       </div>
                     ))}
                   </div>
+                    );
+                  })()}
                 </div>
               )}
               {activeTab === 'Q/A Feed' && (
                 <div>
-                  <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  <p style={{ color: '#cbd5e1', fontSize: '14px', marginBottom: '16px' }}>
                     💬 Questions & Answers for <strong>{selectedSubject.name}</strong> ({selectedSubject.code})
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', borderLeft: '4px solid #0d9e7e' }}>
-                      <div style={{ fontWeight: '600', color: '#1a1a2e', marginBottom: '8px' }}>Q: What is the scope of this course?</div>
-                      <div style={{ color: '#666', fontSize: '13px' }}>This course covers fundamental concepts and practical applications...</div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.9)', borderRadius: '18px', padding: '16px', borderLeft: '4px solid #9333ea' }}>
+                      <div style={{ fontWeight: '600', color: '#f8fafc', marginBottom: '8px' }}>Q: What is the scope of this course?</div>
+                      <div style={{ color: '#cbd5e1', fontSize: '13px' }}>This course covers fundamental concepts and practical applications...</div>
                     </div>
-                    <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', borderLeft: '4px solid #0d9e7e' }}>
-                      <div style={{ fontWeight: '600', color: '#1a1a2e', marginBottom: '8px' }}>Q: How are exams conducted?</div>
-                      <div style={{ color: '#666', fontSize: '13px' }}>Exams consist of theory and practical components...</div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.9)', borderRadius: '18px', padding: '16px', borderLeft: '4px solid #9333ea' }}>
+                      <div style={{ fontWeight: '600', color: '#f8fafc', marginBottom: '8px' }}>Q: How are exams conducted?</div>
+                      <div style={{ color: '#cbd5e1', fontSize: '13px' }}>Exams consist of theory and practical components...</div>
                     </div>
-                    <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', borderLeft: '4px solid #0d9e7e' }}>
-                      <div style={{ fontWeight: '600', color: '#1a1a2e', marginBottom: '8px' }}>Q: Where can I find additional resources?</div>
-                      <div style={{ color: '#666', fontSize: '13px' }}>Additional resources are available in the Question Bank section...</div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.9)', borderRadius: '18px', padding: '16px', borderLeft: '4px solid #9333ea' }}>
+                      <div style={{ fontWeight: '600', color: '#f8fafc', marginBottom: '8px' }}>Q: Where can I find additional resources?</div>
+                      <div style={{ color: '#cbd5e1', fontSize: '13px' }}>Additional resources are available in the Question Bank section...</div>
                     </div>
                   </div>
                 </div>
               )}
-              {activeTab === 'Question Bank' && (
+              {activeTab === 'Question Banks' && (
                 <div>
-                  <p style={{ color: '#666', fontSize: '14px', marginBottom: '16px' }}>
+                  <p style={{ color: '#cbd5e1', fontSize: '14px', marginBottom: '16px' }}>
                     🗃️ Question bank for <strong>{selectedSubject.name}</strong> ({selectedSubject.code})
                   </p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                    <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', border: '2px solid #d8ede8' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0d9e7e'; e.currentTarget.style.background = '#e8f5f0'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#d8ede8'; e.currentTarget.style.background = '#f5f9f7'; }}>
-                      <div style={{ fontSize: '28px', marginBottom: '8px' }}>❓</div>
-                      <div style={{ fontWeight: '600', color: '#1a1a2e', fontSize: '14px' }}>Short Questions</div>
-                    </div>
-                    <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', border: '2px solid #d8ede8' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0d9e7e'; e.currentTarget.style.background = '#e8f5f0'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#d8ede8'; e.currentTarget.style.background = '#f5f9f7'; }}>
-                      <div style={{ fontSize: '28px', marginBottom: '8px' }}>📝</div>
-                      <div style={{ fontWeight: '600', color: '#1a1a2e', fontSize: '14px' }}>Long Questions</div>
-                    </div>
-                    <div style={{ background: '#f5f9f7', borderRadius: '8px', padding: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', border: '2px solid #d8ede8' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0d9e7e'; e.currentTarget.style.background = '#e8f5f0'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#d8ede8'; e.currentTarget.style.background = '#f5f9f7'; }}>
-                      <div style={{ fontSize: '28px', marginBottom: '8px' }}>💻</div>
-                      <div style={{ fontWeight: '600', color: '#1a1a2e', fontSize: '14px' }}>Practical</div>
-                    </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.9)', borderRadius: '18px', padding: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', border: '2px solid rgba(99, 102, 241, 0.16)' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.16)'; }}>
+                       <div style={{ fontSize: '28px', marginBottom: '8px' }}>❓</div>
+                       <div style={{ fontWeight: '600', color: '#f8fafc', fontSize: '14px' }}>Short Questions</div>
+                     </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.9)', borderRadius: '18px', padding: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', border: '2px solid rgba(99, 102, 241, 0.16)' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.16)'; }}>
+                       <div style={{ fontSize: '28px', marginBottom: '8px' }}>📝</div>
+                       <div style={{ fontWeight: '600', color: '#f8fafc', fontSize: '14px' }}>Long Questions</div>
+                     </div>
+                    <div style={{ background: 'rgba(15, 23, 42, 0.9)', borderRadius: '18px', padding: '16px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', border: '2px solid rgba(99, 102, 241, 0.16)' }} onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#9333ea'; }} onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(99, 102, 241, 0.16)'; }}>
+                       <div style={{ fontSize: '28px', marginBottom: '8px' }}>💻</div>
+                       <div style={{ fontWeight: '600', color: '#f8fafc', fontSize: '14px' }}>Practical</div>
+                     </div>
                   </div>
                 </div>
               )}
             </div>
-          </div>
         </section>
       </div>
     );

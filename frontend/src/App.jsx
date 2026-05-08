@@ -92,11 +92,12 @@ function App() {
 function AppContent({ user, handleSignOut, handleGoogleLogin }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const showNavbar = location.pathname !== '/hamro-csit';
+  const showNavbar = location.pathname === '/';
   const [isProgramsSidebarOpen, setIsProgramsSidebarOpen] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState(null);
   const [showSemesterSelection, setShowSemesterSelection] = useState(false);
   const [showSemesterTrigger, setShowSemesterTrigger] = useState(false);
+  const [navRequest, setNavRequest] = useState(null);
 
   useEffect(() => {
     if (location.pathname !== '/') {
@@ -113,17 +114,37 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
       setSelectedSemester(null);
       setShowSemesterSelection(false);
       setShowSemesterTrigger(false);
+      setNavRequest({ target: 'home', id: Date.now() });
       if (location.pathname !== '/') {
         navigate('/');
       }
       return;
     }
 
-    if (link === 'Programs' && location.pathname === '/') {
+    if (link === 'Programs') {
+      if (location.pathname === '/') {
+        setIsProgramsSidebarOpen(true);
+      } else {
+        setNavRequest({ target: 'programs', id: Date.now() });
+        navigate('/');
+      }
+      return;
+    }
+
+    if (link === 'Semesters' && location.pathname === '/') {
+      setShowSemesterTrigger(true);
+      setIsProgramsSidebarOpen(true);
+    }
+
+    if (link === 'About us') {
+      setIsProgramsSidebarOpen(false);
       setSelectedSemester(null);
       setShowSemesterSelection(false);
       setShowSemesterTrigger(false);
-      setIsProgramsSidebarOpen(true);
+      setNavRequest({ target: 'about-us', id: Date.now() });
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
     }
   };
 
@@ -148,6 +169,7 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
               selectedSemester={selectedSemester}
               showSemesterSelection={showSemesterSelection}
               showSemesterTrigger={showSemesterTrigger}
+              navRequest={navRequest}
               onSemesterSelect={setSelectedSemester}
               onShowSemesterSelectionChange={setShowSemesterSelection}
               onShowSemesterTriggerChange={setShowSemesterTrigger}
@@ -178,8 +200,13 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
         />
 
         <Route
-          path="/hamro-csit"
+          path="/chapters"
           element={<HamoCSIT onSignOut={handleSignOut} />}
+        />
+
+        <Route
+          path="/hamro-csit"
+          element={<Navigate to="/chapters" replace />}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

@@ -1,14 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaSignOutAlt, FaGoogle } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
-import NavHeader from './ui/nav-header';
 
 const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
   const [activeLink, setActiveLink] = useState('Home');
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const links = ['Home', 'Programs', 'About Us'];
+  const links = ['Home', 'Programs', 'About us'];
+
+  useEffect(() => {
+    if (location.pathname === '/study-dao') {
+      setActiveLink('Programs');
+      return;
+    }
+
+    if (location.pathname === '/hamro-csit') {
+      setActiveLink('About us');
+      return;
+    }
+
+    setActiveLink('Home');
+  }, [location.pathname]);
+
+  const handleNavClick = (link) => {
+    setActiveLink(link);
+    if (onNavLinkClick) {
+      onNavLinkClick(link);
+    }
+  };
 
   return (
     <nav className="navbar">
@@ -204,14 +225,18 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
 
         {/* Center - Navigation Links */}
         <div className="navbar-center">
-          <NavHeader
-            tabs={links}
-            activeTab={activeLink}
-            onTabClick={(link) => {
-              setActiveLink(link);
-              if (onNavLinkClick) onNavLinkClick(link);
-            }}
-          />
+          <div className="navbar-links">
+            {links.map((link) => (
+              <button
+                key={link}
+                type="button"
+                className={`navbar-link-btn ${activeLink === link ? 'active' : ''}`}
+                onClick={() => handleNavClick(link)}
+              >
+                {link}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Right Side - Sign Out Button (show after signin) and Google Sign-In (when not signed in) */}
