@@ -84,11 +84,13 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
         {/* Left Side - Logo and Brand */}
         <div className="navbar-left">
           <div className="navbar-logo">
-            <img
-              src="/logo_Hackthon.jpeg"
-              alt="EduChainNP logo"
-              className="navbar-logo-image"
-            />
+            <div className="navbar-logo-badge">
+              <img
+                src="/logo_Hackthon.jpeg"
+                alt="EduChainNP logo"
+                className="navbar-logo-image"
+              />
+            </div>
           </div>
         </div>
 
@@ -156,66 +158,68 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
               </button>
             </div>
 
-            <div className="user-panel-summary">
-              <div className="user-panel-avatar">{userInitial}</div>
-              <div>
-                <p className="user-panel-name">{userName}</p>
-                <p className="user-panel-wallet">{formattedWalletAddress}</p>
+            <div className="user-panel-scroll-area">
+              <div className="user-panel-summary">
+                <div className="user-panel-avatar">{userInitial}</div>
+                <div>
+                  <p className="user-panel-name">{userName}</p>
+                  <p className="user-panel-wallet">{formattedWalletAddress}</p>
+                </div>
               </div>
-            </div>
 
-            <div className="user-panel-tabs">
-              <button
-                type="button"
-                className={`user-panel-tab ${activeUserPanel === 'profile' ? 'active' : ''}`}
-                onClick={() => setActiveUserPanel('profile')}
-              >
-                <FaUserCircle />
-                <span>Profile</span>
-              </button>
+              <div className="user-panel-tabs">
+                <button
+                  type="button"
+                  className={`user-panel-tab ${activeUserPanel === 'profile' ? 'active' : ''}`}
+                  onClick={() => setActiveUserPanel('profile')}
+                >
+                  <FaUserCircle />
+                  <span>Profile</span>
+                </button>
 
-              <button
-                type="button"
-                className={`user-panel-tab ${activeUserPanel === 'settings' ? 'active' : ''}`}
-                onClick={() => setActiveUserPanel('settings')}
-              >
-                <FaCog />
-                <span>Settings</span>
-              </button>
-            </div>
+                <button
+                  type="button"
+                  className={`user-panel-tab ${activeUserPanel === 'settings' ? 'active' : ''}`}
+                  onClick={() => setActiveUserPanel('settings')}
+                >
+                  <FaCog />
+                  <span>Settings</span>
+                </button>
+              </div>
 
-            <div className="user-panel-content">
-              {activeUserPanel === 'profile' ? (
-                <div className="user-panel-section">
-                  <div className="user-panel-row">
-                    <span>Name</span>
-                    <strong>{userName}</strong>
+              <div className="user-panel-content">
+                {activeUserPanel === 'profile' ? (
+                  <div className="user-panel-section">
+                    <div className="user-panel-row">
+                      <span>Name</span>
+                      <strong>{userName}</strong>
+                    </div>
+                    <div className="user-panel-row">
+                      <span>Email</span>
+                      <strong>{userEmail}</strong>
+                    </div>
+                    <div className="user-panel-row">
+                      <span>Wallet</span>
+                      <strong>{userWalletAddress}</strong>
+                    </div>
                   </div>
-                  <div className="user-panel-row">
-                    <span>Email</span>
-                    <strong>{userEmail}</strong>
+                ) : (
+                  <div className="user-panel-section">
+                    <div className="user-panel-row">
+                      <span>Profile visibility</span>
+                      <strong>Public</strong>
+                    </div>
+                    <div className="user-panel-row">
+                      <span>Wallet status</span>
+                      <strong>{userWalletAddress === 'Wallet not connected' ? 'Not connected' : 'Connected'}</strong>
+                    </div>
+                    <div className="user-panel-row">
+                      <span>Sign-in provider</span>
+                      <strong>Google</strong>
+                    </div>
                   </div>
-                  <div className="user-panel-row">
-                    <span>Wallet</span>
-                    <strong>{userWalletAddress}</strong>
-                  </div>
-                </div>
-              ) : (
-                <div className="user-panel-section">
-                  <div className="user-panel-row">
-                    <span>Profile visibility</span>
-                    <strong>Public</strong>
-                  </div>
-                  <div className="user-panel-row">
-                    <span>Wallet status</span>
-                    <strong>{userWalletAddress === 'Wallet not connected' ? 'Not connected' : 'Connected'}</strong>
-                  </div>
-                  <div className="user-panel-row">
-                    <span>Sign-in provider</span>
-                    <strong>Google</strong>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             <button
