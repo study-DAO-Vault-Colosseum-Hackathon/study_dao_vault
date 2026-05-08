@@ -241,13 +241,6 @@ export default function LandingPage({
 
   const filters = ['Notes', 'Starred', 'Download','Badges'];
 
-  const nftBadges = [
-    
-    { icon: '⭐', label: 'Excellence Badge' },
-    { icon: '🎨', label: 'Featured Work' },
-    
-  ];
-
   const qaItems = [
     {
       question: 'How do I get started?',
@@ -785,23 +778,6 @@ export default function LandingPage({
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mobile Leaderboard Section - Before Badges */}
-
-      {/*Badges Section */}
-      <section className="nft-badges-section" id="nft-badges-section">
-        <div className="section-container">
-          <h2 className="section-heading">Badges</h2>
-          <div className="nft-badges-grid">
-            {nftBadges.map((item, index) => (
-              <div key={index} className="nft-badge-card">
-                <div className="badge-icon">{item.icon}</div>
-                <p className="badge-label">{item.label}</p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
