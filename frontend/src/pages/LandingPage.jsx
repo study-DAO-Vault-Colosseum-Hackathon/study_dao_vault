@@ -1,5 +1,18 @@
-import React, { useEffect, useState, Suspense } from 'react';
-import { FaLightbulb, FaCheckCircle, FaFire, FaCheck, FaBook, FaSignOutAlt } from 'react-icons/fa';
+import React, { useCallback, useEffect, useState, Suspense } from 'react';
+import {
+  FaArrowLeft,
+  FaBook,
+  FaCheck,
+  FaCheckCircle,
+  FaComments,
+  FaFileAlt,
+  FaFire,
+  FaListUl,
+  FaQuestionCircle,
+  FaSearch,
+  FaSignOutAlt,
+  FaStickyNote,
+} from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import TutorHeroSection from './TutorHeroSection';
 import HoverFooter from '../components/HoverFooter';
@@ -9,7 +22,7 @@ import SubjectShaderCards from '../components/ui/subject-shader-cards';
 import './EduChainNP.css';
 
 const semesters = Array.from({ length: 8 }, (_, index) => index + 1);
-const semesterPreviewImage = '/together-classroom.jpg';
+const semesterPreviewImage = '/image.png';
 
 const semesterSubjects = {
   1: [
@@ -66,8 +79,52 @@ const semesterSubjects = {
     { name: 'Advanced Database', code: 'CSC461' },
     { name: 'Internship', code: 'CSC462' },
     { name: 'Advanced Networking With IPV6', code: 'CSC463' },
+    
     { name: 'Decision Support System and Expert System', code: 'CSC469' }
   ]
+};
+
+const subjectChaptersByName = {
+  'Introduction to Information Technology': ['Basics of IT', 'Hardware Overview', 'Software Types', 'Computer Organization', 'Data Representation', 'Networks Intro', 'Internet Basics', 'Security Fundamentals', 'Database Intro', 'Web Intro', 'IT Career Paths'],
+  'C Programming': ['Introduction to C', 'Data Types & Variables', 'Operators & Expressions', 'Control Flow', 'Functions', 'Arrays', 'Strings', 'Pointers', 'Structures', 'File I/O', 'Preprocessor'],
+  'Digital Logic': ['Boolean Algebra', 'Logic Gates', 'Combinational Circuits', 'Sequential Circuits', 'Karnaugh Maps', 'Multiplexers', 'Arithmetic Circuits'],
+  'Mathematics I': ['Functions & Limits', 'Continuity & Derivatives', 'Differentiation Rules', 'Applications of Derivatives', 'Integration Basics', 'Definite Integrals', 'Integration Techniques', 'Sequences & Series', 'Vectors', 'Vector Calculus'],
+  'Physics': ['Mechanics & Motion', 'Forces & Laws', 'Work & Energy', 'Momentum', 'Circular Motion', 'Gravity', 'Oscillations', 'Waves'],
+  'Discrete Structure': ['Logic & Proofs', 'Sets & Relations', 'Functions', 'Counting', 'Permutations', 'Combinations'],
+  'Object-Oriented Programming': ['OOP Basics', 'Classes & Objects', 'Constructors & Destructors', 'Inheritance', 'Polymorphism', 'Encapsulation', 'File I/O', 'Templates'],
+  'Microprocessor': ['Microprocessor Basics', 'Architecture', 'Memory', 'I/O Interfaces', 'Interrupts', 'Instruction Set', 'Assembly'],
+  'Mathematics II': ['Matrices', 'Determinants', 'Linear Systems', 'Eigenvalues', 'Vector Spaces', 'Linear Transformations', 'Complex Numbers', 'Fourier Series', 'Partial Derivatives'],
+  'Statistics I': ['Data Collection', 'Descriptive Statistics', 'Probability', 'Distributions', 'Sampling', 'Hypothesis Testing'],
+  'Data Structure and algorithm': ['Arrays & Lists', 'Stacks', 'Queues', 'Linked Lists', 'Trees', 'Graphs', 'Searching', 'Sorting', 'Dynamic Programming'],
+  'Numerical Method': ['Root Finding', 'Linear Systems', 'Interpolation', 'Differentiation', 'Integration', 'Optimization', 'ODE Solving', 'Error Analysis'],
+  'Computer Architecture': ['CPU Design', 'Instruction Execution', 'Pipeline Architecture', 'Memory Hierarchy', 'Cache Design', 'Virtual Memory', 'I/O Systems', 'Parallel Computing'],
+  'Computer Graphics': ['Graphics Basics', '2D Graphics', 'Transformations', '3D Graphics', 'Viewing', 'Rasterization', 'Shading', 'Texturing'],
+  'Statistics II': ['Confidence Intervals', 'T-Tests', 'ANOVA', 'Regression', 'Correlation', 'Chi-Square'],
+  'Theory Of Computation': ['Regular Languages', 'DFA & NFA', 'Regular Expressions', 'Context-Free Languages', 'Pushdown Automata', 'Turing Machines', 'Decidability', 'Complexity Classes'],
+  'Computer Networks': ['Network Basics', 'Physical Layer', 'Data Link Layer', 'Network Layer', 'Transport Layer', 'Application Layer', 'Security', 'Wireless'],
+  'Database MAnagement System': ['Database Basics', 'ER Modeling', 'Relational Model', 'Normalization', 'SQL Basics', 'Queries', 'Indexing', 'Transactions', 'Tuning'],
+  'Operating System': ['OS Basics', 'Processes & Threads', 'Scheduling', 'Memory Management', 'Virtual Memory', 'File Systems', 'I/O', 'Deadlocks', 'Security'],
+  'Artificial Intelligence': ['AI Intro', 'Problem Solving', 'Search Algorithms', 'Knowledge Rep', 'Logical Reasoning', 'Machine Learning', 'Neural Networks', 'NLP'],
+  'Design adn Analysis of Algorithms': ['Asymptotic Analysis', 'Divide & Conquer', 'Greedy Algorithms', 'Dynamic Programming', 'NP-Completeness', 'Approximation', 'Randomized Algorithms', 'Advanced Data Structures'],
+  'System Analysis and Design': ['System Concepts', 'SDLC', 'Requirements', 'Design Principles', 'UML', 'Testing', 'Implementation', 'Maintenance'],
+  'Cryptography': ['Crypto Basics', 'Symmetric Encryption', 'Asymmetric Encryption', 'Hashing', 'Digital Signatures', 'Authentication', 'Key Exchange', 'SSL/TLS'],
+  'Simulation and Modeling': ['Modeling Basics', 'Discrete Events', 'Monte Carlo', 'System Dynamics', 'Validation', 'Performance Analysis', 'Optimization', 'Applications'],
+  'Web Technology': ['Web Basics', 'HTML', 'CSS', 'JavaScript', 'DOM', 'AJAX', 'Frameworks', 'Responsive Design'],
+  'Software Engineering': ['SE Principles', 'Planning', 'Requirements Analysis', 'Design Patterns', 'Testing Strategies', 'Quality Assurance', 'Project Mgmt', 'DevOps'],
+  'Compiler Design and Construction': ['Lexical Analysis', 'Syntax Analysis', 'Semantic Analysis', 'Intermediate Code', 'Code Generation', 'Optimization', 'Error Handling', 'Tools'],
+  'E-Governance': ['E-Gov Basics', 'Systems', 'Security', 'Interoperability', 'Services', 'Integration', 'Case Studies'],
+  'NET Centric Computing': ['.NET Framework', 'C# Basics', 'Distributed Systems', 'Web Services', 'Azure', 'Microservices', 'Cloud'],
+  'Technical Writing': ['Writing Basics', 'Documentation', 'Presentations', 'Reports', 'Manuals', 'Communication'],
+  'Elective II': ['Topic 1', 'Topic 2', 'Topic 3', 'Topic 4', 'Topic 5', 'Topic 6'],
+  'Advanced Java Programming': ['Java Basics Review', 'Collections', 'Concurrency', 'Spring Framework', 'Dependency Injection', 'Enterprise Apps', 'Testing', 'Performance'],
+  'Data Warehousing and Data Mining': ['DW Concepts', 'OLAP', 'ETL', 'Schema Design', 'Data Mining Basics', 'Clustering', 'Classification', 'Association Rules'],
+  'Principles of Management': ['Management Basics', 'Planning', 'Organization', 'Leadership', 'Control', 'HR Mgmt', 'Finance', 'IT Mgmt'],
+  'Project Work': ['Project Planning', 'Requirements', 'Design', 'Development', 'Testing', 'Deployment', 'Documentation', 'Presentation'],
+  'Network Security': ['Security Fundamentals', 'Threat Modeling', 'Cryptographic Protocols', 'Network Defense', 'Security Monitoring', 'Incident Response'],
+  'Advanced Database': ['Advanced Concepts', 'Distributed DB', 'Performance Tuning', 'Replication', 'Backup & Recovery', 'Security', 'NoSQL', 'NewSQL'],
+  'Internship': ['Company Overview', 'Project Intro', 'Development', 'Testing', 'Deployment', 'Learning', 'Reflection'],
+  'Advanced Networking With IPV6': ['IPv6 Fundamentals', 'Addressing and Subnetting', 'Routing with IPv6', 'Transition Mechanisms', 'Security in IPv6'],
+  'Decision Support System and Expert System': ['Decision Models', 'Knowledge Base', 'Inference Engine', 'Expert System Design', 'Applications and Evaluation'],
 };
 
 export default function LandingPage({
@@ -77,6 +134,7 @@ export default function LandingPage({
   isProgramsSidebarOpen = false,
   selectedSemester = null,
   showSemesterTrigger = false,
+  navRequest = null,
   onSemesterSelect = () => {},
   onShowSemesterTriggerChange = () => {},
   onOpenProgramsSidebar = () => {},
@@ -90,6 +148,8 @@ export default function LandingPage({
   const [selectedSemesterNumber, setSelectedSemesterNumber] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [activeTab, setActiveTab] = useState('Chapters');
+  const [selectedChapterForNotes, setSelectedChapterForNotes] = useState(null);
+  const [chapterSearchQuery, setChapterSearchQuery] = useState('');
   const shouldBlurHomepage = isProgramsSidebarOpen && selectedSemester === null;
   const shouldShiftMainContent = isProgramsSidebarOpen && selectedSemester !== null;
   const userDisplayName = user?.displayName || user?.email?.split('@')[0] || 'Student';
@@ -100,12 +160,12 @@ export default function LandingPage({
     .map((part) => part[0]?.toUpperCase())
     .join('') || 'ST';
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = useCallback((sectionId) => {
     const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  };
+  }, []);
 
   const handleExploreCourseClick = () => {
     onOpenProgramsSidebar();
@@ -129,6 +189,33 @@ export default function LandingPage({
       setShowSemesters(false);
     }
   }, [isProgramsSidebarOpen]);
+
+  useEffect(() => {
+    if (!navRequest?.target) {
+      return;
+    }
+
+    setShowSubjectsView(false);
+    setSelectedSubject(null);
+    setSelectedChapterForNotes(null);
+    setChapterSearchQuery('');
+
+    if (navRequest.target === 'home') {
+      onCloseProgramsSidebar();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (navRequest.target === 'programs') {
+      onOpenProgramsSidebar();
+      return;
+    }
+
+    if (navRequest.target === 'about-us') {
+      onCloseProgramsSidebar();
+      scrollToSection('about-us-section');
+    }
+  }, [navRequest, onCloseProgramsSidebar, onOpenProgramsSidebar, scrollToSection]);
 
   const handleSemesterClick = (semesterNumber) => {
     setSelectedSemesterNumber(semesterNumber);
@@ -252,10 +339,15 @@ export default function LandingPage({
             {subjects.length} subjects • Explore and learn
           </p>
 
-          <SubjectShaderCards 
-            subjects={subjects}
-            onSubjectClick={(subject) => setSelectedSubject(subject)}
-          />
+           <SubjectShaderCards 
+             subjects={subjects}
+             onSubjectClick={(subject) => {
+               setSelectedSubject(subject);
+               setActiveTab('Chapters');
+               setSelectedChapterForNotes(null);
+               setChapterSearchQuery('');
+             }}
+           />
         </div>
       </section>
     );
@@ -263,111 +355,218 @@ export default function LandingPage({
 
   const renderSubjectDetailView = () => {
     const tabs = ['Chapters', 'Syllabus', 'Notes', 'Q/A Feed', 'Question Banks'];
+    const tabIcons = {
+      Chapters: FaListUl,
+      Syllabus: FaFileAlt,
+      Notes: FaStickyNote,
+      'Q/A Feed': FaComments,
+      'Question Banks': FaQuestionCircle,
+    };
+    const selectedSubjectChapters = (selectedSubject && subjectChaptersByName[selectedSubject.name]) || [];
+    const orderedNoteChapters = selectedChapterForNotes && selectedSubjectChapters.includes(selectedChapterForNotes)
+      ? [selectedChapterForNotes, ...selectedSubjectChapters.filter((chapter) => chapter !== selectedChapterForNotes)]
+      : selectedSubjectChapters;
+    const normalizedChapterQuery = chapterSearchQuery.trim().toLowerCase();
+    const filteredChapters = normalizedChapterQuery
+      ? selectedSubjectChapters.filter((chapter) => chapter.toLowerCase().includes(normalizedChapterQuery))
+      : selectedSubjectChapters;
+    const completedCount = Math.min(3, selectedSubjectChapters.length);
+    const estimatedHours = Math.max(6, Math.round(selectedSubjectChapters.length * 1.6));
+    const heroDescription = selectedSubjectChapters.length > 0
+      ? `${selectedSubject?.name} covers ${selectedSubjectChapters.slice(0, 3).join(', ').toLowerCase()} and more through a structured chapter flow.`
+      : `Explore the complete learning path for ${selectedSubject?.name}.`;
+
+    const handleChapterClick = (chapter) => {
+      setSelectedChapterForNotes(chapter);
+      setActiveTab('Notes');
+    };
+
+    const getChapterStatus = (chapterIndex, chapterName) => {
+      if (selectedChapterForNotes === chapterName) {
+        return 'In progress';
+      }
+
+      if (chapterIndex < completedCount) {
+        return 'Done';
+      }
+
+      return 'Locked';
+    };
+
+    const renderEmptyState = (message) => (
+      <div className="subject-detail-empty-state">
+        <p>{message}</p>
+      </div>
+    );
+
+    const renderChapterCards = () => (
+      <>
+        <div className="subject-detail-section-heading">
+          <p className="subject-detail-section-label">CSIT Curriculum Chapters</p>
+          <h2>Chapters</h2>
+          <p>
+            <span>{selectedSubjectChapters.length} chapters</span> for {selectedSubject?.name}
+          </p>
+        </div>
+
+        <div className="subject-detail-search-row">
+          <div className="subject-detail-search-box">
+            <FaSearch className="subject-detail-search-icon" />
+            <input
+              type="text"
+              value={chapterSearchQuery}
+              onChange={(event) => setChapterSearchQuery(event.target.value)}
+              placeholder="Search chapters..."
+              aria-label="Search chapters"
+            />
+          </div>
+        </div>
+
+        {filteredChapters.length > 0 ? (
+          <div className="subject-detail-chapter-grid">
+            {filteredChapters.map((chapter, filteredIndex) => {
+              const chapterIndex = selectedSubjectChapters.indexOf(chapter);
+              const chapterStatus = getChapterStatus(chapterIndex, chapter);
+              const isActive = selectedChapterForNotes === chapter;
+
+              return (
+                <button
+                  key={`${selectedSubject?.name}-${chapter}-${filteredIndex}`}
+                  type="button"
+                  className={`subject-detail-chapter-card ${isActive ? 'active' : ''}`}
+                  onClick={() => handleChapterClick(chapter)}
+                >
+                  <span className="subject-detail-card-corner" />
+                  <div className="subject-detail-chapter-number">{String(chapterIndex + 1).padStart(2, '0')}</div>
+                  <h3>{chapter}</h3>
+                  <span className={`subject-detail-status-badge ${chapterStatus.toLowerCase().replace(/\s+/g, '-')}`}>
+                    {chapterStatus}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          renderEmptyState('No chapters matched your search.')
+        )}
+      </>
+    );
+
+    const renderNotesPanel = () => (
+      <div className="subject-detail-stack">
+        <div className="subject-detail-section-heading">
+          <p className="subject-detail-section-label">Study Notes</p>
+          <h2>Notes</h2>
+          <p>Open notes for every chapter in {selectedSubject?.name}.</p>
+        </div>
+
+        {orderedNoteChapters.length > 0 ? (
+          orderedNoteChapters.map((chapterName, index) => {
+            const isSelected = chapterName === selectedChapterForNotes;
+            return (
+              <div
+                key={`${selectedSubject?.name}-notes-${chapterName}-${index}`}
+                className={`subject-detail-note-card ${isSelected ? 'active' : ''}`}
+              >
+                <div>
+                  <p className="subject-detail-note-label">Chapter {selectedSubjectChapters.indexOf(chapterName) + 1}</p>
+                  <h3>{chapterName} Notes</h3>
+                </div>
+                <span className="subject-detail-status-badge in-progress">
+                  {isSelected ? 'Opened from Chapters' : 'Ready'}
+                </span>
+              </div>
+            );
+          })
+        ) : (
+          renderEmptyState('No notes are available for this subject yet.')
+        )}
+      </div>
+    );
+
+    const renderSimplePanel = (label, title, description) => (
+      <div className="subject-detail-stack">
+        <div className="subject-detail-section-heading">
+          <p className="subject-detail-section-label">{label}</p>
+          <h2>{title}</h2>
+          <p>{description}</p>
+        </div>
+        <div className="subject-detail-info-panel">
+          <p>{title} content for {selectedSubject?.name} will appear here.</p>
+        </div>
+      </div>
+    );
+
     return (
-      <section style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100vh',
-        background: '#050b18',
-        zIndex: 1400,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'auto'
-      }}>
-        <div style={{ padding: '30px', color: '#fff' }}>
-          <button 
-            onClick={() => setSelectedSubject(null)}
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              color: '#fff',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              marginBottom: '20px'
+      <section className="subject-detail-shell">
+        <div className="subject-detail-topbar">
+          <button
+            type="button"
+            className="subject-detail-back-button"
+            onClick={() => {
+              setSelectedSubject(null);
+              setSelectedChapterForNotes(null);
+              setChapterSearchQuery('');
             }}
           >
-            ← Back to Subjects
+            <FaArrowLeft />
+            <span>Back to Subjects</span>
           </button>
 
-          <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>
-            {selectedSubject?.name}
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '30px' }}>
-            {selectedSubject?.code}
-          </p>
+          <div className="subject-detail-tabs">
+            {tabs.map((tab) => {
+              const TabIcon = tabIcons[tab];
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  className={`subject-detail-tab ${activeTab === tab ? 'active' : ''}`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  <TabIcon />
+                  <span>{tab}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-          {/* Navigation Tabs */}
-          <div style={{
-            display: 'flex',
-            gap: '15px',
-            borderBottom: '1px solid rgba(255,255,255,0.2)',
-            marginBottom: '30px',
-            overflowX: 'auto',
-            paddingBottom: '15px'
-          }}>
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: activeTab === tab ? '#fff' : 'rgba(255,255,255,0.6)',
-                  padding: '10px 0',
-                  borderBottom: activeTab === tab ? '2px solid #a855f7' : 'none',
-                  cursor: 'pointer',
-                  fontSize: '1rem',
-                  fontWeight: activeTab === tab ? '600' : '400',
-                  transition: 'all 0.3s ease',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {tab}
-              </button>
-            ))}
+        <div className="subject-detail-content">
+          <div className="subject-detail-hero">
+            <p className="subject-detail-code">
+              {selectedSubject?.code} - Semester {selectedSemesterNumber ?? '--'}
+            </p>
+            <h1>{selectedSubject?.name}</h1>
+            <p className="subject-detail-description">{heroDescription}</p>
+
+            <div className="subject-detail-hero-stats">
+              <div className="subject-detail-pill">
+                <FaBook />
+                <span>{selectedSubjectChapters.length} chapters</span>
+              </div>
+              <div className="subject-detail-pill">
+                <FaFire />
+                <span>~{estimatedHours} hrs</span>
+              </div>
+              <div className="subject-detail-pill">
+                <FaCheckCircle />
+                <span>Beginner</span>
+              </div>
+              <div className="subject-detail-pill">
+                <FaCheck />
+                <span>{completedCount} completed</span>
+              </div>
+            </div>
           </div>
 
-          {/* Tab Content */}
-          <div style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(168, 85, 247, 0.2)',
-            borderRadius: '12px',
-            padding: '30px',
-            minHeight: '400px'
-          }}>
-            {activeTab === 'Chapters' && (
-              <div>
-                <h3 style={{ marginBottom: '20px' }}>Chapters</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Chapters content for {selectedSubject?.name}</p>
-              </div>
-            )}
-            {activeTab === 'Syllabus' && (
-              <div>
-                <h3 style={{ marginBottom: '20px' }}>Syllabus</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Syllabus content for {selectedSubject?.name}</p>
-              </div>
-            )}
-            {activeTab === 'Notes' && (
-              <div>
-                <h3 style={{ marginBottom: '20px' }}>Notes</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Study notes for {selectedSubject?.name}</p>
-              </div>
-            )}
-            {activeTab === 'Q/A Feed' && (
-              <div>
-                <h3 style={{ marginBottom: '20px' }}>Questions & Answers</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Q&A feed for {selectedSubject?.name}</p>
-              </div>
-            )}
-            {activeTab === 'Question Banks' && (
-              <div>
-                <h3 style={{ marginBottom: '20px' }}>Question Banks</h3>
-                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Question banks for {selectedSubject?.name}</p>
-              </div>
-            )}
+          <div className="subject-detail-divider" />
+
+          <div className="subject-detail-panel">
+            {activeTab === 'Chapters' && renderChapterCards()}
+            {activeTab === 'Syllabus' && renderSimplePanel('Course Structure', 'Syllabus', `View the syllabus roadmap for ${selectedSubject?.name}.`)}
+            {activeTab === 'Notes' && renderNotesPanel()}
+            {activeTab === 'Q/A Feed' && renderSimplePanel('Community Help', 'Q/A Feed', `Ask and answer questions about ${selectedSubject?.name}.`)}
+            {activeTab === 'Question Banks' && renderSimplePanel('Exam Practice', 'Question Banks', `Practice important questions from ${selectedSubject?.name}.`)}
           </div>
         </div>
       </section>
@@ -387,7 +586,7 @@ export default function LandingPage({
       ) : (
       <>
       {/* Hero Section - Mountain Scene Background */}
-      <section className="hero-section-original">
+      <section className="hero-section-original" id="home-section">
         <Suspense fallback={<div className="absolute inset-0 w-full h-full z-0" />}>
           <GenerativeMountainScene />
         </Suspense>
@@ -412,15 +611,10 @@ export default function LandingPage({
             </p>
 
             <div className="hero-cta-group">
-              <button className="btn-primary-original" onClick={() => scrollToSection('actions-section')}>
+              <button type="button" className="btn-primary-visual">
                 Start Learning Now
               </button>
-              {user ? (
-                <div className="hero-user-pill">
-                  <span className="hero-user-pill-label">Signed in as</span>
-                  <span className="hero-user-pill-name">{userDisplayName}</span>
-                </div>
-              ) : (
+              {!user && (
                 <button className="btn-secondary-original" onClick={handleExploreCourseClick}>
                   Explore Course
                 </button>
@@ -510,7 +704,7 @@ export default function LandingPage({
       </section>
 
       {/* Registration & Actions Section - Flowchart */}
-      <section className="actions-section" id="Registration Flow & actions-section">
+      <section className="actions-section" id="programs-section">
         <div className="section-container">
           <h2 className="section-heading">Registration Flow & Actions Flow</h2>
           
@@ -668,13 +862,25 @@ export default function LandingPage({
       </section>
 
       {/* Tutor Hero Section */}
-      <TutorHeroSection />
+      <div id="about-us-section">
+        <TutorHeroSection />
 
-      {/* Hover Footer */}
-      <HoverFooter />
+        {/* Hover Footer */}
+        <HoverFooter />
+      </div>
+
       </>
       )}
       </div>
+
+      {isProgramsSidebarOpen && (
+        <button
+          type="button"
+          className="programs-sidebar-backdrop"
+          onClick={onCloseProgramsSidebar}
+          aria-label="Close programs sidebar"
+        />
+      )}
 
       <aside className={`programs-sidebar ${isProgramsSidebarOpen ? 'open' : ''}`}>
         <button

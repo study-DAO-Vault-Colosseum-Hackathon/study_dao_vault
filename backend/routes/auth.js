@@ -87,6 +87,33 @@ router.post('/set-username', authenticateMagic, async (req, res) => {
   }
 });
 
+// Middleware: Check if user is admin
+const checkAdminAccess = async (req, res, next) => {
+  try {
+    const userId = req.headers['x-user-id'];
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: No user ID provided' });
+    }
+
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return res.status(403).json({ error: 'Forbidden: User not found' });
+    }
+
+    const userData = userDoc.data();
+    if (userData.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Admin access required' });
+    }
+
+    req.adminUser = userData;
+    req.adminId = userId;
+    next();
+  } catch (error) {
+    console.error('Admin check error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 // Route 4: get Data of all Users and their details as well :GET "/api/auth/getallUser" (For Admin Only)
 
 const getAllUsers = async (req, res) => {
@@ -110,6 +137,233 @@ const getAllUsers = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// GET /api/auth/admin/users - Get all users (Admin only)
+router.get('/admin/users', checkAdminAccess, async (req, res) => {
+  try {
+    const usersCollection = db.collection('users');
+    const snapshot = await usersCollection.get();
+
+    if (snapshot.empty) {
+      return res.status(404).json({ message: 'No users found' });
+    }
+
+    const usersList = [];
+    snapshot.forEach(doc => {
+      usersList.push({ 
+        _id: doc.id, 
+        uid: doc.id,
+        ...doc.data() 
+      });
+    });
+
+    res.status(200).json(usersList);
+  } catch (error) {
+    console.error("Error getting users:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/auth/admin/user/:id - Get specific user by ID (Admin only)
+router.get('/admin/user/:id', checkAdminAccess, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userDoc = await db.collection('users').doc(id).get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json({ _id: id, uid: id, ...userDoc.data() });
+  } catch (error) {
+    console.error("Error getting user:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/auth/admin/user/:id - Update user (Admin only)
+router.patch('/admin/user/:id', checkAdminAccess, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Prevent direct role changes through this endpoint
+    delete updates.role;
+    delete updates.id;
+    delete updates._id;
+
+    const userDoc = await db.collection('users').doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    updates.updatedAt = new Date();
+    updates.updatedBy = req.adminId;
+
+    await db.collection('users').doc(id).update(updates);
+
+    const updatedDoc = await db.collection('users').doc(id).get();
+    res.status(200).json({ 
+      success: true, 
+      message: 'User updated successfully',
+      user: { _id: id, uid: id, ...updatedDoc.data() } 
+    });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE /api/auth/admin/user/:id - Delete user (Admin only)
+router.delete('/admin/user/:id', checkAdminAccess, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Prevent admin from deleting themselves
+    if (id === req.adminId) {
+      return res.status(400).json({ error: 'Cannot delete your own admin account' });
+    }
+
+    const userDoc = await db.collection('users').doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Soft delete - mark as deleted instead of removing
+    await db.collection('users').doc(id).update({
+      deleted: true,
+      deletedAt: new Date(),
+      deletedBy: req.adminId
+    });
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'User deleted successfully' 
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/auth/admin/user/:id/ban - Ban/Unban user (Admin only)
+router.patch('/admin/user/:id/ban', checkAdminAccess, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { ban, reason } = req.body;
+
+    if (typeof ban !== 'boolean') {
+      return res.status(400).json({ error: 'Ban must be a boolean' });
+    }
+
+    const userDoc = await db.collection('users').doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updates = {
+      banned: ban,
+      banReason: ban ? reason : null,
+      bannedAt: ban ? new Date() : null,
+      bannedBy: ban ? req.adminId : null,
+      updatedAt: new Date()
+    };
+
+    await db.collection('users').doc(id).update(updates);
+
+    const updatedDoc = await db.collection('users').doc(id).get();
+    res.status(200).json({ 
+      success: true, 
+      message: ban ? 'User banned successfully' : 'User unbanned successfully',
+      user: { _id: id, uid: id, ...updatedDoc.data() } 
+    });
+  } catch (error) {
+    console.error("Error banning user:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/auth/admin/user/:id/points - Update wallet points (Admin only)
+router.patch('/admin/user/:id/points', checkAdminAccess, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { points, action } = req.body; // action: 'set', 'add', 'subtract'
+
+    if (typeof points !== 'number' || points < 0) {
+      return res.status(400).json({ error: 'Points must be a non-negative number' });
+    }
+
+    const userDoc = await db.collection('users').doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const currentPoints = userDoc.data().walletPoints || 0;
+    let newPoints = points;
+
+    if (action === 'add') {
+      newPoints = currentPoints + points;
+    } else if (action === 'subtract') {
+      newPoints = Math.max(0, currentPoints - points);
+    }
+
+    const updates = {
+      walletPoints: newPoints,
+      updatedAt: new Date(),
+      updatedBy: req.adminId
+    };
+
+    await db.collection('users').doc(id).update(updates);
+
+    const updatedDoc = await db.collection('users').doc(id).get();
+    res.status(200).json({ 
+      success: true, 
+      message: 'Wallet points updated successfully',
+      user: { _id: id, uid: id, ...updatedDoc.data() } 
+    });
+  } catch (error) {
+    console.error("Error updating points:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PATCH /api/auth/admin/user/:id/role - Update user role (Admin only)
+router.patch('/admin/user/:id/role', checkAdminAccess, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const validRoles = ['student', 'mentor', 'admin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ error: `Role must be one of: ${validRoles.join(', ')}` });
+    }
+
+    const userDoc = await db.collection('users').doc(id).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updates = {
+      role: role,
+      updatedAt: new Date(),
+      updatedBy: req.adminId
+    };
+
+    await db.collection('users').doc(id).update(updates);
+
+    const updatedDoc = await db.collection('users').doc(id).get();
+    res.status(200).json({ 
+      success: true, 
+      message: 'User role updated successfully',
+      user: { _id: id, uid: id, ...updatedDoc.data() } 
+    });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 router.get('/getalluser1test', getAllUsers);
 router.get('/getalluser', listAllUsers);
 router.patch('/:id', updateUser);

@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import FullScreenScrollFX from '../components/FullScreenScrollFX';
-const togetherImage = '/together-classroom.jpg';
+const togetherImage = '/image.png';
 
 const TutorHeroSection = () => {
   const apiRef = useRef(null);

@@ -13,12 +13,12 @@ export default function EduChainNP() {
 
     const result = await signInWithPopup(auth, provider);
     if (result?.user) {
-      navigate('/hamro-csit', { replace: true });
+      navigate('/', { replace: true });
     }
   };
 
   const handleQuickAccessLogin = () => {
-    navigate('/hamro-csit', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return (
