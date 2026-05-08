@@ -6,10 +6,13 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-study_dao_vault = "ExY4RXQaD86GyNpofZy9PJV32QKPaDRnzcvByLDb8bTZ"
+study_dao_vault = "2AknVcScKtfx9EE7mJ8zPohT1XEdP93c7HoqgCHpbHtu"
+
+[programs.devnet]
+study_dao_vault = "2AknVcScKtfx9EE7mJ8zPohT1XEdP93c7HoqgCHpbHtu"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]

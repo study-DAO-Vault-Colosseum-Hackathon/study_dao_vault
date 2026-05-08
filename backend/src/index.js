@@ -10,6 +10,8 @@ const upload = multer({ dest: 'uploads/' });
 const uploadMemory = multer({ storage: multer.memoryStorage() });
 const { admin, db } = require('../utils/firebase');
 const { verifyToken } = require('../middleware/auth');
+const solanaRoutes = require('../routes/solana');
+
 const authRoutes = require('../routes/auth');
 
 const { compressPDF } = require('../utils/pdf-compress');
@@ -72,11 +74,13 @@ app.use((req, res, next) => {
 //   return res.json(data);
 // });
 
+// Health check
 app.get('/', (req, res) => {
   res.json({ ok: true, message: 'Backend is running' });
   
 });
 
+// Protected route - requires Magic Link DID token
 // Auth routes
 app.use('/api/auth', authRoutes);
 
@@ -86,8 +90,9 @@ app.use('/api/auth', authRoutes);
 // Protected route - requires Firebase token
 app.get('/api/vault-status', verifyToken, (req, res) => {
   res.json({
-    message: `Welcome ${req.user.email}`,
-    userId: req.user.uid
+    message: `Welcome ${req.user.userId}`,
+    userId: req.user.userId,
+    walletAddress: req.user.walletAddress
   });
 });
 
@@ -95,10 +100,23 @@ app.get('/api/resources', (req, res) => {
   res.json({ message: 'Resources endpoint working!' });
 });
 
+// ✅ Solana/Program Routes (Magic Link authenticated)
+app.use('/api/program', solanaRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({
+    error: err.message || 'Internal server error'
+  });
+});
+
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
   console.log(`Allowing CORS from: ${FRONTEND_URL}`);
+  console.log(`RPC URL: ${process.env.RPC_URL}`);
+  console.log(`Program ID: ${process.env.PROGRAM_ID}`);
 });
 
 app.post('/api/compress-pdf', upload.single('pdf'), async (req, res) => {

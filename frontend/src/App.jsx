@@ -6,8 +6,10 @@ import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
 import HamoCSIT from "./pages/HamoCSIT";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
+import LandingPage from "./pages/LandingPage";
+import EduChainNP from "./pages/EduChainNP";
+import HamoCSIT from "./pages/HamoCSIT";
+import Navbar from "./components/Navbar";
 import QA from "./pages/qa";
 import './App.css';
 
@@ -140,59 +142,14 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
         />
       )}
       <Routes>
-        <Route
-          path="/"
-          element={
-            <LandingPage
-              onGoogleSignIn={handleGoogleLogin}
-              user={user}
-              onSignOut={handleSignOut}
-              isProgramsSidebarOpen={isProgramsSidebarOpen}
-              selectedSemester={selectedSemester}
-              showSemesterSelection={showSemesterSelection}
-              showSemesterTrigger={showSemesterTrigger}
-              onSemesterSelect={setSelectedSemester}
-              onShowSemesterSelectionChange={setShowSemesterSelection}
-              onShowSemesterTriggerChange={setShowSemesterTrigger}
-              onOpenProgramsSidebar={() => setIsProgramsSidebarOpen(true)}
-              onCloseProgramsSidebar={() => setIsProgramsSidebarOpen(false)}
-            />
-          }
+        <Route 
+          path="/" 
+          element={user ? <Home user={user} onSignOut={handleSignOut} /> : <Navigate to="/login" />} 
         />
 
-        <Route
-          path="/login"
-          element={<Navigate to="/study-dao" replace />}
-        />
-
-        <Route
-          path="/auth"
-          element={<Navigate to="/study-dao" replace />}
-        />
-
-        <Route
-          path="/educhain-np"
-          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
-        />
-
-        <Route
-          path="/study-dao"
-          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
-        />
-
-        <Route
-          path="/hamro-csit"
-          element={<HamoCSIT onSignOut={handleSignOut} />}
-        />
-
-        <Route path="*" element={<Navigate to="/" />} />
         <Route 
           path="/login" 
           element={user ? <Navigate to="/" /> : <Login onLogin={handleGoogleLogin} />} 
-        />
-        <Route 
-          path="/qa" 
-          element={<QA user={user ? user : "Annonymos"}/>} 
         />
       </Routes>
     </>
