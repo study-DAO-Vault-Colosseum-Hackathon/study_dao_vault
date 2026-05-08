@@ -1,13 +1,74 @@
-import React, { useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { FaLightbulb, FaCheckCircle, FaFire, FaCheck, FaBook, FaSignOutAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import TutorHeroSection from './TutorHeroSection';
 import HoverFooter from '../components/HoverFooter';
 import GenerativeMountainScene from '../components/ui/mountain-scene';
+import FeaturesCards from '../components/ui/feature-shader-cards';
+import SubjectShaderCards from '../components/ui/subject-shader-cards';
 import './EduChainNP.css';
 
 const semesters = Array.from({ length: 8 }, (_, index) => index + 1);
 const semesterPreviewImage = '/together-classroom.jpg';
+
+const semesterSubjects = {
+  1: [
+    { name: 'Introduction to Information Technology', code: 'CSC101' },
+    { name: 'C Programming', code: 'CSC102' },
+    { name: 'Digital Logic', code: 'CSC103' },
+    { name: 'Mathematics I', code: 'MATH101' },
+    { name: 'Physics', code: 'PHY101' }
+  ],
+  2: [
+    { name: 'Discrete Structure',code:'CSC165'},
+    { name: 'Object-Oriented Programming', code: 'CSC166' },
+    { name: 'Microprocessor', code: 'CSC167' },
+    { name: 'Mathematics II', code: 'MATH168' },
+    { name: 'Statistics I', code: 'CHM169' }
+  ],
+  3: [
+    { name: 'Data Structure and algorithm', code: 'CSC211' },
+    { name: 'Numerical Method', code: 'CSC212' },
+    { name: 'Computer Architecture', code: 'CSC213' },
+    { name: 'Computer Graphics', code: 'MATH214' },
+    { name: 'Statistics II', code: 'CSC215' }
+  ],
+  4: [
+    { name: 'Theory Of Computation', code: 'CSC262' },
+    { name: 'Computer Networks',code:'263' },
+    { name: 'Database MAnagement System', code: 'CSC265' },
+    { name: 'Operating System', code: 'CSC264' },
+    { name: 'Artificial Intelligence', code: 'CSC266'}
+  ],
+  5: [
+    { name: 'Design adn Analysis of Algorithms', code: 'CSC314' },
+    { name: 'System Analysis and Design', code: 'CSC315' },
+    { name: 'Cryptography', code: 'CSC316' },
+    { name: 'Simulation and Modeling', code: 'CSC317' },
+    { name: 'Web Technology', code: 'CSC318' }
+  ],
+  6: [
+    { name: 'Software Engineering', code: 'CSC364' },
+    { name: 'Compiler Design and Construction', code: 'CSC365' },
+    { name: 'E-Governance', code: 'CSC366' },
+    { name: 'NET Centric Computing', code: 'CSC367' },
+    { name: 'Technical Writing', code: 'CSC368' },
+    { name: 'Elective II', code: 'CSC369' }
+  ],
+  7: [
+    { name: 'Advanced Java Programming', code: 'CSC409' },
+    { name: 'Data Warehousing and Data Mining', code: 'CSC410' },
+    { name: 'Principles of Management', code: 'CSC411' },
+    { name: 'Project Work', code: 'CSC412' },
+    { name: 'Network Security', code: 'CSC413' }
+  ],
+  8: [
+    { name: 'Advanced Database', code: 'CSC461' },
+    { name: 'Internship', code: 'CSC462' },
+    { name: 'Advanced Networking With IPV6', code: 'CSC463' },
+    { name: 'Decision Support System and Expert System', code: 'CSC469' }
+  ]
+};
 
 export default function LandingPage({
   onGoogleSignIn,
@@ -15,18 +76,22 @@ export default function LandingPage({
   onSignOut,
   isProgramsSidebarOpen = false,
   selectedSemester = null,
-  showSemesterSelection = false,
   showSemesterTrigger = false,
   onSemesterSelect = () => {},
-  onShowSemesterSelectionChange = () => {},
   onShowSemesterTriggerChange = () => {},
   onOpenProgramsSidebar = () => {},
   onCloseProgramsSidebar = () => {},
 }) {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('Notes');
-  const shouldBlurHomepage = isProgramsSidebarOpen && selectedSemester === null && !showSemesterSelection;
-  const shouldShiftMainContent = isProgramsSidebarOpen && (selectedSemester !== null || showSemesterSelection);
+  const [isSemesterDropdownOpen, setIsSemesterDropdownOpen] = useState(false);
+  const [showSemesters, setShowSemesters] = useState(false);
+  const [showSubjectsView, setShowSubjectsView] = useState(false);
+  const [selectedSemesterNumber, setSelectedSemesterNumber] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [activeTab, setActiveTab] = useState('Chapters');
+  const shouldBlurHomepage = isProgramsSidebarOpen && selectedSemester === null;
+  const shouldShiftMainContent = isProgramsSidebarOpen && selectedSemester !== null;
   const userDisplayName = user?.displayName || user?.email?.split('@')[0] || 'Student';
   const userInitials = userDisplayName
     .split(' ')
@@ -50,28 +115,30 @@ export default function LandingPage({
     navigate("/cosmic-book");
   };
 
-  const handleSemesterClick = (semesterNumber) => {
-    onShowSemesterSelectionChange(false);
-    onSemesterSelect(semesterNumber);
-    onCloseProgramsSidebar();
-  };
+  useEffect(() => {
+    if (!showSemesterTrigger) {
+      setIsSemesterDropdownOpen(false);
+      return;
+    }
+    setIsSemesterDropdownOpen(true);
+  }, [showSemesterTrigger]);
 
-  const handleSemesterMenuClick = () => {
-    onShowSemesterSelectionChange(true);
+  useEffect(() => {
+    if (!isProgramsSidebarOpen) {
+      setIsSemesterDropdownOpen(false);
+      setShowSemesters(false);
+    }
+  }, [isProgramsSidebarOpen]);
+
+  const handleSemesterClick = (semesterNumber) => {
+    setSelectedSemesterNumber(semesterNumber);
+    setShowSubjectsView(true);
     onCloseProgramsSidebar();
   };
 
   const handleProgramClick = () => {
-    const nextShowSemesterTrigger = !showSemesterTrigger;
-    onShowSemesterTriggerChange(nextShowSemesterTrigger);
-    if (!nextShowSemesterTrigger) {
-      onShowSemesterSelectionChange(false);
-    }
-  };
-
-  const handleSemesterSelectionBack = () => {
-    onShowSemesterSelectionChange(false);
-    onOpenProgramsSidebar();
+    setIsSemesterDropdownOpen(!isSemesterDropdownOpen);
+    setShowSemesters(false);
   };
 
   const leaderboardData = [
@@ -136,46 +203,187 @@ export default function LandingPage({
     </section>
   );
 
-  const renderSemesterSelectionView = () => (
-    <section className="semester-selection-view">
-      <button
-        type="button"
-        className="semester-selection-back"
-        onClick={handleSemesterSelectionBack}
-      >
-        ← Back
-      </button>
+  const renderSubjectsView = () => {
+    const subjects = semesterSubjects[selectedSemesterNumber] || [];
 
-      <div className="semester-selection-header">
-        <p>Tribhuvan University • BSc CSIT</p>
-        <h2>Select Semester</h2>
-      </div>
-
-      <div className="semester-selection-grid">
-        {semesters.map((semesterNumber) => (
-          <button
-            key={semesterNumber}
-            type="button"
-            className="semester-selection-item"
-            onClick={() => handleSemesterClick(semesterNumber)}
+    return (
+      <section style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        background: 'linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a)',
+        zIndex: 1300,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto'
+      }}>
+        <div style={{ padding: '40px 30px', color: '#fff' }}>
+          <button 
+            onClick={() => setShowSubjectsView(false)}
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              marginBottom: '40px',
+              fontSize: '1rem',
+              fontWeight: '500',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.2)';
+              e.target.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.1)';
+              e.target.style.transform = 'translateY(0)';
+            }}
           >
-            Semester {semesterNumber}
+            ← Back to Semesters
           </button>
-        ))}
-      </div>
-    </section>
-  );
+          <h1 style={{ fontSize: '3rem', marginBottom: '15px', fontWeight: 'bold' }}>
+            Semester {selectedSemesterNumber}
+          </h1>
+          <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.6)', marginBottom: '50px' }}>
+            {subjects.length} subjects • Explore and learn
+          </p>
+
+          <SubjectShaderCards 
+            subjects={subjects}
+            onSubjectClick={(subject) => setSelectedSubject(subject)}
+          />
+        </div>
+      </section>
+    );
+  };
+
+  const renderSubjectDetailView = () => {
+    const tabs = ['Chapters', 'Syllabus', 'Notes', 'Q/A Feed', 'Question Banks'];
+    return (
+      <section style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        background: '#050b18',
+        zIndex: 1400,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'auto'
+      }}>
+        <div style={{ padding: '30px', color: '#fff' }}>
+          <button 
+            onClick={() => setSelectedSubject(null)}
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: '#fff',
+              padding: '8px 16px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              marginBottom: '20px'
+            }}
+          >
+            ← Back to Subjects
+          </button>
+
+          <h1 style={{ fontSize: '2rem', marginBottom: '10px' }}>
+            {selectedSubject?.name}
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '30px' }}>
+            {selectedSubject?.code}
+          </p>
+
+          {/* Navigation Tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '15px',
+            borderBottom: '1px solid rgba(255,255,255,0.2)',
+            marginBottom: '30px',
+            overflowX: 'auto',
+            paddingBottom: '15px'
+          }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: activeTab === tab ? '#fff' : 'rgba(255,255,255,0.6)',
+                  padding: '10px 0',
+                  borderBottom: activeTab === tab ? '2px solid #a855f7' : 'none',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: activeTab === tab ? '600' : '400',
+                  transition: 'all 0.3s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <div style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(168, 85, 247, 0.2)',
+            borderRadius: '12px',
+            padding: '30px',
+            minHeight: '400px'
+          }}>
+            {activeTab === 'Chapters' && (
+              <div>
+                <h3 style={{ marginBottom: '20px' }}>Chapters</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Chapters content for {selectedSubject?.name}</p>
+              </div>
+            )}
+            {activeTab === 'Syllabus' && (
+              <div>
+                <h3 style={{ marginBottom: '20px' }}>Syllabus</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Syllabus content for {selectedSubject?.name}</p>
+              </div>
+            )}
+            {activeTab === 'Notes' && (
+              <div>
+                <h3 style={{ marginBottom: '20px' }}>Notes</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Study notes for {selectedSubject?.name}</p>
+              </div>
+            )}
+            {activeTab === 'Q/A Feed' && (
+              <div>
+                <h3 style={{ marginBottom: '20px' }}>Questions & Answers</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Q&A feed for {selectedSubject?.name}</p>
+              </div>
+            )}
+            {activeTab === 'Question Banks' && (
+              <div>
+                <h3 style={{ marginBottom: '20px' }}>Question Banks</h3>
+                <p style={{ color: 'rgba(255,255,255,0.7)' }}>Question banks for {selectedSubject?.name}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  };
 
   return (
     <>
+      {selectedSubject && renderSubjectDetailView()}
+      {showSubjectsView && !selectedSubject && renderSubjectsView()}
       <div className="educhain-container">
       <div
         className={`landing-main-content ${shouldBlurHomepage ? 'landing-main-content-blurred' : ''} ${shouldShiftMainContent ? 'landing-main-content-semester-selected' : ''}`}
       >
       {selectedSemester ? (
         renderSemesterDetailView()
-      ) : showSemesterSelection ? (
-        renderSemesterSelectionView()
       ) : (
       <>
       {/* Hero Section - Mountain Scene Background */}
@@ -504,17 +712,35 @@ export default function LandingPage({
           </div>
         </div>
 
-        {showSemesterTrigger && (
-          <button
-            type="button"
-            className="programs-semester-trigger"
-            onClick={handleSemesterMenuClick}
-          >
-            <span>Semester</span>
-            <span className="programs-semester-icon" aria-hidden="true">
-              <span className="programs-semester-icon-chevron" />
-            </span>
-          </button>
+        {isSemesterDropdownOpen && (
+          <div className="programs-semester-list">
+            <button
+              type="button"
+              className="programs-semester-trigger"
+              onClick={() => setShowSemesters(!showSemesters)}
+            >
+              <span>Semester</span>
+              <span className="programs-semester-icon" aria-hidden="true">
+                <span className="programs-semester-icon-chevron" />
+              </span>
+            </button>
+
+            {showSemesters && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {semesters.map((semesterNumber) => (
+                  <button
+                    key={semesterNumber}
+                    type="button"
+                    className={`programs-semester-item ${selectedSemester === semesterNumber ? 'active' : ''}`}
+                    onClick={() => handleSemesterClick(semesterNumber)}
+                  >
+                    <span className="programs-semester-circle">{semesterNumber}</span>
+                    <span>Semester {semesterNumber}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </aside>
       </div>
