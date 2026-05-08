@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import getApiClient from '../utils/api';
+import NotesFeed from '../components/NotesFeed';
 
 function Home({ user, onSignOut }) {
   const [vaultData, setVaultData] = useState(null);
@@ -26,7 +27,7 @@ function Home({ user, onSignOut }) {
 
   return (
     <div style={{ minHeight: '100vh', padding: '20px' }}>
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
         <h1>Welcome, {user?.email}!</h1>
 
         {loading && <p>Loading vault data...</p>}
@@ -42,6 +43,10 @@ function Home({ user, onSignOut }) {
             <pre>{JSON.stringify(vaultData, null, 2)}</pre>
           </div>
         )}
+
+        <div style={{ marginTop: '24px' }}>
+          <NotesFeed />
+        </div>
 
         <button 
           type="button" 
