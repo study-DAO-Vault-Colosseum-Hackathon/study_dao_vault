@@ -1,41 +1,83 @@
-import React from 'react';
-import './TutorHeroSection.css';
+import React, { useRef } from 'react';
+import FullScreenScrollFX from '../components/FullScreenScrollFX';
+const togetherImage = '/together-classroom.jpg';
 
 const TutorHeroSection = () => {
+  const apiRef = useRef(null);
+
+  const sections = [
+    {
+      id: "silence",
+      leftLabel: "Start",
+      title: "Your Learning",
+      rightLabel: "Start",
+    },
+    {
+      id: "essence",
+      leftLabel: "Growth",
+      title: "Expert Guidance",
+      rightLabel: "Growth",
+    },
+    {
+      id: "rebirth",
+      leftLabel: "Credentials",
+      title: "Earn & Grow",
+      rightLabel: "Credentials",
+    },
+    {
+      id: "change",
+      leftLabel: "Together",
+      title: "Build Future",
+      rightLabel: "Together",
+      renderBackground: (isActive) => (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: '#000000',
+            opacity: isActive ? 1 : 0,
+            transition: 'opacity 0.6s ease',
+          }}
+        >
+          <img
+            src={togetherImage}
+            alt=""
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <section className="tutor-hero-section">
-      {/* A+ Circle SVG */}
-      <svg className="a-plus-circle" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
-          </style>
-        </defs>
-        <circle cx="60" cy="60" r="55" fill="none" stroke="#22c55e" strokeWidth="3" strokeDasharray="5,5" opacity="0.8" />
-        <text x="60" y="75" textAnchor="middle" fontSize="48" fontFamily="Caveat, cursive" fontWeight="700" fill="#22c55e">
-          A+
-        </text>
-      </svg>
-
-      {/* Decorative Elements */}
-      <div className="decorative-element rocket-emoji">🚀</div>
-      <div className="decorative-element crown-emoji">👑</div>
-      <div className="decorative-element plant-emoji">🌿</div>
-      <div className="decorative-element star-emoji">⭐</div>
-      <div className="decorative-element sparkle-emoji">✦</div>
-      <div className="decorative-element orb-emoji">🔵</div>
-      <div className="decorative-element diamond-emoji">💠</div>
-
-      {/* Main Content */}
-      <div className="hero-content">
-        <h1 className="hero-heading">AND THAT'S WHEN THE A'S START SHOWING UP</h1>
-        
-        <button className="cta-button">Get started</button>
-        
-        <h2 className="hero-subheading">But Great Tutors Go Beyond Explanations</h2>
-      </div>
-    </section>
+    <FullScreenScrollFX
+      ref={apiRef}
+      sections={sections}
+      header={
+        <>
+          <div>EduChain</div>
+          <div>NP</div>
+        </>
+      }
+      footer={<div>Excellence in Learning</div>}
+      showProgress={true}
+      showBackgrounds={true}
+      durations={{ change: 0.7, snap: 800 }}
+      colors={{
+        text: "rgba(245,245,245,0.92)",
+        overlay: "rgba(0,0,0,0.35)",
+        pageBg: "#000000",
+        stageBg: "#000000",
+      }}
+    />
   );
 };
 
 export default TutorHeroSection;
+

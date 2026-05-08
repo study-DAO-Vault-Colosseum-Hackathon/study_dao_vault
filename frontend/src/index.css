@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body,
 #root {
@@ -9,4 +13,19 @@ body,
 
 * {
 	box-sizing: border-box;
+}
+
+@keyframes login-bg-zoom {
+	0% {
+		transform: scale(1.04) translate3d(0%, 0%, 0);
+		filter: brightness(0.86) contrast(1.04) saturate(1.04);
+	}
+	50% {
+		transform: scale(1.1) translate3d(-1.2%, -0.8%, 0);
+		filter: brightness(0.92) contrast(1.08) saturate(1.08);
+	}
+	100% {
+		transform: scale(1.04) translate3d(0%, 0%, 0);
+		filter: brightness(0.86) contrast(1.04) saturate(1.04);
+	}
 }

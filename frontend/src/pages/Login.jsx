@@ -1,5 +1,6 @@
-import { useState } from 'react';
+
 import './Login.css';
+import { useState } from 'react';
 import { FcGoogle } from "react-icons/fc";
 
 function Login({ onLogin }) {
@@ -19,15 +20,15 @@ function Login({ onLogin }) {
 		<div className="login-page">
 			<div className="login-stage">
 				<div className="login-card">
-					<h3>Study DAO</h3>
+					<h3>EduChainNP</h3>
 
-					<button 
-						type="button" 
-						className="login-btn" 
+					<button
+						type="button"
+						className="login-btn"
 						onClick={handleLoginClick}
 						disabled={isLoading}
 					>
-                    <FcGoogle size={24} /> Continue with Google
+						<FcGoogle size={24} /> Continue with Google
 					</button>
 
 					<p className="terms-copy">
@@ -38,7 +39,7 @@ function Login({ onLogin }) {
 				</div>
 			</div>
 		</div>
-	)
+	);
 }
 
 export default Login

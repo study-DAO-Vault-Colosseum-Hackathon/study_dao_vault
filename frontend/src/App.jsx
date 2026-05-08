@@ -1,10 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
-import StudyDAO from "./pages/StudyDAO";
-import Login from "./pages/Login";
+import EduChainNP from "./pages/EduChainNP";
+import HamoCSIT from "./pages/HamoCSIT";
 import Navbar from "./components/Navbar";
 import './App.css';
 
@@ -79,17 +79,87 @@ function App() {
   );
 
   return (
-    <BrowserRouter>
-      <Navbar user={user} onSignOut={handleSignOut} />
+    <BrowserRouter future={{ v7_relativeSplatPath: true }}>
+      <AppContent 
+        user={user} 
+        handleSignOut={handleSignOut} 
+        handleGoogleLogin={handleGoogleLogin} 
+      />
+    </BrowserRouter>
+  );
+}
+
+function AppContent({ user, handleSignOut, handleGoogleLogin }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const showNavbar = location.pathname !== '/hamro-csit';
+  const [isProgramsSidebarOpen, setIsProgramsSidebarOpen] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState(null);
+  const [showSemesterSelection, setShowSemesterSelection] = useState(false);
+  const [showSemesterTrigger, setShowSemesterTrigger] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setIsProgramsSidebarOpen(false);
+      setSelectedSemester(null);
+      setShowSemesterSelection(false);
+      setShowSemesterTrigger(false);
+    }
+  }, [location.pathname]);
+
+  const handleNavbarLinkClick = (link) => {
+    if (link === 'Home') {
+      setIsProgramsSidebarOpen(false);
+      setSelectedSemester(null);
+      setShowSemesterSelection(false);
+      setShowSemesterTrigger(false);
+      if (location.pathname !== '/') {
+        navigate('/');
+      }
+      return;
+    }
+
+    if (link === 'Programs' && location.pathname === '/') {
+      setSelectedSemester(null);
+      setShowSemesterSelection(false);
+      setShowSemesterTrigger(false);
+      setIsProgramsSidebarOpen(true);
+    }
+  };
+
+  return (
+    <>
+      {showNavbar && (
+        <Navbar
+          user={user}
+          onSignOut={handleSignOut}
+          onNavLinkClick={handleNavbarLinkClick}
+        />
+      )}
       <Routes>
         <Route
           path="/"
-          element={<LandingPage onGoogleSignIn={handleGoogleLogin} user={user} onSignOut={handleSignOut} />}
+          element={
+            <LandingPage
+              onGoogleSignIn={handleGoogleLogin}
+              user={user}
+              onSignOut={handleSignOut}
+              isProgramsSidebarOpen={isProgramsSidebarOpen}
+              selectedSemester={selectedSemester}
+              showSemesterSelection={showSemesterSelection}
+              showSemesterTrigger={showSemesterTrigger}
+              onSemesterSelect={setSelectedSemester}
+              onShowSemesterSelectionChange={setShowSemesterSelection}
+              onShowSemesterTriggerChange={setShowSemesterTrigger}
+              onOpenProgramsSidebar={() => setIsProgramsSidebarOpen(true)}
+              onCloseProgramsSidebar={() => setIsProgramsSidebarOpen(false)}
+            />
+          }
         />
 
         <Route
           path="/login"
-          element={user ? <Navigate to="/study-dao" /> : <Login onLogin={handleGoogleLogin} />}
+          element={<Navigate to="/study-dao" replace />}
         />
 
         <Route
@@ -98,13 +168,23 @@ function App() {
         />
 
         <Route
+          path="/educhain-np"
+          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
+        />
+
+        <Route
           path="/study-dao"
-          element={<StudyDAO onGoogleSignIn={handleGoogleLogin} />}
+          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
+        />
+
+        <Route
+          path="/hamro-csit"
+          element={<HamoCSIT onSignOut={handleSignOut} />}
         />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-    </BrowserRouter>
+    </>
   );
 }
 

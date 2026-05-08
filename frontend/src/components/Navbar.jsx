@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { FaSignOutAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaGoogle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
-import NotesIcon from './NotesIcon';
+import NavHeader from './ui/nav-header';
 
-const Navbar = ({ user = null, onSignOut }) => {
+const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
   const [activeLink, setActiveLink] = useState('Home');
+  const navigate = useNavigate();
 
-  const links = ['Home', 'Programs', 'Contact Us', 'Help', 'About Us'];
+  const links = ['Home', 'Programs', 'About Us'];
 
   return (
     <nav className="navbar">
@@ -196,34 +198,31 @@ const Navbar = ({ user = null, onSignOut }) => {
                 <circle cx="380" cy="285" r="5" fill="#C9573A" className="dot-3" />
               </g>
             </svg>
-            <span className="brand-text">Study DAO</span>
+            <span className="brand-text">EduChainNP</span>
           </div>
         </div>
 
-        {/* Center - Navigation Links (only show before signin) */}
+        {/* Center - Navigation Links */}
         <div className="navbar-center">
-          {!user && (
-            <ul className="nav-links">
-              {links.map((link) => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className={`nav-link ${activeLink === link ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setActiveLink(link);
-                    }}
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
+          <NavHeader
+            tabs={links}
+            activeTab={activeLink}
+            onTabClick={(link) => {
+              setActiveLink(link);
+              if (onNavLinkClick) onNavLinkClick(link);
+            }}
+          />
         </div>
 
-        {/* Right Side - Sign Out Button (only show after signin) */}
+        {/* Right Side - Sign Out Button (show after signin) and Google Sign-In (when not signed in) */}
         <div className="navbar-right">
+          {!user && (
+            <button className="google-signin-btn" onClick={() => navigate('/study-dao')}>
+              <FaGoogle className="google-icon" />
+              <span>Sign In</span>
+            </button>
+          )}
+
           {user && (
             <button className="logout-btn" onClick={onSignOut}>
               <FaSignOutAlt className="logout-icon" />
