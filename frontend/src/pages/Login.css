@@ -9,6 +9,12 @@
   overflow: hidden;
 }
 
+.login-stage {
+  position: relative;
+  width: min(90vw, 560px);
+  min-height: 420px;
+}
+
 .logo {
   color: #ffffff;
   font-size: 2.5rem;
@@ -22,8 +28,10 @@
 }
 
 .login-card {
-  width: min(90vw, 450px);
+  width: 100%;
+  min-height: 420px;
   background: #2d3e50;
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 2.5rem 2rem;
@@ -31,6 +39,8 @@
   text-align: center;
   animation: fadeIn 0.6s ease-in;
   border: none;
+  position: relative;
+  overflow: hidden;
 }
 
 
@@ -58,17 +68,23 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: none;
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
-.login-btn:hover {
+.login-btn:hover:not(:disabled) {
   background-color: #3d5a85;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.login-btn:active {
+.login-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.login-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .terms-copy {
