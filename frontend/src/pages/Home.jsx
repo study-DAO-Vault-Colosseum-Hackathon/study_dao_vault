@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import getApiClient from '../utils/api';
-<<<<<<< HEAD
 import NotesFeed from '../components/NotesFeed';
-=======
 import { FaStickyNote, FaStar, FaDownload, FaImage, FaMedal, FaLightbulb, FaCheckCircle, FaFire, FaQrcode } from 'react-icons/fa';
 import './Home.css';
->>>>>>> bijesh
 
 function Home({ user, onSignOut }) {
   const [vaultData, setVaultData] = useState(null);

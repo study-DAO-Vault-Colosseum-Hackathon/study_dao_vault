@@ -6,11 +6,9 @@ import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
 import HamoCSIT from "./pages/HamoCSIT";
 import Navbar from "./components/Navbar";
-import LandingPage from "./pages/LandingPage";
-import EduChainNP from "./pages/EduChainNP";
-import HamoCSIT from "./pages/HamoCSIT";
-import Navbar from "./components/Navbar";
 import QA from "./pages/qa";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
 import './App.css';
 
 function App() {
