@@ -10,8 +10,7 @@ Before you start, make sure you have:
 
 - **Node.js** v18 or higher ([Download](https://nodejs.org/))
 - **npm** (comes with Node.js)
-- **Firebase Account** (Auth + Firestore metadata)
-- **Appwrite Account** (Storage bucket)
+- **Firebase Account** (free tier works)
 - **Git**
 
 Verify your Node.js version:
@@ -61,10 +60,6 @@ The `.env` file will contain:
 PORT=3000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
-APPWRITE_ENDPOINT=https://fra.cloud.appwrite.io/v1
-APPWRITE_PROJECT_ID=your_appwrite_project_id
-APPWRITE_API_KEY=your_appwrite_api_key
-APPWRITE_BUCKET_ID=your_appwrite_bucket_id
 ```
 
 **No changes needed!** These defaults work for local development.
