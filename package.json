@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express-validator": "^7.3.2",
+    "framer-motion": "^12.38.0",
+    "jsonwebtoken": "^9.0.3",
+    "three": "^0.184.0",
+    "three.js": "^0.77.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.14",
+    "tailwindcss": "^4.2.4"
+  }
+}

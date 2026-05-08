@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import getApiClient from '../utils/api';
+import NotesFeed from '../components/NotesFeed';
 import { FaStickyNote, FaStar, FaDownload, FaImage, FaMedal, FaLightbulb, FaCheckCircle, FaFire, FaQrcode } from 'react-icons/fa';
 import './Home.css';
 
@@ -228,6 +229,11 @@ function Home({ user, onSignOut }) {
         >
           Logout
         </button>
+
+        <div style={{ marginTop: 24 }}>
+          <h2>Notes / Lab Reports</h2>
+          <NotesFeed />
+        </div>
       </div>
     </div>
   );

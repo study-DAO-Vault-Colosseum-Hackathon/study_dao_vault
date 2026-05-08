@@ -1,11 +1,11 @@
-# Study DAO Vault
+# EduChainNP Vault
 
 A secure full-stack application for managing a Study DAO Vault on Solana with Firebase authentication and backend token verification.
 
 ## Project Structure
 
 ```
-study_dao_vault/
+Edu_Chain_NP vault/
 ├── frontend/          # React + Vite frontend
 ├── backend/           # Node.js + Express backend
 └── study_dao_vault/   # Solana program (Anchor)

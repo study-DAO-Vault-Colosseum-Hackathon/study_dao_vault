@@ -1,6 +1,10 @@
 const { PublicKey } = require('@solana/web3.js');
 const crypto = require('crypto');
 
+if (!process.env.PROGRAM_ID) {
+  throw new Error('PROGRAM_ID environment variable is not set. Please configure it in your .env file.');
+}
+
 const PROGRAM_ID = new PublicKey(process.env.PROGRAM_ID);
 
 function getPlatformPDA() {

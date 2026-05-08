@@ -14,6 +14,12 @@ export default defineConfig({
     host: true,
     watch: {
       usePolling: true, // This fixes the WSL file-watching issue
+      proxy: {
+        '/socket.io': {
+          target: 'http://localhost:3000',
+          ws: true
+        }
+      }
     },
   },
 })
