@@ -1,5 +1,5 @@
 const express = require('express');
-const { db } = require('../utils/firebase');
+const { db, firebaseInitialized } = require('../utils/firebase');
 const { storage, appwriteBucketId } = require('../utils/appwrite');
 const { verifyToken } = require('../middleware/auth');
 
@@ -11,6 +11,9 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      return res.json({ count: 0, documents: [] });
+    }
     const snapshot = await db.collection('documents').get();
     const documents = [];
     snapshot.forEach(doc => {
@@ -28,6 +31,9 @@ router.get('/', async (req, res) => {
  */
 router.get('/:id', async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
     const doc = await db.collection('documents').doc(req.params.id).get();
     if (!doc.exists) {
       return res.status(404).json({ error: 'Document not found' });
@@ -43,6 +49,9 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/:id/upvote', verifyToken, async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      return res.status(503).json({ error: 'Firebase not initialized' });
+    }
     const docId = req.params.id;
     const userId = req.user.uid;
 
@@ -82,6 +91,9 @@ router.post('/:id/upvote', verifyToken, async (req, res) => {
  */
 router.post('/:id/downvote', verifyToken, async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      return res.status(503).json({ error: 'Firebase not initialized' });
+    }
     const docId = req.params.id;
     const userId = req.user.uid;
 
@@ -122,6 +134,9 @@ router.post('/:id/downvote', verifyToken, async (req, res) => {
  */
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
+    if (!firebaseInitialized) {
+      return res.status(503).json({ error: 'Firebase not initialized' });
+    }
     const docId = req.params.id;
     const docRef = db.collection('documents').doc(docId);
     const doc = await docRef.get();
