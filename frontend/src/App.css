@@ -1,0 +1,62 @@
+.app-loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f172a;
+  color: white;
+  z-index: 9999;
+  font-family: 'Inter', sans-serif;
+}
+
+.loader-container {
+  text-align: center;
+}
+
+.loader-orbit {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  margin: 0 auto 24px;
+}
+
+.loader-planet {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: #c9573a;
+  border-radius: 50%;
+  margin: -6px;
+  box-shadow: 0 0 15px #c9573a;
+  animation: orbit 1.5s linear infinite;
+}
+
+@keyframes orbit {
+  from {
+    transform: rotate(0deg) translateX(40px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(40px) rotate(-360deg);
+  }
+}
+
+.loader-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.loader-subtext {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+}

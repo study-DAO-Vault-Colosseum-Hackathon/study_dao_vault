@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaCog, FaGoogle, FaSignOutAlt, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { FaCog, FaGoogle, FaSignOutAlt, FaTimes, FaUserCircle, FaCopy, FaCheck } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import NavHeader from '@/components/ui/nav-header';
 import './Navbar.css';
@@ -8,6 +8,7 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
   const [activeLink, setActiveLink] = useState('Home');
   const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
   const [activeUserPanel, setActiveUserPanel] = useState('profile');
+  const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Student';
@@ -19,6 +20,14 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
     user?.wallet?.address ||
     user?.uid ||
     'Wallet not connected';
+
+  const handleCopy = () => {
+    if (userWalletAddress && userWalletAddress !== 'Wallet not connected') {
+      navigator.clipboard.writeText(userWalletAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
   const formattedWalletAddress =
     userWalletAddress.length > 9
       ? `${userWalletAddress.slice(0, 3)}...${userWalletAddress.slice(-3)}`
@@ -106,9 +115,8 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
         {/* Right Side - User Info or Sign-In */}
         <div className="navbar-right">
           {!user && (
-            <button className="google-signin-btn" onClick={() => navigate('/study-dao')}>
-              <FaGoogle className="google-icon" />
-              <span>Sign In</span>
+            <button className="auth-trigger-btn" onClick={() => navigate('/auth')}>
+              <span>Login / Sign Up</span>
             </button>
           )}
 
@@ -161,9 +169,14 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
             <div className="user-panel-scroll-area">
               <div className="user-panel-summary">
                 <div className="user-panel-avatar">{userInitial}</div>
-                <div>
+                <div className="user-panel-info-stack">
                   <p className="user-panel-name">{userName}</p>
-                  <p className="user-panel-wallet">{formattedWalletAddress}</p>
+                  <div className="user-panel-wallet-wrapper">
+                    <p className="user-panel-wallet">{formattedWalletAddress}</p>
+                    <button className="copy-address-btn" onClick={handleCopy} title="Copy Address">
+                      {copied ? <FaCheck className="copied-icon" /> : <FaCopy />}
+                    </button>
+                  </div>
                 </div>
               </div>
 

@@ -158,11 +158,13 @@ export const FullScreenScrollFX = forwardRef(
       const fs = fixedSectionRef.current;
       if (!fixed || !fs || total === 0) return;
 
-      gsap.set(bgRefs.current, { opacity: 0, scale: 1.04, yPercent: 0 });
-      if (bgRefs.current[0]) gsap.set(bgRefs.current[0], { opacity: 1, scale: 1 });
+      const validBgs = bgRefs.current.filter(Boolean);
+      gsap.set(validBgs, { opacity: 0, scale: 1.04, yPercent: 0 });
+      if (validBgs[0]) gsap.set(validBgs[0], { opacity: 1, scale: 1 });
 
       wordRefs.current.forEach((words, sIdx) => {
-        words.forEach((w) => {
+        const validWords = words.filter(Boolean);
+        validWords.forEach((w) => {
           gsap.set(w, {
             yPercent: sIdx === index ? 0 : 100,
             opacity: sIdx === index ? 1 : 0,
@@ -233,8 +235,8 @@ export const FullScreenScrollFX = forwardRef(
 
       const D = durations.change ?? 0.7;
 
-      const outWords = wordRefs.current[from] || [];
-      const inWords = wordRefs.current[to] || [];
+      const outWords = (wordRefs.current[from] || []).filter(Boolean);
+      const inWords = (wordRefs.current[to] || []).filter(Boolean);
       if (outWords.length) {
         gsap.to(outWords, {
           yPercent: down ? -100 : 100,
@@ -287,7 +289,7 @@ export const FullScreenScrollFX = forwardRef(
 
       measureAndCenterLists(to, true);
 
-      leftItemRefs.current.forEach((el, i) => {
+      leftItemRefs.current.filter(Boolean).forEach((el, i) => {
         el.classList.toggle("active", i === to);
         gsap.to(el, {
           opacity: i === to ? 1 : 0.35,
@@ -296,7 +298,7 @@ export const FullScreenScrollFX = forwardRef(
           ease: "power3.out",
         });
       });
-      rightItemRefs.current.forEach((el, i) => {
+      rightItemRefs.current.filter(Boolean).forEach((el, i) => {
         el.classList.toggle("active", i === to);
         gsap.to(el, {
           opacity: i === to ? 1 : 0.35,
@@ -341,14 +343,14 @@ export const FullScreenScrollFX = forwardRef(
 
     const handleJump = (i) => goTo(i);
     const handleLoadedStagger = () => {
-      leftItemRefs.current.forEach((el, i) => {
+      leftItemRefs.current.filter(Boolean).forEach((el, i) => {
         gsap.fromTo(
           el,
           { opacity: 0, y: 20 },
           { opacity: i === index ? 1 : 0.35, y: 0, duration: 0.5, delay: i * 0.06, ease: "power3.out" }
         );
       });
-      rightItemRefs.current.forEach((el, i) => {
+      rightItemRefs.current.filter(Boolean).forEach((el, i) => {
         gsap.fromTo(
           el,
           { opacity: 0, y: 20 },
@@ -415,12 +417,12 @@ export const FullScreenScrollFX = forwardRef(
                   ))}
                 </div>
               )}
-
+ 
               {/* Grid */}
               <div className="fx-grid">
                 {/* Header */}
                 {header && <div className="fx-header">{header}</div>}
-
+ 
                 {/* Content (lists + center) */}
                 <div className="fx-content">
                   {/* Left list */}
@@ -441,7 +443,7 @@ export const FullScreenScrollFX = forwardRef(
                       ))}
                     </div>
                   </div>
-
+ 
                   {/* Center title (masked words if string) */}
                   <div className="fx-center">
                     {sections.map((s, sIdx) => {
@@ -464,7 +466,7 @@ export const FullScreenScrollFX = forwardRef(
                       );
                     })}
                   </div>
-
+ 
                   {/* Right list */}
                   <div className="fx-right" role="list">
                     <div className="fx-track" ref={rightTrackRef}>
@@ -484,7 +486,7 @@ export const FullScreenScrollFX = forwardRef(
                     </div>
                   </div>
                 </div>
-
+ 
                 {/* Footer + progress */}
                 <div className="fx-footer">
                   {footer && <div className="fx-footer-title">{footer}</div>}
@@ -504,8 +506,8 @@ export const FullScreenScrollFX = forwardRef(
             </div>
           </div>
         </div>
-
-        <style jsx>{`
+ 
+        <style jsx="true">{`
           .fx {
             width: 100%;
             overflow: hidden;

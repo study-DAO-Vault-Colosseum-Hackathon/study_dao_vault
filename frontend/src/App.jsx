@@ -1,15 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRedirectResult } from "firebase/auth";
-import { auth, googleProvider } from "./firebase/firebase";
 import { useState, useEffect } from "react";
+import { magic } from "./utils/magic";
+import { auth } from "./firebase/firebase";
+import { signInWithCustomToken } from "firebase/auth";
 import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
 import Navbar from "./components/Navbar";
-import QA from "./pages/qa";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import AdminDashboard from "./pages/AdminDashboard";
+import Auth from "./pages/Auth";
 import UserList from "./pages/Userlist";
+import AdminDashboard from "./pages/AdminDashboard";
 import './App.css';
 
 function App() {
@@ -17,86 +16,149 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for redirect result from Google login
-    const handleRedirectResult = async () => {
+    const initAuth = async () => {
       try {
-        const result = await getRedirectResult(auth);
-        if (result && result.user) {
-          setUser(result.user);
+        if (!magic || !magic.user) {
+          setLoading(false);
+          return;
         }
-      } catch (error) {
-        console.error('Redirect result error:', error);
+
+        const queryParams = new URLSearchParams(window.location.search);
+        const isRedirect = queryParams.has('magic_oauth_request_id') || queryParams.has('magic_credential');
+
+        // 1. Handle OAuth Redirect
+        if (isRedirect) {
+          console.log('OAuth redirect detected, handling result...');
+          try {
+            const result = await magic.oauth.getRedirectResult();
+            if (result) {
+              // Only get the token. Backend will do the rest.
+              const didToken = result.magic.idToken;
+              
+              // Optional: Try to get Solana account if possible
+              let solAddress = null;
+              try {
+                solAddress = await magic.solana.getAccount();
+              } catch (e) { console.warn('Solana extension account check skipped'); }
+
+              await verifyWithBackend(didToken, solAddress);
+              setLoading(false);
+              return;
+            }
+          } catch (err) {
+            console.error('OAuth sync error:', err);
+          }
+        }
+
+        // 2. Regular Session Check
+        const isLoggedIn = await magic.user.isLoggedIn();
+        if (isLoggedIn) {
+          console.log('Active session found, verifying...');
+          try {
+            const didToken = await magic.user.getIdToken();
+            
+            let solAddress = null;
+            try {
+              solAddress = await magic.solana.getAccount();
+            } catch (e) { console.warn('Solana extension account check skipped'); }
+
+            await verifyWithBackend(didToken, solAddress);
+          } catch (tokenErr) {
+            console.error('Failed to get DID token:', tokenErr);
+          }
+        } else {
+          console.log('No user session.');
+        }
+      } catch (err) {
+        console.error('Auth initialization error:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    handleRedirectResult();
-
-    return onAuthStateChanged(auth, (u) => {
-      setUser(u);
-      setLoading(false);
-    });
+    initAuth();
   }, []);
 
-  const handleGoogleLogin = async () => {
+  const verifyWithBackend = async (didToken, solanaAddressOverride = null) => {
     try {
-      // Try popup first
-      await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      // If popup fails (CORS), fallback to redirect
-      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-        console.log('Popup blocked, using redirect...');
-        try {
-          await signInWithRedirect(auth, googleProvider);
-        } catch (redirectError) {
-          console.error('Redirect login error:', redirectError);
-          alert('Login failed: ' + redirectError.message);
+      console.log('Syncing identity with backend...');
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${didToken}`
+        },
+        body: JSON.stringify({
+          walletAddress: solanaAddressOverride 
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Handshake successful:', data);
+        
+        if (data.firebaseToken) {
+          try {
+            await signInWithCustomToken(auth, data.firebaseToken);
+          } catch (fbErr) {
+            console.error('Firebase bridge failed:', fbErr);
+          }
         }
+
+        setUser({
+          ...data,
+          uid: data.userId,
+          // Prioritize the detected Solana address if we have it
+          walletAddress: solanaAddressOverride || data.walletAddress
+        });
       } else {
-        console.error('Popup login error:', error);
-        alert('Login failed: ' + error.message);
+        console.error('Backend rejected handshake:', response.status);
       }
+    } catch (err) {
+      console.error('Backend sync failed:', err);
     }
   };
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      setLoading(true);
+      if (magic) await magic.user.logout();
+      await auth.signOut();
+      setUser(null);
       window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      alert('Sign out failed: ' + error.message);
+      setLoading(false);
     }
   };
 
   if (loading) return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      fontSize: '1.5rem',
-      background: '#1a2940',
-      color: 'white'
-    }}>
-      Loading....
+    <div className="app-loading-screen">
+      <div className="loader-container">
+        <div className="loader-orbit">
+          <div className="loader-planet"></div>
+        </div>
+        <h2 className="loader-text">EduChainNP</h2>
+        <p className="loader-subtext">Initializing secure Solana session...</p>
+      </div>
     </div>
   );
 
   return (
-    <BrowserRouter future={{ v7_relativeSplatPath: true }}>
+    <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
       <AppContent 
         user={user} 
         handleSignOut={handleSignOut} 
-        handleGoogleLogin={handleGoogleLogin} 
       />
     </BrowserRouter>
   );
 }
 
-function AppContent({ user, handleSignOut, handleGoogleLogin }) {
+function AppContent({ user, handleSignOut }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const showNavbar = location.pathname === '/';
+  const showNavbar = location.pathname !== '/login' && location.pathname !== '/auth';
+  
   const [isProgramsSidebarOpen, setIsProgramsSidebarOpen] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState(null);
   const [showSemesterSelection, setShowSemesterSelection] = useState(false);
@@ -119,9 +181,7 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
       setShowSemesterSelection(false);
       setShowSemesterTrigger(false);
       setNavRequest({ target: 'home', id: Date.now() });
-      if (location.pathname !== '/') {
-        navigate('/');
-      }
+      if (location.pathname !== '/') navigate('/');
       return;
     }
 
@@ -146,9 +206,7 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
       setShowSemesterSelection(false);
       setShowSemesterTrigger(false);
       setNavRequest({ target: 'about-us', id: Date.now() });
-      if (location.pathname !== '/') {
-        navigate('/');
-      }
+      if (location.pathname !== '/') navigate('/');
     }
   };
 
@@ -166,7 +224,7 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
           path="/"
           element={
             <LandingPage
-              onGoogleSignIn={handleGoogleLogin}
+              onGoogleSignIn={() => navigate('/auth')}
               user={user}
               onSignOut={handleSignOut}
               isProgramsSidebarOpen={isProgramsSidebarOpen}
@@ -185,39 +243,29 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
 
         <Route
           path="/login"
-          element={<Navigate to="/study-dao" replace />}
+          element={<Navigate to="/auth" replace />}
         />
 
         <Route
           path="/auth"
-          element={<Navigate to="/study-dao" replace />}
+          element={user ? <Navigate to="/study-dao" replace /> : <Auth onLoginSuccess={(u) => setUser(u)} />}
         />
 
         <Route
           path="/educhain-np"
-          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
+          element={user ? <EduChainNP user={user} /> : <Navigate to="/auth" />}
         />
 
         <Route
           path="/study-dao"
-          element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
-        />
-
-        <Route
-          path="/hamro-csit"
-          element={<Navigate to="/" replace />}
-        />
-
-        <Route
-          path="/chapters"
-          element={<Navigate to="/" replace />}
+          element={user ? <EduChainNP user={user} /> : <Navigate to="/auth" />}
         />
 
         <Route
           path="/userlist"
           element={<UserList user={user}/>}
         />
-          <Route
+        <Route
           path="/admindashboard"
           element={<AdminDashboard user={user}/>}
         />

@@ -1,7 +1,7 @@
 // routes/auth.js
 const express = require('express');
 const { authenticateMagic } = require('../middleware/magic-auth');
-const { db } = require('../utils/firebase');
+const { auth, db } = require('../utils/firebase');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -16,39 +16,86 @@ const router = express.Router();
 router.post('/verify-user', authenticateMagic, async (req, res) => {
   try {
     // Magic ID and email are extracted from the DID token in middleware
-    const { userId, walletAddress, email } = req.user;
+    const { userId, email } = req.user;
+    // Use walletAddress from body (Solana override) or from Magic metadata (Default)
+    const walletAddress = req.body.walletAddress || req.user.walletAddress;
+
+    // --- MIGRATION BRIDGE: Link Magic to existing Firebase User ---
+    let firebaseUid = userId;
+    let firebaseToken = null;
+
+    if (auth) {
+      try {
+        if (email) {
+          const userRecord = await auth.getUserByEmail(email);
+          firebaseUid = userRecord.uid; // Use existing Firebase UID if found
+          console.log(`Linked Magic user ${email} to existing Firebase UID: ${firebaseUid}`);
+        }
+      } catch (e) {
+        console.log(`No existing Firebase user for ${email}, using Magic ID as UID.`);
+      }
+
+      try {
+        // Generate a Firebase Custom Token for the frontend to sign in
+        firebaseToken = await auth.createCustomToken(firebaseUid);
+      } catch (e) {
+        console.error('Failed to create Firebase Custom Token:', e.message);
+      }
+    } else {
+      console.warn('Firebase Auth not initialized, skipping identity bridge.');
+    }
 
     // Check if user exists in Firestore
-    const userRef = db.collection('users').doc(userId);
-    const userSnap = await userRef.get();
+    if (db) {
+      const userRef = db.collection('users').doc(firebaseUid);
+      const userSnap = await userRef.get();
 
-    if (userSnap.exists) {
-      // Existing user
+      if (userSnap.exists) {
+        await userRef.update({ lastLogin: new Date(), walletAddress });
+        return res.json({
+          userId: firebaseUid,
+          magicId: userId,
+          hasUsername: !!userSnap.data().username,
+          email: userSnap.data().email,
+          walletAddress,
+          firebaseToken,
+        });
+      }
+
+      const userData = {
+        uid: firebaseUid,
+        magicId: userId,
+        email,
+        walletAddress,
+        username: null,
+        createdAt: new Date(),
+        lastLogin: new Date(),
+      };
+      
+      await userRef.set(userData);
+
       return res.json({
-        userId,
-        hasUsername: !!userSnap.data().username,
-        email: userSnap.data().email,
+        userId: firebaseUid,
+        magicId: userId,
+        hasUsername: false,
+        email,
+        walletAddress,
+        firebaseToken,
       });
     }
 
-    // First time - create user record
-    await userRef.set({
+    // Fallback if Firestore is not available
+    res.json({
+      userId: firebaseUid,
       magicId: userId,
       email,
       walletAddress,
-      username: null, // Will be set when user creates it
-      createdAt: new Date(),
-      lastLogin: new Date(),
+      firebaseToken,
     });
 
-    res.json({
-      userId,
-      hasUsername: false,
-      email,
-    });
   } catch (error) {
     console.error('Verify user error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
 

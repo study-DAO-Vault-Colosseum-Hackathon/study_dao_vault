@@ -24,11 +24,11 @@ const path = require('path');
 checkSupabase();
 const app = express();
 const server = require('http').createServer(app);
-const io = require('socket.io')(server, { 
-  cors: { 
+const io = require('socket.io')(server, {
+  cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
     credentials: true
-  } 
+  }
 });
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
@@ -37,9 +37,21 @@ const FRONTEND_URL = process.env.FRONTEND_URL || (NODE_ENV === 'development' ? '
 const router = express.Router();
 // const userRoute = require('../routes/auth');
 const userRoute = require('../routes/auth');
-// Configure CORS to allow only your frontend
+// Configure CORS to allow multiple local origins during development
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 const corsOptions = {
-  origin: FRONTEND_URL || '*',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -77,7 +89,7 @@ app.use((req, res, next) => {
 // Health check
 app.get('/', (req, res) => {
   res.json({ ok: true, message: 'Backend is running' });
-  
+
 });
 
 // Protected route - requires Magic Link DID token
@@ -191,7 +203,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('message', data);
   })
 
-  socket.on('vault_update', (data  ) => {
+  socket.on('vault_update', (data) => {
     console.log('Vault update received:', data);
     socket.broadcast.emit('vault_update', data);
   })

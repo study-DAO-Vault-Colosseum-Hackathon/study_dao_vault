@@ -1,25 +1,19 @@
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase/firebase';
 import LoginPage from '../components/ui/gaming-login';
 
-export default function EduChainNP() {
+export default function EduChainNP({ user }) {
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    const provider = new GoogleAuthProvider();
-    provider.addScope('profile');
-    provider.addScope('email');
-
-    const result = await signInWithPopup(auth, provider);
-    if (result?.user) {
-      navigate('/', { replace: true });
-    }
+  const handleLogin = () => {
+    navigate('/auth');
   };
 
   const handleQuickAccessLogin = () => {
     navigate('/', { replace: true });
   };
+
+  // If user is already logged in, we could redirect or show content
+  // But usually this page is for login
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center px-4 py-12">
