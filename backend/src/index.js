@@ -180,14 +180,22 @@ app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), asyn
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-  console.log(`Environment: ${NODE_ENV}`);
+// Start the server and keep it alive
+const server = app.listen(PORT, () => {
+  console.log(`✓ Express server started on port ${PORT}`);
+  console.log(`✓ Environment: ${NODE_ENV}`);
+  console.log('✓ Backend is ready to handle requests');
+});
+
+server.on('error', (err) => {
+  console.error('Server error:', err);
+  process.exit(1);
 });
 
 // Handle errors
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
+  process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
