@@ -42,7 +42,8 @@ cp .env.example .env
 
 Edit `.env` with your values:
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3000
+VITE_API_PROXY_TARGET=http://localhost:3000
 ```
 
 ### 4. Run Development Server

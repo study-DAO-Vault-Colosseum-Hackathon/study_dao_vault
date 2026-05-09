@@ -7,6 +7,7 @@ import {
   FaComments,
   FaFileAlt,
   FaFire,
+  FaFlask,
   FaListUl,
   FaQuestionCircle,
   FaSearch,
@@ -19,10 +20,12 @@ import HoverFooter from '../components/HoverFooter';
 import GenerativeMountainScene from '../components/ui/mountain-scene';
 import FeaturesCards from '../components/ui/feature-shader-cards';
 import SubjectShaderCards from '../components/ui/subject-shader-cards';
+import NotesFeed from '../components/NotesFeed';
 import './EduChainNP.css';
 
 const semesters = Array.from({ length: 8 }, (_, index) => index + 1);
 const semesterPreviewImage = '/image.png';
+const defaultCourseName = 'BSc CSIT';
 
 const semesterSubjects = {
   1: [
@@ -347,18 +350,14 @@ export default function LandingPage({
   };
 
   const renderSubjectDetailView = () => {
-    const tabs = ['Chapters', 'Syllabus', 'Notes', 'Q/A Feed', 'Question Banks'];
+    const tabs = ['Chapters', 'Syllabus', 'Notes/Lab', 'Question Banks'];
     const tabIcons = {
       Chapters: FaListUl,
       Syllabus: FaFileAlt,
-      Notes: FaStickyNote,
-      'Q/A Feed': FaComments,
+      'Notes/Lab': FaStickyNote,
       'Question Banks': FaQuestionCircle,
     };
     const selectedSubjectChapters = (selectedSubject && subjectChaptersByName[selectedSubject.name]) || [];
-    const orderedNoteChapters = selectedChapterForNotes && selectedSubjectChapters.includes(selectedChapterForNotes)
-      ? [selectedChapterForNotes, ...selectedSubjectChapters.filter((chapter) => chapter !== selectedChapterForNotes)]
-      : selectedSubjectChapters;
     const normalizedChapterQuery = chapterSearchQuery.trim().toLowerCase();
     const filteredChapters = normalizedChapterQuery
       ? selectedSubjectChapters.filter((chapter) => chapter.toLowerCase().includes(normalizedChapterQuery))
@@ -446,35 +445,35 @@ export default function LandingPage({
     );
 
     const renderNotesPanel = () => (
-      <div className="subject-detail-stack">
-        <div className="subject-detail-section-heading">
-          <p className="subject-detail-section-label">Study Notes</p>
-          <h2>Notes</h2>
-          <p>Open notes for every chapter in {selectedSubject?.name}.</p>
-        </div>
+      <NotesFeed
+        defaultFeedType="Notes"
+        initialSearch={selectedChapterForNotes || ''}
+        defaultChapterTag={selectedChapterForNotes || ''}
+        subject={selectedSubject?.name || ''}
+        course={defaultCourseName}
+        semester={selectedSemesterNumber ? String(selectedSemesterNumber) : ''}
+        hideFeedTypeFilter
+        heading={`${selectedSubject?.name} Notes`}
+        description={`Showing uploaded notes for ${selectedSubject?.name} from Semester ${selectedSemesterNumber ?? '--'}.${
+          selectedChapterForNotes ? ` Searching for chapter: ${selectedChapterForNotes}.` : ""
+        }`}
+      />
+    );
 
-        {orderedNoteChapters.length > 0 ? (
-          orderedNoteChapters.map((chapterName, index) => {
-            const isSelected = chapterName === selectedChapterForNotes;
-            return (
-              <div
-                key={`${selectedSubject?.name}-notes-${chapterName}-${index}`}
-                className={`subject-detail-note-card ${isSelected ? 'active' : ''}`}
-              >
-                <div>
-                  <p className="subject-detail-note-label">Chapter {selectedSubjectChapters.indexOf(chapterName) + 1}</p>
-                  <h3>{chapterName} Notes</h3>
-                </div>
-                <span className="subject-detail-status-badge in-progress">
-                  {isSelected ? 'Opened from Chapters' : 'Ready'}
-                </span>
-              </div>
-            );
-          })
-        ) : (
-          renderEmptyState('No notes are available for this subject yet.')
-        )}
-      </div>
+    const renderLabPanel = () => (
+      <NotesFeed
+        defaultFeedType="Lab Reports"
+        initialSearch={selectedChapterForNotes || ''}
+        defaultChapterTag={selectedChapterForNotes || ''}
+        subject={selectedSubject?.name || ''}
+        course={defaultCourseName}
+        semester={selectedSemesterNumber ? String(selectedSemesterNumber) : ''}
+        hideFeedTypeFilter
+        heading={`${selectedSubject?.name} Lab Reports`}
+        description={`Showing uploaded lab reports for ${selectedSubject?.name} from Semester ${selectedSemesterNumber ?? '--'}.${
+          selectedChapterForNotes ? ` Searching for chapter: ${selectedChapterForNotes}.` : ""
+        }`}
+      />
     );
 
     const renderSimplePanel = (label, title, description) => (
@@ -509,6 +508,67 @@ export default function LandingPage({
           <div className="subject-detail-tabs">
             {tabs.map((tab) => {
               const TabIcon = tabIcons[tab];
+              
+              // Special render for Notes/Lab toggle
+              if (tab === 'Notes/Lab') {
+                return (
+                  <div
+                    key={tab}
+                    className={`subject-detail-tab ${activeTab === 'Notes' || activeTab === 'Lab' ? 'active' : ''}`}
+                    style={{ display: 'flex', padding: 0, overflow: 'hidden' }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('Notes')}
+                      className={`subject-detail-tab-half ${activeTab === 'Notes' ? 'active' : ''}`}
+                      style={{
+                        flex: 1,
+                        borderRadius: '6px 0 0 6px',
+                        padding: '8px 12px',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        border: 'none',
+                        background: activeTab === 'Notes' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+                        color: activeTab === 'Notes' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      <TabIcon />
+                      <span>Notes</span>
+                    </button>
+                    <div style={{ width: '1px', height: '24px', background: 'rgba(255, 255, 255, 0.2)', margin: '0 4px' }} />
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('Lab')}
+                      className={`subject-detail-tab-half ${activeTab === 'Lab' ? 'active' : ''}`}
+                      style={{
+                        flex: 1,
+                        borderRadius: '0 6px 6px 0',
+                        padding: '8px 12px',
+                        fontSize: '14px',
+                        fontWeight: 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        border: 'none',
+                        background: activeTab === 'Lab' ? 'rgba(139, 92, 246, 0.2)' : 'transparent',
+                        color: activeTab === 'Lab' ? '#fff' : 'rgba(255, 255, 255, 0.6)',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      <FaFlask />
+                      <span>Lab</span>
+                    </button>
+                  </div>
+                );
+              }
+              
+              // Regular tab rendering
               return (
                 <button
                   key={tab}
@@ -558,7 +618,7 @@ export default function LandingPage({
             {activeTab === 'Chapters' && renderChapterCards()}
             {activeTab === 'Syllabus' && renderSimplePanel('Course Structure', 'Syllabus', `View the syllabus roadmap for ${selectedSubject?.name}.`)}
             {activeTab === 'Notes' && renderNotesPanel()}
-            {activeTab === 'Q/A Feed' && renderSimplePanel('Community Help', 'Q/A Feed', `Ask and answer questions about ${selectedSubject?.name}.`)}
+            {activeTab === 'Lab' && renderLabPanel()}
             {activeTab === 'Question Banks' && renderSimplePanel('Exam Practice', 'Question Banks', `Practice important questions from ${selectedSubject?.name}.`)}
           </div>
         </div>

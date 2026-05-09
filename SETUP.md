@@ -119,7 +119,8 @@ cp .env.example .env
 
 The `.env` file will contain:
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3000
+VITE_API_PROXY_TARGET=http://localhost:3000
 ```
 
 **No changes needed!** This points to your local backend.
@@ -300,7 +301,8 @@ docker-compose up --build
 
 ### Frontend (`.env`)
 ```env
-VITE_API_URL=http://localhost:3000/api
+VITE_API_URL=http://localhost:3000
+VITE_API_PROXY_TARGET=http://localhost:3000
 ```
 
 ### Backend (`.env`)

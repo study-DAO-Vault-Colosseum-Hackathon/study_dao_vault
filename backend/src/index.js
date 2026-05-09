@@ -150,6 +150,7 @@ app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), asyn
       course: req.body.course || '',
       semester: req.body.semester || '',
       subject: req.body.subject || '',
+      chapterTag: req.body.chapterTag || '',
       fileName: uploadFileName,
       filePath: filename,
       fileId,
