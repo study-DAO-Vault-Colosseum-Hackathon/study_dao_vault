@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import {
   FaArrowDown,
   FaArrowUp,
@@ -12,15 +12,33 @@ import {
   FaTag,
   FaTrash,
   FaUserCircle,
+  FaFire,
+  FaStar,
 } from "react-icons/fa";
-import { Sparkles } from "lucide-react";
+import { Sparkles, TrendingUp } from "lucide-react";
 import UploadModal from "./UploadModal";
 import Toast from "./Toast";
 import ConfirmDialog from "./ConfirmDialog";
 import { fetchFeed, upvoteDocument, downvoteDocument, deleteDocument } from "../utils/api";
 import { auth } from "../firebase/firebase";
+import "./NotesFeed.css";
 
 const typeOptions = ["All", "Notes", "Lab Reports"];
+const sortOptions = [
+  { id: "latest", label: "Latest", icon: FaArrowDown },
+  { id: "voted", label: "Most Voted", icon: FaFire },
+  { id: "downloaded", label: "Most Downloaded", icon: FaDownload },
+];
+
+// Debounce utility
+const useDebounce = (value, delay) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  return debouncedValue;
+};
 
 const formatBytes = (bytes) => {
   if (!bytes) return "0 B";
@@ -67,11 +85,15 @@ export default function NotesFeed({
   const [showModal, setShowModal] = useState(false);
   const [feedType, setFeedType] = useState(defaultFeedType);
   const [search, setSearch] = useState(initialSearch);
+  const [sortBy, setSortBy] = useState("latest");
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
+
+  // Debounce search input
+  const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
     setFeedType(defaultFeedType);
@@ -85,8 +107,11 @@ export default function NotesFeed({
     setLoading(true);
     setError("");
     try {
-      const docs = await fetchFeed({ search, feedType, subject, course, semester });
-      setFeed(docs);
+      const docs = await fetchFeed({ search: debouncedSearch, feedType, subject, course, semester });
+      
+      // Sort documents
+      const sorted = sortDocuments(docs, sortBy);
+      setFeed(sorted);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -94,10 +119,27 @@ export default function NotesFeed({
     }
   }
 
+  const sortDocuments = useCallback((docs, sortType) => {
+    const docsCopy = [...docs];
+    switch (sortType) {
+      case "voted":
+        return docsCopy.sort((a, b) => {
+          const aVotes = (a.upvotes || 0) - (a.downvotes || 0);
+          const bVotes = (b.upvotes || 0) - (b.downvotes || 0);
+          return bVotes - aVotes;
+        });
+      case "downloaded":
+        return docsCopy.sort((a, b) => (b.downloadCount || 0) - (a.downloadCount || 0));
+      case "latest":
+      default:
+        return docsCopy.sort((a, b) => new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0));
+    }
+  }, []);
+
   useEffect(() => {
     loadFeed();
     // eslint-disable-next-line
-  }, [search, feedType, showModal, subject, course, semester]);
+  }, [debouncedSearch, feedType, sortBy, showModal, subject, course, semester]);
 
   async function handleVote(docId, type) {
     try {
@@ -157,190 +199,277 @@ export default function NotesFeed({
     type: defaultFeedType === "Lab Reports" ? "lab" : "note",
   }), [course, semester, subject, defaultChapterTag, initialSearch, defaultFeedType]);
 
+  // Skeleton Loader Component
+  const SkeletonCard = () => (
+    <div className="notes-feed__skeleton-card">
+      <div className="skeleton skeleton-thumb" />
+      <div className="skeleton-content">
+        <div className="skeleton skeleton-title" />
+        <div className="skeleton skeleton-text" style={{ width: "80%" }} />
+        <div className="skeleton skeleton-text" style={{ width: "60%" }} />
+      </div>
+    </div>
+  );
+
+  // Empty State Component
+  const EmptyState = () => (
+    <div className="notes-feed__empty-state">
+      <div className="empty-state-icon">
+        <FaBookOpen />
+      </div>
+      <h3>Be the First to Contribute!</h3>
+      <p>No documents yet. Share your notes or lab reports to help the community learn.</p>
+      <button
+        type="button"
+        onClick={() => setShowModal(true)}
+        className="empty-state-cta"
+      >
+        <FaCloudUploadAlt />
+        Upload Your First Document
+      </button>
+    </div>
+  );
+
   return (
-    <div className="relative mx-auto w-full max-w-6xl rounded-[32px] border border-white/10 bg-[#06101e]/95 p-6 text-white shadow-[0_30px_100px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-8">
-      <div className="absolute inset-0 -z-10 rounded-[32px] bg-[radial-gradient(circle_at_top_right,_rgba(139,92,246,0.18),_transparent_32%),radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.12),_transparent_26%)]" />
+    <div className="notes-feed-container">
+      {/* Header Section */}
+      <div className="notes-feed__header">
+        <div className="header-content">
+          <span className="header-label">Live Backend Feed</span>
+          <h2 className="header-title">{heading}</h2>
+          <p className="header-description">{description}</p>
+        </div>
+      </div>
 
-      <div className="flex flex-col gap-8">
-        <div className="rounded-[28px] border border-white/10 bg-slate-950/40 p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.38em] text-violet-300">Live backend feed</p>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">{heading}</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">{description}</p>
+      {/* Search & Controls Section */}
+      <div className="notes-feed__controls">
+        <div className="controls-row">
+          {/* Search Input with Live Indicator */}
+          <div className="search-container">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by title, subject, chapter..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="search-input"
+            />
+            {search && <div className="search-indicator" />}
+          </div>
 
-          <div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-            <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1729] px-4 py-3">
-              <FaSearch className="text-slate-500" />
-              <input
-                type="text"
-                placeholder="Search uploaded documents..."
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
-              />
+          {/* Upload Button with Pulse Animation */}
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="upload-button pulse-animation"
+          >
+            <FaCloudUploadAlt />
+            <span>Upload</span>
+          </button>
+        </div>
+
+        {/* Filters Row */}
+        <div className="filters-row">
+          {/* Feed Type Filter */}
+          {!hideFeedTypeFilter && (
+            <div className="filter-group">
+              <span className="filter-label">Type:</span>
+              <div className="filter-buttons">
+                {typeOptions.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setFeedType(option)}
+                    className={`filter-btn ${feedType === option ? "active" : ""}`}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {!hideFeedTypeFilter && (
-                <div className="flex rounded-2xl border border-white/10 bg-[#0b1729] p-1">
-                  {typeOptions.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setFeedType(option)}
-                      className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                        feedType === option
-                          ? "bg-violet-600 text-white shadow-lg shadow-violet-900/30"
-                          : "text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setShowModal(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-900/30 transition hover:bg-violet-500"
-              >
-                <FaCloudUploadAlt />
-                Upload
-              </button>
+          {/* Sort Filter */}
+          <div className="filter-group">
+            <span className="filter-label">Sort:</span>
+            <div className="filter-buttons">
+              {sortOptions.map((option) => {
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setSortBy(option.id)}
+                    className={`filter-btn ${sortBy === option.id ? "active" : ""}`}
+                    title={option.label}
+                  >
+                    <Icon size={16} />
+                    <span>{option.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Content Section */}
+      <div className="notes-feed__content">
+        {error && (
+          <div className="error-banner">
+            <span>{error}</span>
+          </div>
+        )}
 
         {loading ? (
-          <div className="rounded-[28px] border border-white/10 bg-slate-950/40 p-16 text-center text-slate-300">
-            Loading notes feed...
+          <div className="documents-grid">
+            {[...Array(3)].map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
           </div>
-        ) : error ? (
-          <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-200">{error}</div>
         ) : feed.length === 0 ? (
-          <div className="rounded-[28px] border border-dashed border-white/15 bg-slate-950/40 px-6 py-20 text-center">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-300">
-              <FaBookOpen className="text-2xl" />
-            </div>
-            <h3 className="mt-5 text-2xl font-semibold text-white">No documents found.</h3>
-            <p className="mt-3 text-sm text-slate-400">
-              Upload the first note for this subject to seed the live Firestore-backed feed.
-            </p>
-          </div>
+          <EmptyState />
         ) : (
-          <div className="grid gap-5">
-            {feed.map((doc) => {
-              const sizeLabel = formatBytes(doc.uploadedBytes || doc.originalBytes || 0);
-              const chapterTag = doc.chapterTag || defaultChapterTag || "General";
-              const uploader = formatUploader(doc.owner);
-              const isOwner = auth.currentUser?.uid && doc.owner?.uid === auth.currentUser.uid;
+          <>
+            <div className="results-info">
+              <p>{feed.length} document{feed.length !== 1 ? "s" : ""} found</p>
+            </div>
+            <div className="documents-grid">
+              {feed.map((doc) => {
+                const sizeLabel = formatBytes(doc.uploadedBytes || doc.originalBytes || 0);
+                const chapterTag = doc.chapterTag || defaultChapterTag || "General";
+                const uploader = formatUploader(doc.owner);
+                const isOwner = auth.currentUser?.uid && doc.owner?.uid === auth.currentUser.uid;
+                const voteScore = (doc.upvotes || 0) - (doc.downvotes || 0);
+                const uploadDate = doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "Recently";
 
-              return (
-                <article
-                  key={doc.id}
-                  className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/55 p-6 transition hover:border-violet-400/30 hover:bg-slate-950/75"
-                >
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(139,92,246,0.14),_transparent_35%),radial-gradient(circle_at_bottom_left,_rgba(56,189,248,0.12),_transparent_26%)] opacity-0 transition group-hover:opacity-100" />
-
-                  <div className="relative flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200">
-                          {doc.mimeType === "application/pdf" ? <FaFilePdf className="text-xl" /> : <FaFileAlt className="text-xl" />}
+                return (
+                  <article key={doc.id} className="document-card">
+                    {/* Card Header with Thumbnail */}
+                    <div className="card-header">
+                      <div className="card-thumbnail">
+                        <div className="thumbnail-icon">
+                          {doc.mimeType === "application/pdf" ? (
+                            <FaFilePdf />
+                          ) : (
+                            <FaFileAlt />
+                          )}
                         </div>
-                        <div className="min-w-0">
-                          <h3 className="truncate text-lg font-semibold text-white sm:text-xl">{doc.title || doc.fileName}</h3>
-                          <p className="mt-1 text-sm text-slate-400">{doc.fileName || "Uploaded document"}</p>
-                        </div>
+                        {doc.wasCompressed && (
+                          <div className="compressed-badge">
+                            <Sparkles size={12} />
+                          </div>
+                        )}
                       </div>
 
-                      <div className="mt-5 flex flex-wrap gap-2">
-                        <span className="inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-200">
-                          <FaTag />
-                          {chapterTag}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">
-                          {getTypeLabel(doc.type)}
-                        </span>
-                        <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">
-                          {sizeLabel}
-                        </span>
-                        {doc.wasCompressed ? (
-                          <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-200">
-                            <Sparkles size={14} />
-                            Compressed {doc.savedPercent ? `${doc.savedPercent}%` : ""}
+                      <div className="card-meta-top">
+                        <span className="badge-type">{getTypeLabel(doc.type)}</span>
+                        {voteScore > 5 && (
+                          <span className="badge-trending">
+                            <FaFire size={12} />
+                            Trending
                           </span>
-                        ) : null}
-                      </div>
-
-                      <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-slate-400">
-                        <span className="inline-flex items-center gap-2">
-                          <FaUserCircle className="text-slate-500" />
-                          {uploader}
-                        </span>
-                        <span>{doc.course || course || "BSc CSIT"}</span>
-                        <span>Semester {doc.semester || semester || "1"}</span>
-                        <span>{doc.subject || subject}</span>
+                        )}
                       </div>
                     </div>
 
-                    <div className="relative flex flex-col gap-3 lg:w-[220px]">
+                    {/* Card Body */}
+                    <div className="card-body">
+                      <h3 className="card-title">{doc.title || doc.fileName}</h3>
+                      <p className="card-filename">{doc.fileName}</p>
+
+                      {/* Tags */}
+                      <div className="card-tags">
+                        <span className="tag tag-chapter">
+                          <FaTag size={12} />
+                          {chapterTag}
+                        </span>
+                        <span className="tag tag-size">{sizeLabel}</span>
+                      </div>
+
+                      {/* Metadata */}
+                      <div className="card-metadata">
+                        <span className="metadata-item">
+                          <FaUserCircle />
+                          {uploader}
+                        </span>
+                        <span className="metadata-item separator">•</span>
+                        <span className="metadata-item">{uploadDate}</span>
+                      </div>
+                    </div>
+
+                    {/* Card Stats */}
+                    <div className="card-stats">
+                      <div className="stat">
+                        <FaDownload size={14} />
+                        <span>{doc.downloadCount || 0}</span>
+                      </div>
+                      <div className="stat">
+                        <FaEye size={14} />
+                        <span>{doc.viewCount || 0}</span>
+                      </div>
+                      <div className={`stat ${voteScore > 0 ? "positive" : voteScore < 0 ? "negative" : ""}`}>
+                        <FaStar size={14} />
+                        <span>{voteScore}</span>
+                      </div>
+                    </div>
+
+                    {/* Card Actions */}
+                    <div className="card-actions">
                       <a
                         href={doc.fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                        className="action-btn action-view"
                       >
                         <FaEye />
-                        View PDF
+                        View
                       </a>
 
                       <a
                         href={doc.downloadUrl || doc.fileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/20 bg-cyan-500/10 px-4 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/20"
+                        className="action-btn action-download"
                       >
                         <FaDownload />
                         Download
                       </a>
 
-                      {isOwner ? (
+                      <button
+                        type="button"
+                        onClick={() => handleVote(doc.id, "upvote")}
+                        className="action-btn action-vote upvote"
+                        title="Upvote this document"
+                      >
+                        <FaArrowUp />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleVote(doc.id, "downvote")}
+                        className="action-btn action-vote downvote"
+                        title="Downvote this document"
+                      >
+                        <FaArrowDown />
+                      </button>
+
+                      {isOwner && (
                         <button
                           type="button"
                           onClick={() => handleDelete(doc.id)}
-                          className="inline-flex items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-100 transition hover:bg-red-500/20"
+                          className="action-btn action-delete"
+                          title="Delete this document"
                         >
                           <FaTrash />
-                          Delete
                         </button>
-                      ) : null}
+                      )}
                     </div>
-                  </div>
-
-                  <div className="relative mt-6 flex flex-wrap items-center gap-3 border-t border-white/10 pt-5">
-                    <button
-                      type="button"
-                      onClick={() => handleVote(doc.id, "upvote")}
-                      className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
-                    >
-                      <FaArrowUp />
-                      {doc.upvotes || 0}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleVote(doc.id, "downvote")}
-                      className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-500/10 px-4 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-500/20"
-                    >
-                      <FaArrowDown />
-                      {doc.downvotes || 0}
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
@@ -351,7 +480,6 @@ export default function NotesFeed({
         />
       )}
 
-      {/* Toast Notifications */}
       {toast && (
         <Toast
           message={toast.message}
@@ -360,7 +488,6 @@ export default function NotesFeed({
         />
       )}
 
-      {/* Confirmation Dialog */}
       {confirmDialog && (
         <ConfirmDialog
           title={confirmDialog.title}

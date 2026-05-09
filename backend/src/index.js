@@ -10,6 +10,8 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const fsp = require('fs/promises');
+const http = require('http');
+const socketIO = require('socket.io');
 const { verifyToken } = require('../middleware/auth');
 const authRoutes = require('../routes/auth');
 const { admin, db, firebaseInitialized } = require('../utils/firebase');
@@ -182,8 +184,73 @@ app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), asyn
 });
 
 // Start the server and keep it alive
-const server = app.listen(PORT, () => {
+const server = http.createServer(app);
+
+// Initialize Socket.io with CORS configuration
+const io = socketIO(server, {
+  cors: {
+    origin: corsOrigin,
+    methods: ['GET', 'POST'],
+    credentials: true
+  },
+  transports: ['websocket', 'polling']
+});
+
+// Socket.io Event Handlers
+io.on('connection', (socket) => {
+  console.log('✓ New user connected:', socket.id);
+
+  // Q&A Events
+  socket.on('new_question', (data) => {
+    console.log('New question:', data);
+    io.emit('vault_update', {
+      type: 'question',
+      ...data,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on('new_reply', (data) => {
+    console.log('New reply:', data);
+    io.emit('vault_update', {
+      type: 'reply',
+      ...data,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Voting Events
+  socket.on('vote_cast', (data) => {
+    console.log('Vote cast:', data);
+    io.emit('vault_update', {
+      type: 'vote',
+      ...data,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Messaging Events
+  socket.on('new_message', (data) => {
+    console.log('New message:', data);
+    io.emit('vault_update', {
+      type: 'message',
+      ...data,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('✓ User disconnected:', socket.id);
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`✓ Express server started on port ${PORT}`);
+  console.log(`✓ Socket.io server initialized`);
   console.log(`✓ Environment: ${NODE_ENV}`);
   console.log('✓ Backend is ready to handle requests');
 });

@@ -21,6 +21,8 @@ import GenerativeMountainScene from '../components/ui/mountain-scene';
 import FeaturesCards from '../components/ui/feature-shader-cards';
 import SubjectShaderCards from '../components/ui/subject-shader-cards';
 import NotesFeed from '../components/NotesFeed';
+import QAFeed from '../components/QAFeed';
+import { useQA } from '../hooks/useQA';
 import './EduChainNP.css';
 
 const semesters = Array.from({ length: 8 }, (_, index) => index + 1);
@@ -153,6 +155,9 @@ export default function LandingPage({
   const [activeTab, setActiveTab] = useState('Chapters');
   const [selectedChapterForNotes, setSelectedChapterForNotes] = useState(null);
   const [chapterSearchQuery, setChapterSearchQuery] = useState('');
+  
+  // Initialize Q&A hook at component level
+  const qaData = useQA(selectedSubject?.name || '');
   const shouldBlurHomepage = isProgramsSidebarOpen && selectedSemester === null;
   const shouldShiftMainContent = isProgramsSidebarOpen && selectedSemester !== null;
   const userDisplayName = user?.displayName || user?.email?.split('@')[0] || 'Student';
@@ -350,12 +355,13 @@ export default function LandingPage({
   };
 
   const renderSubjectDetailView = () => {
-    const tabs = ['Chapters', 'Syllabus', 'Notes/Lab', 'Question Banks'];
+    const tabs = ['Chapters', 'Syllabus', 'Notes/Lab', 'Q&A', 'Question Banks'];
     const tabIcons = {
       Chapters: FaListUl,
       Syllabus: FaFileAlt,
       'Notes/Lab': FaStickyNote,
-      'Question Banks': FaQuestionCircle,
+      'Q&A': FaQuestionCircle,
+      'Question Banks': FaComments,
     };
     const selectedSubjectChapters = (selectedSubject && subjectChaptersByName[selectedSubject.name]) || [];
     const normalizedChapterQuery = chapterSearchQuery.trim().toLowerCase();
@@ -489,6 +495,25 @@ export default function LandingPage({
       </div>
     );
 
+    const renderQAFeed = () => (
+      <div className="subject-detail-stack">
+        <QAFeed
+          questions={qaData.questions}
+          replies={qaData.replies}
+          loading={qaData.loading}
+          onAskQuestion={qaData.askQuestion}
+          onReplyToQuestion={qaData.replyToQuestion}
+          onVote={qaData.vote}
+          selectedSubject={selectedSubject}
+          semesterNumber={selectedSemesterNumber}
+        />
+      </div>
+    );
+
+    const renderQuestionBanks = () => (
+      renderSimplePanel('Practice', 'Question Banks', `Practice important questions and problem sets for ${selectedSubject?.name}.`)
+    );
+
     return (
       <section className="subject-detail-shell">
         <div className="subject-detail-topbar">
@@ -617,9 +642,10 @@ export default function LandingPage({
           <div className="subject-detail-panel">
             {activeTab === 'Chapters' && renderChapterCards()}
             {activeTab === 'Syllabus' && renderSimplePanel('Course Structure', 'Syllabus', `View the syllabus roadmap for ${selectedSubject?.name}.`)}
+            {activeTab === 'Q&A' && renderQAFeed()}
+            {activeTab === 'Question Banks' && renderQuestionBanks()}
             {activeTab === 'Notes' && renderNotesPanel()}
             {activeTab === 'Lab' && renderLabPanel()}
-            {activeTab === 'Question Banks' && renderSimplePanel('Exam Practice', 'Question Banks', `Practice important questions from ${selectedSubject?.name}.`)}
           </div>
         </div>
       </section>
