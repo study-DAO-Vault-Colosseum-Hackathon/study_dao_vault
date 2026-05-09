@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+</head>
+
+<body>
+
+    <div id="status">Connecting ...</div>
+    <p>Your Socket ID : <span id="socket-id">---</span></p>
+    <ul id="message-container" class="message-list"></ul>
+    <input type="text" class="message" id="message-input" placeholder="Enter a message...">
+    <button onclick="sendMessage()">Send Message</button>
+    <button id="toggle-btn">Disconnect</button>
+    <script>
+
+        const socket = io("http://localhost:3000", {
+            autoConnect: true,
+            reconnectionAttempts: 5
+        });
+
+        const container = document.getElementById('message-container');
+        const input = document.getElementById('message-input');
+        const statusDisplay = document.getElementById('status');
+        const idDisplay = document.getElementById('socket-id');
+
+        const toggleBtn = document.getElementById("toggle-btn");
+        let isConnected = true;
+
+        const toggleButton = document.getElementById('toggle-btn');
+
+        toggleButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (socket.connected) {
+                toggleButton.innerText = 'Connect';
+                socket.disconnect();
+            } else {
+                toggleButton.innerText = 'Disconnect';
+                socket.connect();
+            }
+        });
+
+        socket.on("connect", () => {
+            // console.log(socket.id);
+            statusDisplay.innerText = "Connected";
+            statusDisplay.style.color = "green";
+            idDisplay.innerText = socket.id;
+        });
+        socket.on("disconnect", () => {
+            statusDisplay.innerText = "Disconnected";
+            statusDisplay.style.color = "red";
+        });
+        socket.on('message', (data) => {
+            renderMessage('user: ' + data);
+        })
+        const sendMessage = () => {
+            const messageInput = document.querySelector('.message');
+            const message = messageInput.value;
+            if (message) {
+                renderMessage(`Me: ${message}`);
+
+                socket.emit('message', message);
+
+                input.value = '';
+                input.focus();
+            }
+        }
+        const renderMessage = (text) => {
+            const item = document.createElement('li');
+            item.className = 'message-item';
+            item.textContent = text;
+            container.appendChild(item);
+
+            container.scrollTop = container.scrollHeight;
+        };
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+
+</html>

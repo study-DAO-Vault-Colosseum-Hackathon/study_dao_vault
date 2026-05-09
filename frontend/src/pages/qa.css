@@ -1,0 +1,266 @@
+/* Container for the whole list */
+/* *{
+  background-color: #6e3a3a;
+} */
+.message-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.reddit-comment {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  transition: background 0.2s;
+}
+
+.reddit-comment:hover {
+  background-color: rgba(255, 255, 255, 0.03); /* Subtle highlight */
+}
+
+/* Sidebar with Avatar and Line */
+.comment-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+}
+
+.comment-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.thread-line {
+  width: 2px;
+  flex-grow: 1;
+  background-color: #343536; /* Reddit dark mode line color */
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.thread-line:hover {
+  background-color: #d7dadc; /* Highlight line on hover */
+}
+
+/* Main Content Area */
+.comment-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.comment-user {
+  font-weight: 600;
+  color: #d7dadc;
+}
+
+.comment-dot, .comment-time {
+  color: #818384;
+}
+
+.comment-content {
+  font-size: 14px;
+  line-height: 21px;
+  color: #d7dadc;
+  padding: 4px 0;
+}
+
+/* Action Buttons */
+.comment-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.action-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.reply-input-container {
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.reply-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.btn-cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+}
+
+.replies-container {
+  margin-left: 20px;
+  border-left: 1px solid var(--thread-line);
+}
+.main-post-wrapper {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.main-question-card {
+  padding: 20px;
+  border-bottom: 1px solid var(--thread-line);
+}
+
+.main-question-card h3 {
+  font-size: 1.2rem;
+  margin: 15px 0;
+  color: #ffffff;
+}
+
+.comments-thread {
+  padding-left: 20px; /* Indent all comments under the question */
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.post-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* Vote Counter Styles */
+.vote-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  min-width: 40px;
+}
+
+.vote-btn {
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.vote-btn:hover:not(:disabled) {
+  color: #ff4500;
+  background-color: rgba(255, 69, 0, 0.1);
+  transform: scale(1.2);
+}
+
+.vote-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.vote-btn.voted {
+  color: #ff4500;
+  font-weight: bold;
+}
+
+.vote-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: #818384;
+  min-width: 20px;
+  text-align: center;
+}
+
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Marked Answer Styles */
+.marked-answer {
+  background: rgba(76, 175, 80, 0.15) !important;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 15px 0;
+  border-left: 4px solid #4CAF50 !important;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
+  position: relative;
+}
+
+.marked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.mark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #818384;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.mark-btn:hover {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.mark-btn.marked {
+  background-color: rgba(76, 175, 80, 0.25);
+  color: #4CAF50;
+  font-weight: bold;
+  border: 1px solid #4CAF50;
+}

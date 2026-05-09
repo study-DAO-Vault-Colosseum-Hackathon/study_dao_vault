@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
 import Navbar from "./components/Navbar";
+import QA from "./pages/qa";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserList from "./pages/Userlist";
 import './App.css';
 
 function App() {
@@ -73,7 +78,7 @@ function App() {
       background: '#1a2940',
       color: 'white'
     }}>
-      Loading...
+      Loading....
     </div>
   );
 
@@ -206,6 +211,15 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
         <Route
           path="/chapters"
           element={<Navigate to="/" replace />}
+        />
+
+        <Route
+          path="/userlist"
+          element={<UserList user={user}/>}
+        />
+          <Route
+          path="/admindashboard"
+          element={<AdminDashboard user={user}/>}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

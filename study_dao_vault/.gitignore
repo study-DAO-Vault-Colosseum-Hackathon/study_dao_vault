@@ -6,3 +6,11 @@ node_modules
 test-ledger
 .yarn
 .surfpool
+Cargo.lock
+*.toml.bk
+*-keypair.json
+id.json
+*.keypair
+.env
+.env.local
+*.log

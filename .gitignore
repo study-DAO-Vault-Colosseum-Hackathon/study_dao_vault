@@ -4,8 +4,14 @@
 
 #ignore spec md
 MDfiles/
+MDfiles/
 TU-Study-DAO-Spec.md
 DOCKER_SETUP.md
+SOLANA_PLAN.md
+reference_code_files/
+
+# Ignore all Copilot skills
+.github/skills/
 SOLANA_PLAN.md
 reference_code_files/
 
@@ -14,7 +20,9 @@ reference_code_files/
 .env.local
 .env.*.local
 .env.production
+.env.production
 *.env
+!.env.example
 !.env.example
 
 # Node Dependencies
@@ -22,8 +30,11 @@ node_modules/
 package-lock.json
 */package-lock.json
 **/package-lock.json
+*/package-lock.json
+**/package-lock.json
 yarn.lock
 pnpm-lock.yaml
+.pnpm-store/
 .pnpm-store/
 
 # Solana/Anchor
