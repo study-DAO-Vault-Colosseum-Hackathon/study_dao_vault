@@ -25,11 +25,18 @@ const uploadMemory = multer({ storage: multer.memoryStorage() });
 const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const FRONTEND_URL = process.env.FRONTEND_URL || (NODE_ENV === 'development' ? 'http://localhost:5173' : undefined);
 
-// Configure CORS to allow only your frontend
+// Allow multiple frontend URLs in development
+let corsOrigin;
+if (NODE_ENV === 'development') {
+  corsOrigin = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177', 'http://localhost:3000'];
+} else {
+  corsOrigin = process.env.FRONTEND_URL || '*';
+}
+
+// Configure CORS to allow frontend
 const corsOptions = {
-  origin: FRONTEND_URL || '*',
+  origin: corsOrigin,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -176,5 +183,13 @@ app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), asyn
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
   console.log(`Environment: ${NODE_ENV}`);
-  console.log(`Allowing CORS from: ${FRONTEND_URL}`);
+});
+
+// Handle errors
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
 });
