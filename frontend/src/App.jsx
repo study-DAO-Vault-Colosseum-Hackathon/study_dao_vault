@@ -8,7 +8,6 @@ import Navbar from "./components/Navbar";
 import QA from "./pages/qa";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import AdminDashboard from "./pages/AdminDashboard";
 import UserList from "./pages/Userlist";
 import './App.css';
 
@@ -197,7 +196,10 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
           path="/educhain-np"
           element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
         />
-
+        <Route
+          path="/qa"
+          element={<QA user={user}/>}
+        />
         <Route
           path="/study-dao"
           element={<EduChainNP onGoogleSignIn={handleGoogleLogin} />}
@@ -217,11 +219,6 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
           path="/userlist"
           element={<UserList user={user}/>}
         />
-          <Route
-          path="/admindashboard"
-          element={<AdminDashboard user={user}/>}
-        />
-
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>

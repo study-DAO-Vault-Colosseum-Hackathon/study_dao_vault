@@ -41,8 +41,8 @@ const userRoute = require('../routes/auth');
 const corsOptions = {
   origin: FRONTEND_URL || '*',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id']
 };
 
 app.use(cors(corsOptions));
