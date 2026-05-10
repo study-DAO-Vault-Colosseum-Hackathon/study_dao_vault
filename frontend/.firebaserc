@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "educhainnp"
+  },
+  "targets": {
+    "educhainnp": {
+      "hosting": {
+        "site": "educhainnp"
+      }
+    }
+  }
+}

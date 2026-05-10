@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FaCog, FaGoogle, FaSignOutAlt, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
-import NavHeader from '@/components/ui/nav-header';
+import NavHeader from '../components/ui/nav-header';
 import './Navbar.css';
 
 const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
   const [activeLink, setActiveLink] = useState('/');
   const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
   const [activeUserPanel, setActiveUserPanel] = useState('profile');
-  
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,19 +22,19 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
     user?.wallet?.address ||
     user?.uid ||
     'Wallet not connected';
-    
+
   const formattedWalletAddress =
     userWalletAddress.length > 9
       ? `${userWalletAddress.slice(0, 3)}...${userWalletAddress.slice(-3)}`
       : userWalletAddress;
-      
+
   const userInitial = userName.charAt(0).toUpperCase();
 
   // Define Links: Routes start with "/", Section IDs do not.
   const links = [
     { label: 'Home', value: '/' },
-    { label: 'Programs', value: 'programs' },
-    { label: 'About us', value: 'about' },
+    { label: 'Programs', value: 'programs-section' },
+    // { label: 'About us', value: 'about-us-section' },
     { label: 'QA', value: '/qa' },
   ];
 
@@ -44,10 +44,10 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
 
     if (path === '/qa') {
       setActiveLink('/qa');
-    } else if (path === '/study-dao') {
-      setActiveLink('programs');
+    } else if (path === '/study-dao' || path === '/educhain-np') {
+      setActiveLink('programs-section');
     } else if (path === '/hamro-csit') {
-      setActiveLink('about');
+      setActiveLink('about-us-section');
     } else {
       setActiveLink('/');
     }
@@ -73,8 +73,10 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
     if (linkValue.startsWith('/')) {
       // 1. Internal Routing
       navigate(linkValue);
+    } else if (linkValue === 'programs-section') {
+      // 2. Programs Sidebar Only - Handled by onNavLinkClick
     } else {
-      // 2. Single Page Scrolling
+      // 3. Single Page Scrolling (About us, etc.)
       if (location.pathname !== '/') {
         // If we are on /qa, go home first, then scroll
         navigate('/');
@@ -102,7 +104,7 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
       <div className="navbar-container">
         {/* Left Side - Logo */}
         <div className="navbar-left">
-          <div className="navbar-logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
+          <div className="navbar-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
             <div className="navbar-logo-badge">
               <img
                 src="/logo_Hackthon.jpeg"

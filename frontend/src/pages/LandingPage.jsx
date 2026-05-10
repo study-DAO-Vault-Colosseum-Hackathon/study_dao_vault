@@ -147,8 +147,6 @@ export default function LandingPage({
 }) {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState('Notes');
-  const [isSemesterDropdownOpen, setIsSemesterDropdownOpen] = useState(false);
-  const [showSemesters, setShowSemesters] = useState(false);
   const [showSubjectsView, setShowSubjectsView] = useState(false);
   const [selectedSemesterNumber, setSelectedSemesterNumber] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -184,17 +182,21 @@ export default function LandingPage({
   };
 
   useEffect(() => {
+    if (selectedSemester) {
+      setSelectedSemesterNumber(selectedSemester);
+      setShowSubjectsView(true);
+    }
+  }, [selectedSemester]);
+
+  useEffect(() => {
     if (!showSemesterTrigger) {
-      setIsSemesterDropdownOpen(false);
       return;
     }
-    setIsSemesterDropdownOpen(true);
   }, [showSemesterTrigger]);
 
   useEffect(() => {
     if (!isProgramsSidebarOpen) {
-      setIsSemesterDropdownOpen(false);
-      setShowSemesters(false);
+      // Logic for when sidebar closes
     }
   }, [isProgramsSidebarOpen]);
 
@@ -203,7 +205,6 @@ export default function LandingPage({
       return;
     }
 
-    setShowSubjectsView(false);
     setSelectedSubject(null);
     setSelectedChapterForNotes(null);
     setChapterSearchQuery('');
@@ -229,11 +230,6 @@ export default function LandingPage({
     setSelectedSemesterNumber(semesterNumber);
     setShowSubjectsView(true);
     onCloseProgramsSidebar();
-  };
-
-  const handleProgramClick = () => {
-    setIsSemesterDropdownOpen(!isSemesterDropdownOpen);
-    setShowSemesters(false);
   };
 
   const leaderboardData = [
@@ -277,78 +273,77 @@ export default function LandingPage({
     { icon: '🎉', action: 'Founding member bonus', points: '+25' },
   ];
 
-  const renderSemesterDetailView = () => (
-    <section className="semester-image-view">
-      <img
-        src={semesterPreviewImage}
-        alt={`BSc CSIT Semester ${selectedSemester} preview`}
-        className="semester-image-photo"
-      />
-      <div className="semester-image-meta">
-        <p>Tribhuvan University • BSc CSIT</p>
-        <h2>Semester {selectedSemester}</h2>
-      </div>
-    </section>
-  );
-
-  const renderSubjectsView = () => {
-    const subjects = semesterSubjects[selectedSemesterNumber] || [];
-
+  const renderSemesterDetailView = () => {
+    const subjects = semesterSubjects[selectedSemester] || [];
+    
     return (
-      <section style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100vh',
-        background: 'linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a)',
-        zIndex: 1300,
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'auto'
-      }}>
-        <div style={{ padding: '40px 30px', color: '#fff' }}>
-          <button 
-            onClick={() => setShowSubjectsView(false)}
-            style={{
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              color: '#fff',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              marginBottom: '40px',
-              fontSize: '1rem',
-              fontWeight: '500',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.background = 'rgba(255,255,255,0.2)';
-              e.target.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.background = 'rgba(255,255,255,0.1)';
-              e.target.style.transform = 'translateY(0)';
-            }}
-          >
-            ← Back to Semesters
-          </button>
-          <h1 style={{ fontSize: '3rem', marginBottom: '15px', fontWeight: 'bold' }}>
-            Semester {selectedSemesterNumber}
-          </h1>
-          <p style={{ fontSize: '1.1rem', color: 'rgba(255,255,255,0.6)', marginBottom: '50px' }}>
-            {subjects.length} subjects • Explore and learn
-          </p>
+      <section className="semester-image-view">
+        <button 
+          onClick={() => {
+            onSemesterSelect(null);
+            setShowSubjectsView(false);
+          }}
+          style={{
+            position: 'absolute',
+            top: '30px',
+            left: '30px',
+            zIndex: 100,
+            background: 'rgba(0,0,0,0.5)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#fff',
+            padding: '12px 20px',
+            borderRadius: '12px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            transition: 'all 0.3s ease'
+          }}
+          className="semester-back-btn"
+        >
+          <FaArrowLeft />
+          Back to Home
+        </button>
 
-           <SubjectShaderCards 
-             subjects={subjects}
-             onSubjectClick={(subject) => {
-               setSelectedSubject(subject);
-               setActiveTab('Chapters');
-               setSelectedChapterForNotes(null);
-               setChapterSearchQuery('');
-             }}
-           />
+        <div className="semester-hero-container" style={{ position: 'relative', height: '400px', overflow: 'hidden' }}>
+          <img
+            src={semesterPreviewImage}
+            alt={`BSc CSIT Semester ${selectedSemester} preview`}
+            className="semester-image-photo"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div className="semester-image-meta" style={{
+            position: 'absolute',
+            bottom: '0',
+            left: '0',
+            width: '100%',
+            padding: '40px',
+            background: 'linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent)',
+            color: '#fff'
+          }}>
+            <p style={{ opacity: 0.8, marginBottom: '8px' }}>Tribhuvan University • BSc CSIT</p>
+            <h2 style={{ fontSize: '3rem', fontWeight: 'bold' }}>Semester {selectedSemester}</h2>
+          </div>
+        </div>
+
+        <div className="semester-content-body" style={{ padding: '60px 40px', background: '#0f172a' }}>
+          <div style={{ marginBottom: '40px' }}>
+            <h3 style={{ fontSize: '1.8rem', color: '#fff', marginBottom: '10px' }}>Reading Elements</h3>
+            <p style={{ color: 'rgba(255,255,255,0.6)' }}>Explore subjects and study materials for this semester.</p>
+          </div>
+
+          <SubjectShaderCards 
+            subjects={subjects}
+            onSubjectClick={(subject) => {
+              setSelectedSubject(subject);
+              setActiveTab('Chapters');
+              setSelectedChapterForNotes(null);
+              setChapterSearchQuery('');
+            }}
+          />
         </div>
       </section>
     );
@@ -655,7 +650,6 @@ export default function LandingPage({
   return (
     <>
       {selectedSubject && renderSubjectDetailView()}
-      {showSubjectsView && !selectedSubject && renderSubjectsView()}
       <div className="educhain-container">
       <div
         className={`landing-main-content ${shouldBlurHomepage ? 'landing-main-content-blurred' : ''} ${shouldShiftMainContent ? 'landing-main-content-semester-selected' : ''}`}
@@ -693,11 +687,9 @@ export default function LandingPage({
               <button type="button" className="btn-primary-visual">
                 Start Learning Now
               </button>
-              {!user && (
-                <button className="btn-secondary-original" onClick={handleExploreCourseClick}>
-                  Explore Course
-                </button>
-              )}
+              <button className="btn-secondary-original" onClick={handleExploreCourseClick}>
+                Explore Course
+              </button>
             </div>
 
             {/* Stats */}
@@ -935,82 +927,6 @@ export default function LandingPage({
       )}
       </div>
 
-      {isProgramsSidebarOpen && (
-        <button
-          type="button"
-          className="programs-sidebar-backdrop"
-          onClick={onCloseProgramsSidebar}
-          aria-label="Close programs sidebar"
-        />
-      )}
-
-      <aside className={`programs-sidebar ${isProgramsSidebarOpen ? 'open' : ''}`}>
-        <button
-          type="button"
-          className="programs-sidebar-close"
-          onClick={onCloseProgramsSidebar}
-          aria-label="Close programs sidebar"
-        >
-          ×
-        </button>
-
-        <div className="programs-sidebar-header">
-          <div className="programs-sidebar-primary">
-            <div className="programs-sidebar-avatar">TU</div>
-            <div>
-              <h3>Tribhuvan University</h3>
-              <div className="programs-program-row">
-                <button
-                  type="button"
-                  className="programs-program-button"
-                  onClick={handleProgramClick}
-                >
-                  BSc CSIT
-                </button>
-                <button
-                  type="button"
-                  className="programs-animated-icon programs-animated-icon-button"
-                  onClick={handleProgramClick}
-                  aria-label="Show semester options"
-                >
-                  <span className="programs-animated-chevron" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {isSemesterDropdownOpen && (
-          <div className="programs-semester-list">
-            <button
-              type="button"
-              className="programs-semester-trigger"
-              onClick={() => setShowSemesters(!showSemesters)}
-            >
-              <span>Semester</span>
-              <span className="programs-semester-icon" aria-hidden="true">
-                <span className="programs-semester-icon-chevron" />
-              </span>
-            </button>
-
-            {showSemesters && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {semesters.map((semesterNumber) => (
-                  <button
-                    key={semesterNumber}
-                    type="button"
-                    className={`programs-semester-item ${selectedSemester === semesterNumber ? 'active' : ''}`}
-                    onClick={() => handleSemesterClick(semesterNumber)}
-                  >
-                    <span className="programs-semester-circle">{semesterNumber}</span>
-                    <span>Semester {semesterNumber}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </aside>
       </div>
     </>
   );

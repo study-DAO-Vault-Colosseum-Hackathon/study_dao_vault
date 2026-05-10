@@ -158,7 +158,10 @@ export const FullScreenScrollFX = forwardRef(
       const fs = fixedSectionRef.current;
       if (!fixed || !fs || total === 0) return;
 
-      gsap.set(bgRefs.current, { opacity: 0, scale: 1.04, yPercent: 0 });
+      const validBgs = bgRefs.current.filter(Boolean);
+      if (validBgs.length > 0) {
+        gsap.set(validBgs, { opacity: 0, scale: 1.04, yPercent: 0 });
+      }
       if (bgRefs.current[0]) gsap.set(bgRefs.current[0], { opacity: 1, scale: 1 });
 
       wordRefs.current.forEach((words, sIdx) => {
@@ -505,7 +508,7 @@ export const FullScreenScrollFX = forwardRef(
           </div>
         </div>
 
-        <style jsx>{`
+        <style>{`
           .fx {
             width: 100%;
             overflow: hidden;
