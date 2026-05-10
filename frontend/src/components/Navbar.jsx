@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaCog, FaGoogle, FaSignOutAlt, FaTimes, FaUserCircle } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
-import NavHeader from '@/components/ui/nav-header';
+import NavHeader from '../components/ui/nav-header';
 import './Navbar.css';
 
 const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
