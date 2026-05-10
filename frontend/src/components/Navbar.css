@@ -35,7 +35,7 @@
 .navbar-logo-badge {
   width: 68px;
   height: 68px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: transparent;
   border: none;
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
@@ -51,7 +51,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  border-radius: 999px;
+  /* border-radius: 999px; */
 }
 
 /* Center - Navigation Links */
