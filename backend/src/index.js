@@ -28,23 +28,28 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
-// Allow multiple frontend URLs in development
+// Allow multiple frontend URLs
 let corsOrigin;
 if (NODE_ENV === 'development') {
-  corsOrigin = ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177', 'http://localhost:3000'];
+  corsOrigin = ['http://localhost:5173', 'https://educhainnp.web.app', 'https://study-dao-vault.web.app', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177', 'http://localhost:3000'];
 } else {
-  corsOrigin = process.env.FRONTEND_URL || '*';
+  corsOrigin = [
+    process.env.FRONTEND_URL,
+    'https://educhainnp.web.app',
+    'https://study-dao-vault.web.app'
+  ].filter(Boolean);
+
+  if (corsOrigin.length === 0) corsOrigin = '*';
 }
 
-// Configure CORS to allow frontend
-const corsOptions = {
+app.use(cors({
   origin: corsOrigin,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
-};
+}));
 
-app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use('/api/documents', votingRouter);
 
