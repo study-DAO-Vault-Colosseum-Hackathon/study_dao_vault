@@ -5,11 +5,14 @@ import NavHeader from '@/components/ui/nav-header';
 import './Navbar.css';
 
 const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
-  const [activeLink, setActiveLink] = useState('Home');
+  const [activeLink, setActiveLink] = useState('/');
   const [isUserPanelOpen, setIsUserPanelOpen] = useState(false);
   const [activeUserPanel, setActiveUserPanel] = useState('profile');
+  
   const navigate = useNavigate();
   const location = useLocation();
+
+  // User Data Helpers
   const userName = user?.displayName || user?.email?.split('@')[0] || 'Student';
   const userEmail = user?.email || 'No email connected';
   const userWalletAddress =
@@ -19,57 +22,73 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
     user?.wallet?.address ||
     user?.uid ||
     'Wallet not connected';
+    
   const formattedWalletAddress =
     userWalletAddress.length > 9
       ? `${userWalletAddress.slice(0, 3)}...${userWalletAddress.slice(-3)}`
       : userWalletAddress;
+      
   const userInitial = userName.charAt(0).toUpperCase();
 
+  // Define Links: Routes start with "/", Section IDs do not.
   const links = [
-    { label: 'Home', value: 'Home' },
-    { label: 'Programs', value: 'Programs' },
-    { label: 'About us', value: 'About us' },
+    { label: 'Home', value: '/' },
+    { label: 'Programs', value: 'programs' },
+    { label: 'About us', value: 'about' },
+    { label: 'QA', value: '/qa' },
   ];
 
+  // Logic to handle highlighting based on current URL
   useEffect(() => {
-    if (location.pathname === '/study-dao') {
-      setActiveLink('Programs');
-      setIsUserPanelOpen(false);
-      return;
-    }
+    const path = location.pathname;
 
-    if (location.pathname === '/hamro-csit') {
-      setActiveLink('About us');
-      setIsUserPanelOpen(false);
-      return;
+    if (path === '/qa') {
+      setActiveLink('/qa');
+    } else if (path === '/study-dao') {
+      setActiveLink('programs');
+    } else if (path === '/hamro-csit') {
+      setActiveLink('about');
+    } else {
+      setActiveLink('/');
     }
 
     setIsUserPanelOpen(false);
-    setActiveLink('Home');
   }, [location.pathname]);
 
+  // Accessibility: Close panel on Escape key
   useEffect(() => {
-    if (!isUserPanelOpen) {
-      return undefined;
-    }
+    if (!isUserPanelOpen) return;
 
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') {
-        setIsUserPanelOpen(false);
-      }
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setIsUserPanelOpen(false);
     };
 
     window.addEventListener('keydown', handleEscape);
-
-    return () => {
-      window.removeEventListener('keydown', handleEscape);
-    };
+    return () => window.removeEventListener('keydown', handleEscape);
   }, [isUserPanelOpen]);
 
-  const handleNavClick = (link) => {
-    setActiveLink(link);
+  const handleNavClick = (linkValue) => {
+    setActiveLink(linkValue);
+
+    if (linkValue.startsWith('/')) {
+      // 1. Internal Routing
+      navigate(linkValue);
+    } else {
+      // 2. Single Page Scrolling
+      if (location.pathname !== '/') {
+        // If we are on /qa, go home first, then scroll
+        navigate('/');
+        setTimeout(() => {
+          document.getElementById(linkValue)?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else {
+        // If already home, just scroll
+        document.getElementById(linkValue)?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
     if (onNavLinkClick) {
-      onNavLinkClick(link);
+      onNavLinkClick(linkValue);
     }
   };
 
@@ -81,9 +100,9 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {/* Left Side - Logo and Brand */}
+        {/* Left Side - Logo */}
         <div className="navbar-left">
-          <div className="navbar-logo">
+          <div className="navbar-logo" onClick={() => navigate('/')} style={{cursor: 'pointer'}}>
             <div className="navbar-logo-badge">
               <img
                 src="/logo_Hackthon.jpeg"
@@ -94,7 +113,7 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
           </div>
         </div>
 
-        {/* Center - Navigation Links */}
+        {/* Center - Combined Nav (Router + Scroll) */}
         <div className="navbar-center">
           <NavHeader
             items={links}
@@ -103,26 +122,21 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
           />
         </div>
 
-        {/* Right Side - User Info or Sign-In */}
+        {/* Right Side - User Controls */}
         <div className="navbar-right">
-          {!user && (
+          {!user ? (
             <button className="google-signin-btn" onClick={() => navigate('/study-dao')}>
               <FaGoogle className="google-icon" />
               <span>Sign In</span>
             </button>
-          )}
-
-          {user && (
+          ) : (
             <button
               type="button"
               className="user-menu user-menu-trigger"
               onClick={handleUserPanelOpen}
               aria-expanded={isUserPanelOpen}
-              aria-label="Open user menu"
             >
-              <div className="user-avatar" aria-hidden="true">
-                {userInitial}
-              </div>
+              <div className="user-avatar">{userInitial}</div>
               <div className="user-details">
                 <span className="user-name">{userName}</span>
                 <span className="user-email">{formattedWalletAddress}</span>
@@ -132,13 +146,12 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
         </div>
       </div>
 
+      {/* User Panel Drawer */}
       {user && (
         <>
-          <button
-            type="button"
+          <div
             className={`user-panel-backdrop ${isUserPanelOpen ? 'open' : ''}`}
             onClick={() => setIsUserPanelOpen(false)}
-            aria-label="Close user panel"
           />
 
           <aside className={`user-panel-drawer ${isUserPanelOpen ? 'open' : ''}`}>
@@ -147,13 +160,7 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
                 <p className="user-panel-eyebrow">Account menu</p>
                 <h2>{userName}</h2>
               </div>
-
-              <button
-                type="button"
-                className="user-panel-close"
-                onClick={() => setIsUserPanelOpen(false)}
-                aria-label="Close user panel"
-              >
+              <button className="user-panel-close" onClick={() => setIsUserPanelOpen(false)}>
                 <FaTimes />
               </button>
             </div>
@@ -169,67 +176,40 @@ const Navbar = ({ user = null, onSignOut, onNavLinkClick }) => {
 
               <div className="user-panel-tabs">
                 <button
-                  type="button"
                   className={`user-panel-tab ${activeUserPanel === 'profile' ? 'active' : ''}`}
                   onClick={() => setActiveUserPanel('profile')}
                 >
-                  <FaUserCircle />
-                  <span>Profile</span>
+                  <FaUserCircle /> <span>Profile</span>
                 </button>
-
                 <button
-                  type="button"
                   className={`user-panel-tab ${activeUserPanel === 'settings' ? 'active' : ''}`}
                   onClick={() => setActiveUserPanel('settings')}
                 >
-                  <FaCog />
-                  <span>Settings</span>
+                  <FaCog /> <span>Settings</span>
                 </button>
               </div>
 
               <div className="user-panel-content">
                 {activeUserPanel === 'profile' ? (
                   <div className="user-panel-section">
-                    <div className="user-panel-row">
-                      <span>Name</span>
-                      <strong>{userName}</strong>
-                    </div>
-                    <div className="user-panel-row">
-                      <span>Email</span>
-                      <strong>{userEmail}</strong>
-                    </div>
-                    <div className="user-panel-row">
-                      <span>Wallet</span>
-                      <strong>{userWalletAddress}</strong>
-                    </div>
+                    <div className="user-panel-row"><span>Name</span><strong>{userName}</strong></div>
+                    <div className="user-panel-row"><span>Email</span><strong>{userEmail}</strong></div>
+                    <div className="user-panel-row"><span>Wallet</span><strong>{userWalletAddress}</strong></div>
                   </div>
                 ) : (
                   <div className="user-panel-section">
-                    <div className="user-panel-row">
-                      <span>Profile visibility</span>
-                      <strong>Public</strong>
-                    </div>
-                    <div className="user-panel-row">
-                      <span>Wallet status</span>
-                      <strong>{userWalletAddress === 'Wallet not connected' ? 'Not connected' : 'Connected'}</strong>
-                    </div>
-                    <div className="user-panel-row">
-                      <span>Sign-in provider</span>
-                      <strong>Google</strong>
-                    </div>
+                    <div className="user-panel-row"><span>Status</span><strong>Connected</strong></div>
+                    <div className="user-panel-row"><span>Provider</span><strong>Google</strong></div>
                   </div>
                 )}
               </div>
             </div>
 
             <button
-              type="button"
               className="user-panel-signout"
               onClick={() => {
                 setIsUserPanelOpen(false);
-                if (onSignOut) {
-                  onSignOut();
-                }
+                onSignOut?.();
               }}
             >
               <FaSignOutAlt />

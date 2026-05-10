@@ -1,4 +1,4 @@
-'use client';
+
 
 import React, { useState, useRef, useEffect } from 'react';
 import { FaApple, FaDiscord, FaGithub, FaWindows } from 'react-icons/fa';

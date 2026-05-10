@@ -2,6 +2,164 @@
 /* *{
   background-color: #6e3a3a;
 } */
+ :root {
+  --bg-dark: #0f1113;
+  --card-bg: #1a1d21;
+  --accent: #4caf50;
+  --text-main: #e0e0e0;
+  --border: #2d3238;
+}
+.mini-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%; /* Makes it perfectly circular */
+  object-fit: cover;  /* Prevents stretching */
+  border: 2px solid var(--accent-glow);
+  background-color: #1e293b;
+}
+.post-form-card {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.form-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.glow-dot {
+  width: 8px;
+  height: 8px;
+  background: #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #3b82f6;
+}
+
+.post-textarea {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 15px;
+  color: white;
+  font-family: inherit;
+  resize: none;
+  min-height: 100px;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
+}
+
+.post-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.form-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.select-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 150px;
+}
+
+.select-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.custom-select {
+  width: 100%;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 10px 10px 10px 35px;
+  border-radius: 8px;
+  appearance: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.post-submit-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.post-submit-btn:hover {
+  background: #2563eb;
+  transform: scale(1.02);
+}
+
+.post-submit-btn:active {
+  transform: scale(0.98);
+}
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.qa-layout { background: var(--bg-dark); color: var(--text-main); min-height: 100vh; padding-bottom: 50px; font-family: 'Inter', sans-serif; }
+.qa-topbar { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: center; }
+.logo-section h1 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+.status-pill { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; background: #333; margin-top: 5px; text-align: center;}
+.status-pill.on { color: var(--accent); border: 1px solid var(--accent); }
+
+.qa-main { max-width: 800px; margin: 0 auto; padding: 20px; }
+.q-card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 25px; border: 1px solid var(--border); }
+.q-header { display: flex; gap: 12px; margin-bottom: 15px; }
+.q-header img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border); }
+.q-author { display: block; font-weight: 600; color: #fff; }
+.q-meta { font-size: 0.8rem; color: #888; }
+.q-body { font-size: 1.1rem; line-height: 1.6; margin-bottom: 15px; }
+
+.vote-pill { background: #262a2f; border: 1px solid var(--border); color: #ccc; border-radius: 20px; padding: 5px 12px; cursor: pointer; display: flex; gap: 8px; align-items: center; }
+.vote-pill.voted { border-color: var(--accent); color: var(--accent); }
+
+.comment-node { position: relative; margin-top: 15px; padding-left: 25px; }
+.comment-line { position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+.best-badge { background: rgba(76, 175, 80, 0.15); color: var(--accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 10px; border: 1px solid var(--accent); }
+
+.reply-box-anim textarea { width: 100%; background: #000; border: 1px solid var(--border); color: #fff; padding: 10px; border-radius: 8px; margin-top: 10px; resize: none; }
+.btn-post { background: var(--accent); color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: 600; margin-top: 5px; }
 .message-list {
   list-style: none;
   padding: 0;

@@ -221,7 +221,10 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
           path="/admindashboard"
           element={<AdminDashboard user={user}/>}
         />
-
+        <Route
+          path="/qa"
+          element={<QA user={user} />}
+        />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </>

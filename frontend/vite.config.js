@@ -11,19 +11,37 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        'buffer': 'buffer',
       },
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
+    },
+    define: {
+      'global': 'globalThis',
+      'process.env': env,
     },
     server: {
       host: true,
+      hmr: {
+        host: 'localhost',
+        port: 5173,
+        protocol: 'ws',
+      },
       proxy: {
         '/api': {
           target: env.VITE_API_PROXY_TARGET || 'http://localhost:3000',
           changeOrigin: true,
         },
+        '/socket.io': {
+          target: env.VITE_SOCKET_TARGET || 'http://localhost:3000',
+          ws: true,
+        },
       },
       watch: {
-        usePolling: true, // This fixes the WSL file-watching issue
+        usePolling: true,
       },
+    },
+    optimizeDeps: {
+      include: ['buffer'],
     },
   }
 })
