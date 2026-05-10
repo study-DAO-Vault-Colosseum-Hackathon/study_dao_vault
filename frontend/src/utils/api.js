@@ -82,6 +82,10 @@ export async function fetchFeed({
 }
 
 export async function uploadDocument(form, token, onStageChange) {
+    if (!token) {
+        throw new Error("Authentication token is required. Please sign in first.");
+    }
+
     if (onStageChange) {
         onStageChange({ stage: "preparing", progress: 10, message: "Preparing upload..." });
     }
@@ -107,7 +111,7 @@ export async function uploadDocument(form, token, onStageChange) {
     const res = await fetch(`${BASE_URL}/documents/upload`, {
         method: "POST",
         body: data,
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        headers: { Authorization: `Bearer ${token}` },
     });
 
     if (!res.ok) {

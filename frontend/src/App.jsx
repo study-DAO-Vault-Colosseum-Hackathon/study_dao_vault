@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithPopup, signOut, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import { auth, googleProvider } from "./firebase/firebase";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import LandingPage from "./pages/LandingPage";
 import EduChainNP from "./pages/EduChainNP";
 import Navbar from "./components/Navbar";
@@ -103,14 +103,18 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
   const [showSemesterTrigger, setShowSemesterTrigger] = useState(false);
   const [navRequest, setNavRequest] = useState(null);
 
+  const resetSidebarState = useCallback(() => {
+    setIsProgramsSidebarOpen(false);
+    setSelectedSemester(null);
+    setShowSemesterSelection(false);
+    setShowSemesterTrigger(false);
+  }, []);
+
   useEffect(() => {
     if (location.pathname !== '/') {
-      setIsProgramsSidebarOpen(false);
-      setSelectedSemester(null);
-      setShowSemesterSelection(false);
-      setShowSemesterTrigger(false);
+      resetSidebarState();
     }
-  }, [location.pathname]);
+  }, [location.pathname, resetSidebarState]);
 
   const handleNavbarLinkClick = (link) => {
     if (link === 'Home') {
@@ -220,6 +224,10 @@ function AppContent({ user, handleSignOut, handleGoogleLogin }) {
           <Route
           path="/admindashboard"
           element={<AdminDashboard user={user}/>}
+        />
+        <Route
+          path="/qa"
+          element={<QA user={user}/>}
         />
 
         <Route path="*" element={<Navigate to="/" />} />

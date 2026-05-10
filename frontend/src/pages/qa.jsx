@@ -188,6 +188,12 @@ const fetchMarkedAnswers = async (msgs) => {
   try {
     const questions = msgs.filter(m => !m.parent_id).map(m => m.id);
     
+    // Avoid empty array error
+    if (questions.length === 0) {
+      setMarkedAnswers({});
+      return;
+    }
+    
     const { data: marked, error } = await supabase
       .from('messages')
       .select('id, marked_answer_id')
@@ -219,6 +225,14 @@ const fetchVoteCounts = async (msgs) => {
   const userId = user?.uid || user?.email;
   const messageIds = msgs.map(m => m.id);
 
+  // Avoid empty array error in .in() filter
+  if (messageIds.length === 0) {
+    setVoteCounts({});
+    setUserVotes({});
+    setIsFetchingVotes(false);
+    return;
+  }
+
   try {
     const { data: allVotes, error } = await supabase
       .from('votes')
@@ -236,9 +250,11 @@ const fetchVoteCounts = async (msgs) => {
 
       setVoteCounts(counts);
       setUserVotes(userStatus);
+    } else if (error) {
+      console.error('❌ Supabase votes fetch error:', error);
     }
   } catch (err) {
-    console.error(err);
+    console.error('❌ Error fetching vote counts:', err);
   } finally {
     setIsFetchingVotes(false);
   }

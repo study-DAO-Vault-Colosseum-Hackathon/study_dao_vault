@@ -85,7 +85,15 @@ export default function UploadModal({ onClose, initialValues = {} }) {
     setUploadStageText("Preparing upload...");
 
     try {
-      const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      if (!auth.currentUser) {
+        throw new Error("You must be logged in to upload documents. Please sign in first.");
+      }
+
+      const token = await auth.currentUser.getIdToken();
+      if (!token) {
+        throw new Error("Failed to get authentication token. Please try signing in again.");
+      }
+
       await uploadDocument(form, token, ({ stage, progress, message }) => {
         setUploadStage(stage);
         setUploadProgress(progress);

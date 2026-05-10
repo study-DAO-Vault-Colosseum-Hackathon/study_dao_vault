@@ -1,7 +1,10 @@
 -- Add marked_answer_id column to messages table to track which reply is marked
+-- This adds the missing column your frontend is screaming for
 ALTER TABLE messages 
-ADD COLUMN IF NOT EXISTS marked_answer_id UUID REFERENCES messages(id) ON DELETE SET NULL;
+ADD COLUMN marked_answer_id UUID REFERENCES messages(id);
 
+-- This allows the 'voting' table to link correctly if it doesn't already
+-- Ensure your votes table has a message_id column that points to messages.id
 -- Create index for faster lookups
 CREATE INDEX IF NOT EXISTS idx_marked_answer_id ON messages(marked_answer_id);
 

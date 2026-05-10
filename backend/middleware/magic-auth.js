@@ -1,8 +1,9 @@
-const { verifyMagicToken } = require('../src/magic');
+const { auth } = require('../utils/firebase');
 
 /**
- * Middleware to authenticate requests using Magic Link DID tokens.
+ * Middleware to authenticate requests using Firebase ID tokens.
  * Extracts the token from the Bearer Authorization header.
+ * Supports both Firebase and Magic tokens for backward compatibility.
  */
 async function authenticateMagic(req, res, next) {
   try {
@@ -14,23 +15,46 @@ async function authenticateMagic(req, res, next) {
       });
     }
 
-    const didToken = authHeader.split(' ')[1];
+    const token = authHeader.split(' ')[1];
     
-    // Verify token and get metadata
-    const metadata = await verifyMagicToken(didToken);
+    // Try Firebase token verification first (default for this app)
+    if (auth) {
+      try {
+        const decodedToken = await auth.verifyIdToken(token);
+        
+        // Attach user info to request object
+        req.user = {
+          uid: decodedToken.uid,
+          email: decodedToken.email || null,
+          userId: decodedToken.uid,
+          metadata: decodedToken,
+        };
 
-    // Attach user info to request object
-    // We map 'publicAddress' to 'walletAddress' to maintain compatibility with existing logic
-    req.user = {
-      userId: metadata.issuer, // Unique identifier from Magic (did:ethr:...)
-      email: metadata.email,
-      walletAddress: metadata.publicAddress,
-      metadata: metadata,
-    };
+        return next();
+      } catch (firebaseError) {
+        // If Firebase verification fails, try Magic token verification
+        console.debug('Firebase token verification failed, attempting Magic token verification');
+      }
+    }
 
-    next();
+    // Fallback to Magic token verification
+    try {
+      const { verifyMagicToken } = require('../src/magic');
+      const metadata = await verifyMagicToken(token);
+      
+      req.user = {
+        userId: metadata.issuer,
+        email: metadata.email,
+        walletAddress: metadata.publicAddress,
+        metadata: metadata,
+      };
+      
+      return next();
+    } catch (magicError) {
+      throw new Error('Token verification failed: both Firebase and Magic tokens are invalid');
+    }
   } catch (error) {
-    console.error('Magic auth error:', error.message);
+    console.error('Auth error:', error.message);
     res.status(401).json({ error: error.message });
   }
 }

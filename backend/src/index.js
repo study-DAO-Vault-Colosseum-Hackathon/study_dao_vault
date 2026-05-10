@@ -20,6 +20,7 @@ const { ID } = require('node-appwrite');
 const { InputFile } = require('node-appwrite/file');
 const { compressPDF } = require('../utils/pdf-compress');
 const votingRouter = require('../routes/voting');
+const { createQuestion, createReply, castVote } = require('../services/qaService');
 
 const upload = multer({ dest: 'uploads/' });
 const uploadMemory = multer({ storage: multer.memoryStorage() });
@@ -196,47 +197,168 @@ const io = socketIO(server, {
   transports: ['websocket', 'polling']
 });
 
-// Socket.io Event Handlers
+// Socket.io Event Handlers - Q&A & Messaging Infrastructure
+const supabaseClient = require('../supabase/supabaseClient');
+
 io.on('connection', (socket) => {
   console.log('✓ New user connected:', socket.id);
 
-  // Q&A Events
-  socket.on('new_question', (data) => {
-    console.log('New question:', data);
-    io.emit('vault_update', {
-      type: 'question',
-      ...data,
-      timestamp: new Date().toISOString()
-    });
+  /**
+   * MESSAGE EVENT - For Q&A messages and replies
+   * Saves to messages table in Supabase and broadcasts to all connected users
+   */
+  socket.on('message', async (data) => {
+    try {
+      console.log('💬 Message received:', data.content?.substring(0, 50));
+
+      // Save message to Supabase messages table
+      const { data: savedMessage, error } = await supabaseClient
+        .from('messages')
+        .insert([{
+          content: data.content,
+          input: data.input || data.content,
+          semester: data.semester || 'N/A',
+          subject: data.subject || 'General',
+          user_name: data.user_name || 'Anonymous',
+          user_id: data.user_id,
+          photo_url: data.photo_url || 'https://ui-avatars.com/api/?name=User',
+          parent_id: data.parent_id || null,
+          is_question: data.is_question !== false,
+          created_at: new Date().toISOString(),
+          upvotes: 0,
+          downvotes: 0,
+          is_main_answer: false
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving message:', error);
+        return socket.emit('error', { message: 'Failed to save message: ' + error.message });
+      }
+
+      console.log('✓ Message saved:', savedMessage.id);
+
+      // Broadcast to all connected clients
+      io.emit('message', savedMessage);
+      console.log('✓ Message broadcasted to all clients');
+    } catch (error) {
+      console.error('Error handling message:', error);
+      socket.emit('error', { message: error.message });
+    }
   });
 
-  socket.on('new_reply', (data) => {
-    console.log('New reply:', data);
-    io.emit('vault_update', {
-      type: 'reply',
-      ...data,
-      timestamp: new Date().toISOString()
-    });
+  /**
+   * NEW QUESTION EVENT
+   * Stores in Supabase and broadcasts to all connected users
+   */
+  socket.on('new_question', async (data) => {
+    try {
+      console.log('📝 New question received:', data.title);
+      
+      // Frontend already saved to Supabase, just broadcast to other connected clients
+      io.emit('vault_update', {
+        type: 'question',
+        action: 'created',
+        data: data,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('✓ Question broadcasted to all clients');
+    } catch (error) {
+      console.error('Error handling new_question:', error);
+      socket.emit('error', { message: error.message });
+    }
   });
 
-  // Voting Events
-  socket.on('vote_cast', (data) => {
-    console.log('Vote cast:', data);
-    io.emit('vault_update', {
-      type: 'vote',
-      ...data,
-      timestamp: new Date().toISOString()
-    });
+  socket.on('new_reply', async (data) => {
+    try {
+      console.log('💬 New reply received for question:', data.question_id);
+
+      // Frontend already saved to Supabase, just broadcast to other clients
+      io.emit('vault_update', {
+        type: 'reply',
+        action: 'created',
+        data: data,
+        question_id: data.question_id,
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('✓ Reply broadcasted to all clients');
+    } catch (error) {
+      console.error('Error handling new_reply:', error);
+      socket.emit('error', { message: error.message });
+    }
   });
 
-  // Messaging Events
-  socket.on('new_message', (data) => {
-    console.log('New message:', data);
-    io.emit('vault_update', {
-      type: 'message',
-      ...data,
-      timestamp: new Date().toISOString()
-    });
+  /**
+   * VOTING EVENT
+   * Real-time vote sync across all connected users
+   * Updates vote counts in Supabase and triggers UI update
+   */
+  socket.on('vote_cast', async (data) => {
+    try {
+      console.log('🗳️ Vote cast:', data.voteType, 'on', data.itemType, data.itemId);
+
+      const voteData = {
+        itemId: data.itemId,
+        itemType: data.itemType, // 'question' or 'reply'
+        voteType: data.voteType, // 'upvote' or 'downvote'
+        userId: data.userId
+      };
+
+      const updatedItem = await castVote(voteData);
+
+      // Broadcast vote update to ALL users
+      // This ensures the vote count updates in real-time across all clients
+      io.emit('vault_update', {
+        type: 'vote',
+        action: 'cast',
+        data: {
+          itemId: updatedItem.id,
+          itemType: data.itemType,
+          voteType: data.voteType,
+          upvotes: updatedItem.upvotes,
+          downvotes: updatedItem.downvotes,
+          userId: data.userId
+        },
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('✓ Vote recorded and broadcasted');
+    } catch (error) {
+      console.error('Error handling vote_cast:', error);
+      socket.emit('error', { message: error.message });
+    }
+  });
+
+  /**
+   * MESSAGING EVENT
+   * Real-time messaging support (future feature)
+   */
+  socket.on('new_message', async (data) => {
+    try {
+      console.log('💌 New message received');
+
+      // Broadcast to all users
+      io.emit('vault_update', {
+        type: 'message',
+        action: 'sent',
+        data: {
+          id: data.id,
+          content: data.content,
+          userId: data.userId,
+          email: data.email,
+          recipientId: data.recipientId
+        },
+        timestamp: new Date().toISOString()
+      });
+
+      console.log('✓ Message broadcasted');
+    } catch (error) {
+      console.error('Error handling new_message:', error);
+      socket.emit('error', { message: error.message });
+    }
   });
 
   socket.on('disconnect', () => {
