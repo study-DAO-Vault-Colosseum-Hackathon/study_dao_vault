@@ -81,8 +81,8 @@ app.post('/api/compress-pdf', upload.single('pdf'), async (req, res) => {
     res.setHeader('X-Compressed-Bytes', String(result.compressedBytes));
     res.setHeader('X-Compression-Used', String(result.usedCompressed));
     res.download(outputPath, 'compressed.pdf', () => {
-      fs.unlink(inputPath, () => {});
-      fs.unlink(outputPath, () => {});
+      fs.unlink(inputPath, () => { });
+      fs.unlink(outputPath, () => { });
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -175,10 +175,10 @@ app.post('/api/documents/upload', verifyToken, uploadMemory.single('file'), asyn
     res.status(500).json({ error: err.message });
   } finally {
     if (tempInputPath) {
-      await fsp.unlink(tempInputPath).catch(() => {});
+      await fsp.unlink(tempInputPath).catch(() => { });
     }
     if (tempOutputPath) {
-      await fsp.unlink(tempOutputPath).catch(() => {});
+      await fsp.unlink(tempOutputPath).catch(() => { });
     }
   }
 });
