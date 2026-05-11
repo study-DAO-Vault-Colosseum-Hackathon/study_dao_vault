@@ -1,262 +1,158 @@
-# Study DAO Vault
+# EduChainNP
 
-A secure full-stack application for managing a Study DAO Vault on Solana with Firebase authentication and backend token verification.
-
-## Project Structure
-
-```
-study_dao_vault/
-├── frontend/          # React + Vite frontend
-├── backend/           # Node.js + Express backend
-└── study_dao_vault/   # Solana program (Anchor)
-```
+[Live Demo](https://educhainnp.web.app/)  
+**Note: Platform is desktop only. Mobile is not yet supported/optimized.**
 
 ---
 
-## Prerequisites
-
-- Node.js (v18+)
-- npm or yarn
-- Firebase project setup
-- Solana wallet (for future blockchain integration)
+A peer-to-peer academic knowledge platform for university students in Nepal — share notes, lab reports, and Q&A, earning on-chain reputation and badges.  
+_This is a Solana Frontier 2026 hackathon submission, built by a university team in Nepal._
 
 ---
 
-## Frontend Setup
+## 🖥️ Tech Stack
 
-### 1. Navigate to Frontend Folder
-```powershell
+**Frontend**
+- React (TypeScript & JavaScript)
+- Tailwind CSS
+- Firebase Hosting & Auth
+
+**Backend** (Deployed on Render)
+- Express.js (REST API)
+  - Routes: `/api/documents`, `/api/documents/upload`, `/api/compress-pdf`, `/api/vault-status`, `/api/resources`
+  - Auth via Firebase ID token middleware
+
+**Data Storage**
+- Appwrite Cloud Storage (files: PDF, DOCX, PPT, XLS, PNG, JPG)
+- Firestore (document metadata)
+- Supabase (QnA + real-time reply chains)
+
+**Blockchain**
+- Solana smart contract (Anchor/Rust, deployed to devnet)
+  - 5 on-chain instructions
+  - Relayer pays transaction fees; reimbursed from on-chain vault
+  - User reputation points & badges
+
+---
+
+## 🚀 Features (What's Built)
+
+- **Authentication:** Signup/Login with Firebase Auth (all actions require auth)
+- **Notes & Lab Reports Feed:** Upload, fetch, display, filter by type or search query
+    - Files stored in Appwrite; metadata in Firestore
+    - PDF compression (Ghostscript, server-side, preserves storage)
+- **QnA Feed:** Post questions (subject/chapter filtered), answer them, mark accepted answer; all with upvotes (no downvotes)
+    - Real-time reply chains (text-only, via Supabase Realtime)
+- **Reputation & Badges (On-Chain, Solana):**
+    - Points for uploads, answers, accepted answers, etc.
+    - Merit badge tiers: Spark, Current, Core, Supernova, Singularity
+    - Relayer-enabled gasless flow (backend reimburses transaction fees)
+    - Replay protection (no double submissions)
+- **Backend:** Express with robust authentication middleware, live endpoints for all features above
+
+---
+
+## ⚠️ What’s Not Built Yet
+
+- **Solana Integration:** Smart contract is live/devnet, but not yet connected to frontend. Reputation & badges will be powered from-chain post-hackathon. See “Known Issues” below.
+- **Leaderboard UI:** Backend logic exists for top 10 users, but no frontend/UI yet.
+- **Profile Display:** User reputation, badge tier—UI not built.
+- **Anonymous Posting:** Designed, not implemented.
+- **Institution Dashboard:** (Engagement dashboard for university admins/HODs)—designed only.
+- **Admin Dashboard:** Backend endpoints exist for vault funding, relayer ops, leaderboard admin, but no UI.
+- **Mobile Support:** Desktop-only; mobile/responsive views unoptimized.
+- **Rules & Regulations:** Popup on first login planned, not implemented.
+
+---
+
+## ❗️ Known Issues & Transparent Postmortem
+
+**Magic Link/Solana Wallet Integration:**  
+The primary technical blocker: Magic Link SDK returned Ethereum wallet addresses, not Solana addresses, even with correct `@magic-ext/solana` setup. This broke the ability for users to partially sign Solana transactions, blocking the intended gasless relayer workflow.  
+> We spent significant time diagnosing this; the Solana program is fully built, deployed, and tested locally, but connecting it to the frontend was impossible before the submission deadline.  
+**For hackathon delivery, we used Firebase Auth as a fallback — on-chain reputation and badges will ship immediately post-hackathon, once Magic Link/Solana wallet config is fixed.**
+
+---
+
+## 🛠️ How to Run Locally
+
+### 1. Clone the repo
+```bash
+git clone <this-repo-url>
+cd study_dao_vault
+```
+
+### 2. Frontend Setup
+```bash
 cd frontend
-```
-
-### 2. Install Dependencies
-```powershell
 npm install
 ```
+**Environment variables (`.env`):**
+- `REACT_APP_API_URL=<your_backend_api_url>`
+- `FIREBASE_API_KEY=...`
+- `FIREBASE_AUTH_DOMAIN=...`
+- *(other Firebase config keys as per your project)*
 
-### 3. Setup Environment Variables
-Copy the example file:
-```powershell
-cp .env.example .env
+Start development server:
+```bash
+npm start
 ```
 
-Edit `.env` with your values:
-```env
-VITE_API_URL=http://localhost:3000/api
-```
-
-### 4. Run Development Server
-```powershell
-npm run dev
-```
-
-The frontend will be available at `http://localhost:5173`
-
----
-
-## Backend Setup
-
-### 1. Navigate to Backend Folder
-```powershell
+### 3. Backend Setup
+```bash
 cd backend
-```
-
-### 2. Install Dependencies
-```powershell
 npm install
 ```
+**Environment variables (`.env`):**
+- `APPWRITE_ENDPOINT=...`
+- `APPWRITE_PROJECT_ID=...`
+- `APPWRITE_BUCKET_ID=...`
+- `APPWRITE_API_KEY=...`
+- `FIREBASE_SERVICE_ACCOUNT=...`
+- `SUPABASE_URL=...`
+- `SUPABASE_ANON_KEY=...`
 
-### 3. Get Firebase Service Account Key
-
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Navigate to **Project Settings** → **Service Accounts**
-3. Click **Generate New Private Key**
-4. Save the downloaded JSON file as `serviceAccountKey.json` in the `backend/` folder
-
-⚠️ **IMPORTANT:** This file contains your Firebase project secrets. **NEVER commit it to GitHub.**
-
-### 4. Setup Environment Variables
-Copy the example file:
-```powershell
-cp .env.example .env
-```
-
-Edit `.env` with your values:
-```env
-PORT=3000
-NODE_ENV=development
-```
-
-### 5. Run Development Server
-```powershell
+Run backend server:
+```bash
+node src/index.js
+# or
 npm run dev
 ```
 
-The backend will be available at `http://localhost:3000`
+### 4. Solana Program Setup (Anchor)
+- Install Anchor, Rust, Solana CLI if not already
+- Build and deploy to devnet:
+    ```bash
+    anchor build
+    anchor deploy --provider.cluster devnet
+    ```
+- Update `Anchor.toml` and `lib.rs` with your devnet program ID
+
+- Run tests:
+    ```bash
+    anchor test
+    ```
+
+### 5. How to Run
+- Frontend: `npm start` (in `frontend` directory)
+- Backend: `node src/index.js` or `npm run dev` (in `backend` directory)
+- Smart contract: `anchor test` and verify on devnet explorer
 
 ---
 
-## How It Works
+## 👨‍💻 Team
 
-### Authentication Flow
-
-1. **Frontend**: User clicks "Login with Google"
-2. **Firebase**: Google popup appears, user authenticates
-3. **Frontend**: Gets Firebase ID Token from Google
-4. **Frontend**: Sends token to backend in `Authorization` header
-5. **Backend**: Verifies token with Firebase Admin SDK
-6. **Backend**: Returns user data (email, uid)
-7. **Frontend**: Displays vault information securely
-
-### Security
-
-- ✅ Frontend tokens are verified by backend
-- ✅ Only authenticated users can access protected routes
-- ✅ Service account key is kept secret (in `.env`)
-- ✅ CORS is configured for local development
+- **Bijesh** — Solana Anchor program, relayer/gasless flow, Express backend, deployment
+- **Anup** — Notes/Lab Reports, Express routes, Appwrite/Firestore integration, PDF compression
+- **Samit** — QnA feed, Supabase real-time reply chains
+- **Swastik** — React frontend, navigation, Tailwind CSS, homepage
 
 ---
 
-## Important Notes
+## ⛳️ Hackathon Context
 
-### `.env` Files - DO NOT COMMIT
-
-Both `frontend/.env` and `backend/.env` are in `.gitignore` because they contain environment-specific values.
-
-### `serviceAccountKey.json` - KEEP SECRET
-
-This file contains your Firebase project's master credentials. **Never push it to GitHub.**
-
-It should be in `backend/.gitignore` and only exist locally on your machine.
-
-### `.env.example` Files - Safe to Commit
-
-These files show what environment variables are needed without exposing secrets. Teammates can copy these to create their own `.env` files.
+_Submitted to **Solana Frontier 2026** as a university hackathon team from Nepal. EduChainNP is a proof-of-concept and not a commercial product. We welcome feedback, collaboration, or partnership inquiries._
 
 ---
 
-## Running Both Servers
-
-You need **two separate terminals**:
-
-### Terminal 1 - Backend
-```powershell
-cd backend
-npm run dev
-```
-
-### Terminal 2 - Frontend
-```powershell
-cd frontend
-npm run dev
-```
-
-Then open your browser to `http://localhost:5173`
-
----
-
-## Project Features
-
-### Current (Implemented ✅)
-
-- [x] Google Sign-In with Firebase
-- [x] Backend token verification
-- [x] Protected API routes
-- [x] Full-stack authentication
-- [x] Environment variable configuration
-
-### Upcoming (In Progress)
-
-- [ ] Solana PDA integration
-- [ ] Vault data storage
-- [ ] Transaction handling
-- [ ] DAO governance features
-
----
-
-## Solana Integration
-
-Once you've set up Firebase authentication, the next step is integrating Solana:
-
-1. **Accounts**: Read about Solana accounts in [Solana Docs](https://docs.solana.com/developing/programming-model/accounts)
-2. **PDAs**: Learn about Program Derived Addresses [here](https://docs.solana.com/developing/programming-model/calling-between-programs#program-derived-addresses)
-3. **Your Vault**: Use the Firebase UID as a seed to generate unique PDAs for each user's vault
-
----
-
-## Troubleshooting
-
-### Backend won't start: "Cannot find module 'serviceAccountKey.json'"
-- Make sure `serviceAccountKey.json` exists in the `backend/` folder
-- Re-download it from Firebase Console if needed
-
-### Frontend gets 404 for `/api/vault-status`
-- Make sure backend is running on port 3000
-- Check that `VITE_API_URL` in `frontend/.env` is correct
-- Clear browser cache and refresh
-
-### "Port 3000 already in use"
-```powershell
-Get-Process node | Stop-Process -Force
-```
-
-### Login popup doesn't appear
-- Check that Firebase is properly configured in `frontend/src/firebase/firebase.js`
-- Make sure Google OAuth is enabled in Firebase Console
-
----
-
-## File Structure
-
-```
-backend/
-├── src/
-│   └── index.js              # Main Express server
-├── middleware/
-│   └── auth.js               # Token verification middleware
-├── utils/
-│   └── firebase.js           # Firebase Admin initialization
-├── routes/
-│   ├── auth.js
-│   ├── qa.js
-│   └── resources.js
-├── .env                       # Local environment variables (git ignored)
-├── .env.example               # Example environment variables
-├── package.json
-└── README.md
-
-frontend/
-├── src/
-│   ├── App.jsx              # Main app component
-│   ├── pages/
-│   │   ├── Home.jsx         # Dashboard with vault status
-│   │   └── Login.jsx        # Login page
-│   ├── utils/
-│   │   └── api.js           # API client with token handling
-│   ├── firebase/
-│   │   └── firebase.js      # Firebase configuration
-│   └── main.jsx
-├── .env                      # Local environment variables (git ignored)
-├── .env.example              # Example environment variables
-├── package.json
-└── vite.config.js
-```
-
----
-
-## Next Steps for Tuesday Call
-
-1. ✅ Frontend login working
-2. ✅ Backend token verification working
-3. ⬜ Read Solana Accounts & PDAs documentation
-4. ⬜ Design vault PDA structure
-5. ⬜ Plan token deposit/withdrawal logic
-
----
-
-## Questions?
-
-Ask your teammates or refer to:
-- [Firebase Docs](https://firebase.google.com/docs)
-- [Solana Docs](https://docs.solana.com/)
-- [Express.js Docs](https://expressjs.com/)
+**Thank you for reviewing our project! We value transparency — see "Known Issues" above for complete, honest status.**
