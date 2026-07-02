@@ -75,6 +75,7 @@ The primary technical blocker: Magic Link SDK returned Ethereum wallet addresses
 ---
 
 ## 🛠️ How to Run Locally
+npm run dev
 
 ### 1. Clone the repo
 ```bash
